@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import Link from 'next/link'
+import { ChevronLeft, ChevronRight, Play, Pause, ArrowRight, ArrowUpRight } from 'lucide-react'
 import Lottie from 'lottie-react'
 import DynamicIcon from '../ui/DynamicIcon'
 
@@ -27,6 +28,7 @@ interface SlideData {
   externalVideoUrl?: string | null
   animationUrl?: string | null
   dataVizEmbed?: string | null
+  eyebrowText?: string | null
   showText?: boolean | null
   heading?: string | null
   headingColor?: string | null
@@ -44,7 +46,7 @@ interface SlideData {
 
 interface HeroBlockProps {
   mode?: 'single' | 'carousel' | null
-  layout?: 'fullWidth' | 'fullscreenOverlayCarousel' | 'split' | 'contained' | null
+  layout?: 'fullWidth' | 'fullscreenOverlayCarousel' | 'duccFullscreen' | 'split' | 'contained' | null
   splitDirection?: 'textLeft' | 'textRight' | null
   height?: number | null
   textAlignment?: 'left' | 'center' | 'right' | null
@@ -83,6 +85,29 @@ interface HeroBlockProps {
   } | null
   singleSlide?: SlideData | null
   slides?: SlideData[] | null
+  /* DUCC Fullscreen extras */
+  duccFloatingCard?: {
+    enabled?: boolean | null
+    badgeLabel?: string | null
+    footerText?: string | null
+    footerLink?: string | null
+    footerLinkLabel?: string | null
+    stats?: { value: string; label: string; id?: string }[] | null
+  } | null
+  duccShowSlideCounter?: boolean | null
+  duccShowPlayPause?: boolean | null
+  quickAccessBar?: {
+    enabled?: boolean | null
+    overlapAmount?: number | null
+    items?: {
+      label: string
+      icon?: string | null
+      link: string
+      external?: boolean | null
+      colorVariant?: 'primary' | 'dark' | null
+      id?: string | null
+    }[] | null
+  } | null
 }
 
 function hexToRgba(hex: string, opacity: number): string {
@@ -169,7 +194,7 @@ const btnVariants = {
 // ── Helper: parse YouTube/Vimeo URL to embed ──
 function getEmbedUrl(url: string): string | null {
   const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/)
-  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&controls=0&playlist=${ytMatch[1]}`
+  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=0&mute=0&loop=0&controls=1&rel=0&modestbranding=1`
   const vmMatch = url.match(/vimeo\.com\/(\d+)/)
   if (vmMatch) return `https://player.vimeo.com/video/${vmMatch[1]}?autoplay=1&muted=1&loop=1&background=1`
   return null
@@ -243,13 +268,16 @@ function SlideMedia({ slide }: { slide: SlideData }) {
     const embedUrl = getEmbedUrl(slide.externalVideoUrl)
     if (!embedUrl) return null
     return (
-      <iframe
-        src={embedUrl}
-        className="border-0"
-        style={mediaFillStyle}
-        allow="autoplay; fullscreen"
-        loading="lazy"
-      />
+      <div style={{ ...mediaFillStyle, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#000' }}>
+        <iframe
+          src={embedUrl}
+          className="border-0"
+          style={{ width: '100%', height: '100%' }}
+          allow="autoplay; fullscreen; encrypted-media"
+          allowFullScreen
+          loading="lazy"
+        />
+      </div>
     )
   }
 
@@ -343,6 +371,10 @@ export default function HeroBlock(props: HeroBlockProps) {
     carouselSettings,
     singleSlide,
     slides,
+    duccFloatingCard,
+    duccShowSlideCounter,
+    duccShowPlayPause,
+    quickAccessBar,
   } = props
 
   const allSlides: SlideData[] =
@@ -350,6 +382,7 @@ export default function HeroBlock(props: HeroBlockProps) {
 
   const [current, setCurrent] = useState(0)
   const [previous, setPrevious] = useState<number | null>(null)
+  const [isPlaying, setIsPlaying] = useState(true)
   const currentRef = useRef(0)
 
   useEffect(() => {
@@ -393,9 +426,10 @@ export default function HeroBlock(props: HeroBlockProps) {
   // Auto-play
   useEffect(() => {
     if (mode !== 'carousel' || !carouselSettings?.autoPlay || allSlides.length <= 1) return
+    if (!isPlaying) return
     const interval = setInterval(next, carouselSettings.autoPlayInterval || 5000)
     return () => clearInterval(interval)
-  }, [mode, carouselSettings, allSlides.length, next])
+  }, [mode, carouselSettings, allSlides.length, next, isPlaying])
 
   useEffect(() => {
     if (layout !== 'fullscreenOverlayCarousel') return
@@ -475,6 +509,344 @@ export default function HeroBlock(props: HeroBlockProps) {
   const overlayColor = overlay?.color || '#000000'
   const overlayOpacity = (overlay?.opacity ?? 50) / 100
 
+  if (layout === 'duccFullscreen') {
+    const slideData = mode === 'carousel' ? currentSlide : allSlides[0]
+    const showCounter = duccShowSlideCounter !== false && mode === 'carousel' && allSlides.length > 1
+    const showPlayPauseBtn = duccShowPlayPause !== false && mode === 'carousel' && allSlides.length > 1
+    const qaEnabled = quickAccessBar?.enabled
+    const qaItems = quickAccessBar?.items || []
+    const qaOverlap = quickAccessBar?.overlapAmount || 80
+    const floatingEnabled = duccFloatingCard?.enabled !== false
+    const floatingStats = duccFloatingCard?.stats || []
+
+    return (
+      <>
+        {/* Hero — sits below header, NOT fullscreen behind it */}
+        <section
+          className="relative w-full overflow-hidden"
+          style={{
+            minHeight: `${heroHeight}px`,
+            background: 'var(--cms-secondary, #1A103D)',
+            marginBottom: qaEnabled ? `${qaOverlap}px` : undefined,
+          }}
+          role="region"
+          aria-label="Hero"
+        >
+          {/* Gold accent line */}
+          <div
+            className="absolute top-0 left-0 w-full h-1 z-30"
+            style={{
+              background: `linear-gradient(90deg, transparent, var(--cms-accent, #EAB308) 30%, var(--cms-accent, #EAB308) 70%, transparent)`,
+            }}
+          />
+
+          {/* Slides — opacity crossfade with Ken Burns zoom */}
+          {allSlides.map((slide, i) => (
+            <div
+              key={slide.id || `ducc-slide-${i}`}
+              className={`absolute inset-0 transition-opacity duration-[1200ms] ease-out ${
+                i === current ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              }`}
+            >
+              {slide.mediaType === 'image' &&
+                typeof slide.image === 'object' &&
+                slide.image?.url ? (
+                  <div
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{
+                      backgroundImage: `url(${slide.image.url})`,
+                      transition: 'transform 8s ease-out',
+                      transform: i === current ? 'scale(1.08)' : 'scale(1.0)',
+                    }}
+                  />
+                ) : (
+                  <div className="absolute inset-0">
+                    <SlideMedia slide={slide} />
+                  </div>
+                )}
+              <div className="absolute inset-0 hero-overlay-ducc" />
+            </div>
+          ))}
+
+          {/* Content */}
+          <div className="relative z-10 max-w-7xl mx-auto px-6 py-28 lg:py-36">
+            <div className="grid lg:grid-cols-[1.2fr_1fr] gap-12 items-center min-h-[70vh]">
+              {/* Left content */}
+              <div key={slideData.id || 'ducc-content'} className="fade-in-up">
+                  {slideData.eyebrowText && (
+                    <div
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold tracking-[0.2em] mb-6 backdrop-blur-sm"
+                      style={{
+                        background: `color-mix(in srgb, var(--cms-accent, #EAB308) 15%, transparent)`,
+                        border: `1px solid color-mix(in srgb, var(--cms-accent, #EAB308) 40%, transparent)`,
+                        color: 'var(--cms-accent, #EAB308)',
+                      }}
+                    >
+                      <span
+                        className="w-1.5 h-1.5 rounded-full animate-pulse"
+                        style={{ background: 'var(--cms-accent, #EAB308)' }}
+                      />
+                      {slideData.eyebrowText}
+                    </div>
+                  )}
+
+                  {slideData.heading && (
+                    <h1
+                      className="ducc-heading text-white font-bold leading-[1.05] tracking-tight"
+                      style={{
+                        fontSize: 'clamp(2.25rem, 5vw, 4.25rem)',
+                        color: slideData.headingColor || '#FFFFFF',
+                      }}
+                    >
+                      {slideData.heading}
+                    </h1>
+                  )}
+
+                  {slideData.subtitle && (
+                    <p
+                      className="mt-6 text-lg max-w-2xl leading-relaxed"
+                      style={{ color: slideData.subtitleColor || 'rgba(255,255,255,0.85)' }}
+                    >
+                      {slideData.subtitle}
+                    </p>
+                  )}
+
+                  {/* Buttons */}
+                  <div className="mt-10 flex flex-wrap items-center gap-4">
+                    {slideData.buttons?.map((btn) => (
+                      <a
+                        key={btn.id || btn.url}
+                        href={btn.url}
+                        className={`btn-shine group inline-flex items-center gap-2 text-sm font-semibold px-7 py-3.5 rounded-md transition ${
+                          btn.variant === 'outline'
+                            ? 'text-white border border-white/30 hover:bg-white/10'
+                            : btn.variant === 'secondary'
+                              ? 'text-white hover:brightness-110'
+                              : 'hover:brightness-110'
+                        }`}
+                        style={
+                          btn.variant === 'outline'
+                            ? undefined
+                            : btn.variant === 'secondary'
+                              ? { background: 'var(--cms-primary, #4B2E83)' }
+                              : { background: 'var(--cms-accent, #EAB308)', color: 'var(--cms-secondary, #1A103D)' }
+                        }
+                      >
+                        {btn.label}
+                        {btn.icon ? (
+                          <DynamicIcon name={btn.icon} size={16} />
+                        ) : (
+                          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition" />
+                        )}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right floating card */}
+                {floatingEnabled && floatingStats.length > 0 && (
+                  <div className="hidden lg:block relative">
+                    <div
+                      className="absolute -top-8 -right-8 w-64 h-64 rounded-full blur-3xl opacity-30"
+                      style={{ background: 'var(--cms-accent, #EAB308)' }}
+                    />
+                    <div
+                      className="relative float-y backdrop-blur-md rounded-2xl p-7 border"
+                      style={{
+                        background: 'rgba(255,255,255,0.08)',
+                        borderColor: 'rgba(255,255,255,0.15)',
+                      }}
+                    >
+                      <div className="flex items-center gap-2 mb-5">
+                        <div
+                          className="w-2.5 h-2.5 rounded-full"
+                          style={{ background: 'var(--cms-accent, #EAB308)' }}
+                        />
+                        <span className="text-xs font-semibold tracking-wider text-white/70 uppercase">
+                          {duccFloatingCard?.badgeLabel || 'Live Snapshot'}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-5">
+                        {floatingStats.map((stat) => (
+                          <div
+                            key={stat.id || stat.label}
+                            className="p-4 rounded-xl"
+                            style={{ background: 'rgba(255,255,255,0.06)' }}
+                          >
+                            <div
+                              className="text-3xl font-bold"
+                              style={{ color: 'var(--cms-accent, #EAB308)' }}
+                            >
+                              {stat.value}
+                            </div>
+                            <div className="text-xs text-white/70 mt-1">{stat.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                      {duccFloatingCard?.footerLink && (
+                        <div className="mt-5 pt-5 border-t border-white/10 flex items-center justify-between">
+                          <span className="text-xs text-white/60">
+                            {duccFloatingCard.footerText || 'Updated Real-time'}
+                          </span>
+                          <Link
+                            href={duccFloatingCard.footerLink}
+                            className="text-xs font-semibold hover:underline"
+                            style={{ color: 'var(--cms-accent, #EAB308)' }}
+                          >
+                            {duccFloatingCard.footerLinkLabel || 'View dashboard →'}
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+          {/* Bottom controls */}
+          {mode === 'carousel' && allSlides.length > 1 && (
+            <div className="absolute bottom-8 left-0 right-0 z-20">
+              <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  {showArrows && (
+                    <>
+                      <button
+                        onClick={prev}
+                        className="w-11 h-11 rounded-full flex items-center justify-center text-white border border-white/30 hover:bg-white/10 transition"
+                        aria-label="Previous"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={next}
+                        className="w-11 h-11 rounded-full flex items-center justify-center text-white border border-white/30 hover:bg-white/10 transition"
+                        aria-label="Next"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </>
+                  )}
+                  {showPlayPauseBtn && (
+                    <button
+                      onClick={() => setIsPlaying(!isPlaying)}
+                      className="ml-2 w-9 h-9 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition"
+                      aria-label={isPlaying ? 'Pause' : 'Play'}
+                    >
+                      {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {showDots &&
+                    allSlides.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setCurrent(i)}
+                        className="h-1.5 rounded-full transition-all duration-300"
+                        style={{
+                          width: i === current ? '2.5rem' : '1.25rem',
+                          background:
+                            i === current
+                              ? 'var(--cms-accent, #EAB308)'
+                              : 'rgba(255,255,255,0.3)',
+                        }}
+                        aria-label={`Go to slide ${i + 1}`}
+                      />
+                    ))}
+                  {showCounter && (
+                    <span className="ml-4 text-white/70 text-xs font-mono">
+                      {String(current + 1).padStart(2, '0')} / {String(allSlides.length).padStart(2, '0')}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+        </section>
+
+        {/* Quick Access Bar */}
+        {qaEnabled && qaItems.length > 0 && (
+          <section
+            className="hero-quick-access px-6"
+            style={{ marginTop: `-${qaOverlap}px` }}
+          >
+            <div className="max-w-7xl mx-auto">
+              <div
+                className="rounded-2xl shadow-2xl overflow-hidden"
+                style={{ background: '#ffffff', border: `1px solid var(--cms-muted-bg, #F8F4FF)` }}
+              >
+                {/* Items per row: mobile=2, tablet=3, desktop=min(itemCount, 6) */}
+                {(() => {
+                  const lgCols = Math.min(qaItems.length, 6)
+                  const lgClass =
+                    lgCols <= 2 ? 'lg:grid-cols-2'
+                    : lgCols === 3 ? 'lg:grid-cols-3'
+                    : lgCols === 4 ? 'lg:grid-cols-4'
+                    : lgCols === 5 ? 'lg:grid-cols-5'
+                    : 'lg:grid-cols-6'
+
+                  return (
+                <div className={`grid grid-cols-2 md:grid-cols-3 ${lgClass}`}>
+                  {qaItems.map((item, i) => {
+                    const isExternal = item.external
+                    const Tag = isExternal ? 'a' : Link
+                    const linkProps = isExternal
+                      ? { href: item.link, target: '_blank', rel: 'noreferrer' }
+                      : { href: item.link }
+
+                    return (
+                      <Tag
+                        key={item.id || i}
+                        {...(linkProps as any)}
+                        className="group relative flex flex-col items-center justify-center gap-3 py-8 px-4 text-center transition-all hover:bg-[--cms-muted-bg] border-r border-b border-[--cms-muted-bg]"
+                      >
+                        <div
+                          className="w-14 h-14 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 group-hover:rotate-3"
+                          style={{
+                            background:
+                              i % 2 === 0
+                                ? 'var(--cms-primary, #4B2E83)'
+                                : 'var(--cms-secondary, #1A103D)',
+                          }}
+                        >
+                          {item.icon ? (
+                            <DynamicIcon
+                              name={item.icon}
+                              size={24}
+                              color="var(--cms-accent, #EAB308)"
+                            />
+                          ) : (
+                            <ArrowRight
+                              className="w-6 h-6"
+                              style={{ color: 'var(--cms-accent, #EAB308)' }}
+                            />
+                          )}
+                        </div>
+                        <div
+                          className="text-sm font-semibold group-hover:text-[--cms-primary] transition-colors"
+                          style={{ color: 'var(--cms-text, #1A103D)' }}
+                        >
+                          {item.label}
+                        </div>
+                        <ArrowUpRight
+                          className="w-4 h-4 text-gray-300 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all"
+                          style={{ color: 'var(--cms-accent, #EAB308)', opacity: 0.4 }}
+                        />
+                      </Tag>
+                    )
+                  })}
+                </div>
+                  )
+                })()}
+              </div>
+            </div>
+          </section>
+        )}
+      </>
+    )
+  }
+
   if (layout === 'fullscreenOverlayCarousel') {
     const align = textAlignment || 'center'
     const vertical = textVerticalPosition || 'center'
@@ -534,7 +906,7 @@ export default function HeroBlock(props: HeroBlockProps) {
   if (layout === 'split') {
     const isTextLeft = splitDirection !== 'textRight'
     return (
-      <section className="bg-gray-900" style={{ minHeight: `${heroHeight}px` }}>
+      <section style={{ minHeight: `${heroHeight}px`, backgroundColor: 'var(--cms-secondary, #1A103D)' }}>
         <div
           className={`max-w-7xl mx-auto flex flex-col ${isTextLeft ? 'lg:flex-row' : 'lg:flex-row-reverse'} min-h-[inherit]`}
           style={{ minHeight: `${heroHeight}px` }}
@@ -607,8 +979,8 @@ export default function HeroBlock(props: HeroBlockProps) {
   // ── Full-width layout (default) ──
   return (
     <section
-      className="relative overflow-hidden flex items-center justify-center bg-gray-900"
-      style={{ minHeight: `${heroHeight}px` }}
+      className="relative overflow-hidden flex items-center justify-center"
+      style={{ minHeight: `${heroHeight}px`, backgroundColor: overlayEnabled ? overlayColor : 'var(--cms-secondary, #1A103D)' }}
       role="region"
       aria-label="Hero"
     >
@@ -624,13 +996,16 @@ export default function HeroBlock(props: HeroBlockProps) {
         </div>
       ))}
 
-      {/* Overlay */}
-      {overlayEnabled && (
+      {/* Overlay — skip for external video so controls are clickable */}
+      {overlayEnabled && currentSlide.mediaType !== 'externalVideo' && (
         <div className="absolute inset-0 z-[1]" style={{ backgroundColor: overlayColor, opacity: overlayOpacity }} />
       )}
 
-      {/* Text */}
-      <div className="relative z-10 px-6 py-16 w-full max-w-4xl mx-auto">
+      {/* Text — pointer-events-none for video slides so YouTube controls work */}
+      <div
+        className="relative z-10 px-6 py-16 w-full max-w-4xl mx-auto"
+        style={{ pointerEvents: currentSlide.mediaType === 'externalVideo' ? 'none' : undefined }}
+      >
         <SlideContent slide={currentSlide} align={align} />
       </div>
 

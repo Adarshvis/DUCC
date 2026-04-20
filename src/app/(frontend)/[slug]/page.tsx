@@ -43,9 +43,19 @@ export default async function DynamicPage({ params }: PageProps) {
 
   if (!page) notFound()
 
+  const firstBlock = Array.isArray(page.layout) ? page.layout[0] : null
+  const firstBlockIsHero = firstBlock && typeof firstBlock === 'object' && 'blockType' in firstBlock && firstBlock.blockType === 'hero'
+
   return (
     <div className="cms-page-shell">
-      <PageBanner title={page.title} slug={slug} />
+      {!firstBlockIsHero && (
+        <PageBanner
+          title={page.title}
+          slug={slug}
+          eyebrow={(page as any).bannerEyebrow || undefined}
+          description={(page as any).bannerDescription || undefined}
+        />
+      )}
       <BlockRenderer blocks={page.layout} />
     </div>
   )

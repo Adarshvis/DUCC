@@ -12,7 +12,6 @@ export const SiteSettings: GlobalConfig = {
     {
       name: 'siteName',
       type: 'text',
-      required: true,
     },
     {
       name: 'favicon',
@@ -27,7 +26,7 @@ export const SiteSettings: GlobalConfig = {
         {
           name: 'primaryColor',
           type: 'text',
-          defaultValue: '#1E40AF',
+          defaultValue: '#4B2E83',
           admin: {
             components: {
               Field: '@/components/admin/ColorPickerField#ColorPickerField',
@@ -38,7 +37,7 @@ export const SiteSettings: GlobalConfig = {
         {
           name: 'secondaryColor',
           type: 'text',
-          defaultValue: '#9333EA',
+          defaultValue: '#1A103D',
           admin: {
             components: {
               Field: '@/components/admin/ColorPickerField#ColorPickerField',
@@ -49,7 +48,7 @@ export const SiteSettings: GlobalConfig = {
         {
           name: 'accentColor',
           type: 'text',
-          defaultValue: '#F59E0B',
+          defaultValue: '#EAB308',
           admin: {
             components: {
               Field: '@/components/admin/ColorPickerField#ColorPickerField',
@@ -82,7 +81,7 @@ export const SiteSettings: GlobalConfig = {
         {
           name: 'mutedBackgroundColor',
           type: 'text',
-          defaultValue: '#F1F5F9',
+          defaultValue: '#F8F4FF',
           admin: {
             components: {
               Field: '@/components/admin/ColorPickerField#ColorPickerField',
@@ -93,7 +92,7 @@ export const SiteSettings: GlobalConfig = {
         {
           name: 'textColor',
           type: 'text',
-          defaultValue: '#111827',
+          defaultValue: '#1A103D',
           admin: {
             components: {
               Field: '@/components/admin/ColorPickerField#ColorPickerField',

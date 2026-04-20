@@ -112,7 +112,7 @@ export default function Header({ data }: HeaderProps) {
       : navAlignment === 'right'
         ? 'justify-end'
         : 'justify-center'
-  const innerSurfaceClass = 'header-main-surface max-w-7xl mx-auto px-4 sm:px-6 h-[128px] flex items-start justify-between gap-4 pt-3 border-b border-gray-200'
+  const innerSurfaceClass = 'header-main-surface max-w-7xl mx-auto px-4 sm:px-6 h-[100px] flex items-start justify-between gap-4 pt-3'
   const mobileSearchClass = 'header-mobile-search md:hidden border-t border-gray-200 px-4 py-3'
 
   return (
@@ -273,7 +273,8 @@ export default function Header({ data }: HeaderProps) {
                   {data.ctaButton?.enabled && data.ctaButton.label && (
                     <a
                       href={data.ctaButton.url || '#'}
-                      className="bg-blue-600 text-white text-sm font-medium px-4 py-1.5 rounded hover:bg-blue-700 transition-colors"
+                      className="btn-shine text-white text-sm font-semibold px-5 py-2.5 rounded-md transition-all hover:shadow-lg inline-flex items-center gap-2"
+                      style={{ background: 'var(--cms-primary, #4B2E83)' }}
                     >
                       {data.ctaButton.label}
                     </a>
@@ -394,7 +395,8 @@ export default function Header({ data }: HeaderProps) {
               {data.ctaButton?.enabled && data.ctaButton.label && (
                 <a
                   href={data.ctaButton.url || '#'}
-                  className="block mt-3 text-center bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded-lg"
+                  className="block mt-3 text-center text-white text-sm font-semibold px-4 py-2.5 rounded-md"
+                  style={{ background: 'var(--cms-primary, #4B2E83)' }}
                 >
                   {data.ctaButton.label}
                 </a>

@@ -23,7 +23,7 @@ interface NewsUpdatesBlockProps {
   sectionHeading?: string | null
   sectionDescription?: string | null
   headingAlignment?: 'left' | 'center' | 'right' | null
-  layout?: 'cards' | 'spotlight' | null
+  layout?: 'cards' | 'spotlight' | 'duccCards' | null
   entryType?: 'manual' | 'collection' | null
   articles?: ArticleData[]
   collectionSource?: {
@@ -337,6 +337,113 @@ export default function NewsUpdatesBlock(props: NewsUpdatesBlockProps) {
   }
 
   if (!displayArticles || displayArticles.length === 0) return null
+
+  /* ── DUCC News Cards layout ── */
+  if (layout === 'duccCards') {
+    return (
+      <section className="py-24 px-6" style={{ backgroundColor: backgroundColor || '#FFFFFF' }}>
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-wrap items-end justify-between gap-6 mb-14">
+            <div>
+              {sectionDescription && (
+                <span
+                  className="text-xs font-bold tracking-[0.2em] uppercase"
+                  style={{ color: 'var(--cms-primary, #4B2E83)' }}
+                >
+                  {sectionDescription}
+                </span>
+              )}
+              {sectionHeading && (
+                <h2
+                  className="mt-3 text-4xl md:text-5xl font-bold tracking-tight ducc-heading"
+                  style={{ color: 'var(--cms-secondary, #1A103D)' }}
+                >
+                  {sectionHeading}
+                </h2>
+              )}
+            </div>
+            {bottomLink?.enabled && bottomLink.label && bottomLink.url && (
+              <a
+                href={bottomLink.url}
+                className="inline-flex items-center gap-2 text-sm font-semibold hover:gap-3 transition-all"
+                style={{ color: 'var(--cms-primary, #4B2E83)' }}
+              >
+                {bottomLink.label} <ArrowRight size={16} />
+              </a>
+            )}
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {displayArticles.slice(0, 3).map((article, i) => {
+              const imgUrl =
+                typeof article.image === 'object' && article.image?.url
+                  ? article.image.url
+                  : null
+
+              return (
+                <article
+                  key={article.id || i}
+                  className="card-hover group bg-white rounded-2xl overflow-hidden border"
+                  style={{ borderColor: 'var(--cms-muted-bg, #F8F4FF)' }}
+                >
+                  {imgUrl && (
+                    <div className="relative overflow-hidden" style={{ aspectRatio: '16 / 10' }}>
+                      <img
+                        src={imgUrl}
+                        alt={article.title}
+                        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                        className="group-hover:scale-105 transition-transform duration-700"
+                        loading="lazy"
+                      />
+                      {article.category && (
+                        <span
+                          className="absolute top-4 left-4 text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full"
+                          style={{
+                            background: 'var(--cms-accent, #EAB308)',
+                            color: 'var(--cms-secondary, #1A103D)',
+                          }}
+                        >
+                          {article.category}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  <div className="p-6">
+                    {article.date && (
+                      <div className="text-xs text-gray-500 font-medium">
+                        {formatDate(article.date)}
+                      </div>
+                    )}
+                    <h3
+                      className="mt-2 text-lg font-bold leading-snug group-hover:text-[--cms-primary] transition-colors"
+                      style={{ color: 'var(--cms-secondary, #1A103D)' }}
+                    >
+                      {article.title}
+                    </h3>
+                    {article.excerpt && (
+                      <p className="mt-2 text-sm text-gray-600 leading-relaxed line-clamp-2">{article.excerpt}</p>
+                    )}
+                    <div
+                      className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold group-hover:gap-2.5 transition-all"
+                      style={{ color: 'var(--cms-primary, #4B2E83)' }}
+                    >
+                      {article.url ? (
+                        <a href={article.url} className="inline-flex items-center gap-1.5">
+                          Read more <ArrowRight size={14} />
+                        </a>
+                      ) : (
+                        <>Read more <ArrowRight size={14} /></>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   const style = layout || 'cards'
   const cols = columns || '3'

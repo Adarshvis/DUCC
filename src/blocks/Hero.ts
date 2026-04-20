@@ -67,6 +67,14 @@ function slideFields() {
       },
     },
     {
+      name: 'eyebrowText',
+      type: 'text' as const,
+      label: 'Eyebrow Badge Text',
+      admin: {
+        description: 'Small badge text above the heading (e.g. "ESTABLISHED 1956", "CORE SERVICE DOMAINS")',
+      },
+    },
+    {
       name: 'showText',
       type: 'checkbox' as const,
       defaultValue: true,
@@ -167,6 +175,7 @@ export const Hero: Block = {
       options: [
         { label: 'Full-Width Background', value: 'fullWidth' },
         { label: 'Fullscreen Overlay Carousel', value: 'fullscreenOverlayCarousel' },
+        { label: 'DUCC Fullscreen (Split + Floating Card)', value: 'duccFullscreen' },
         { label: '50/50 Split (Text + Media)', value: 'split' },
         { label: 'Contained', value: 'contained' },
       ],
@@ -453,6 +462,155 @@ export const Hero: Block = {
       label: 'Slides',
       admin: { condition: (_, siblingData) => siblingData?.mode === 'carousel' },
       fields: slideFields(),
+    },
+    /* ── DUCC Fullscreen extras ── */
+    {
+      type: 'group',
+      name: 'duccFloatingCard',
+      label: 'Floating Stats Card (Right Side)',
+      admin: {
+        condition: (_, siblingData) => siblingData?.layout === 'duccFullscreen',
+      },
+      fields: [
+        {
+          name: 'enabled',
+          type: 'checkbox',
+          defaultValue: true,
+          label: 'Show floating stats card on desktop',
+        },
+        {
+          name: 'badgeLabel',
+          type: 'text',
+          defaultValue: 'Live Snapshot',
+          admin: { condition: (_, siblingData) => siblingData?.enabled },
+        },
+        {
+          name: 'footerText',
+          type: 'text',
+          defaultValue: 'Updated Real-time',
+          admin: { condition: (_, siblingData) => siblingData?.enabled },
+        },
+        {
+          name: 'footerLink',
+          type: 'text',
+          defaultValue: '/about',
+          admin: { condition: (_, siblingData) => siblingData?.enabled },
+        },
+        {
+          name: 'footerLinkLabel',
+          type: 'text',
+          defaultValue: 'View dashboard →',
+          admin: { condition: (_, siblingData) => siblingData?.enabled },
+        },
+        {
+          name: 'stats',
+          type: 'array',
+          label: 'Stats',
+          maxRows: 4,
+          admin: { condition: (_, siblingData) => siblingData?.enabled },
+          fields: [
+            { name: 'value', type: 'text', required: true },
+            { name: 'label', type: 'text', required: true },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'duccShowSlideCounter',
+      type: 'checkbox',
+      label: 'Show Slide Counter (01 / 04)',
+      defaultValue: true,
+      admin: {
+        condition: (_, siblingData) =>
+          siblingData?.layout === 'duccFullscreen' && siblingData?.mode === 'carousel',
+      },
+    },
+    {
+      name: 'duccShowPlayPause',
+      type: 'checkbox',
+      label: 'Show Play/Pause Button',
+      defaultValue: true,
+      admin: {
+        condition: (_, siblingData) =>
+          siblingData?.layout === 'duccFullscreen' && siblingData?.mode === 'carousel',
+      },
+    },
+    /* ── Quick Access Bar (overlapping bottom of hero) ── */
+    {
+      type: 'group',
+      name: 'quickAccessBar',
+      label: 'Quick Access Bar',
+      admin: {
+        description: 'Floating card grid that overlaps the bottom of the hero into the next section',
+      },
+      fields: [
+        {
+          name: 'enabled',
+          type: 'checkbox',
+          defaultValue: false,
+          label: 'Enable Quick Access Bar',
+        },
+        {
+          name: 'overlapAmount',
+          type: 'number',
+          defaultValue: 80,
+          admin: {
+            condition: (_, siblingData) => siblingData?.enabled,
+            description: 'How many pixels the bar hangs below the hero (default: 80)',
+          },
+        },
+        {
+          name: 'items',
+          type: 'array',
+          label: 'Quick Access Items',
+          minRows: 4,
+          maxRows: 8,
+          admin: {
+            condition: (_, siblingData) => siblingData?.enabled,
+          },
+          fields: [
+            {
+              name: 'label',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'icon',
+              type: 'text',
+              label: 'Icon',
+              admin: {
+                components: {
+                  Field: '@/components/admin/IconPickerField#IconPickerField',
+                },
+                description: 'Select a Lucide icon',
+              },
+            },
+            {
+              name: 'link',
+              type: 'text',
+              required: true,
+              admin: {
+                description: 'Internal path (e.g. /it-services) or external URL',
+              },
+            },
+            {
+              name: 'external',
+              type: 'checkbox',
+              defaultValue: false,
+              label: 'Opens in new tab',
+            },
+            {
+              name: 'colorVariant',
+              type: 'select',
+              defaultValue: 'primary',
+              options: [
+                { label: 'Primary (#4B2E83)', value: 'primary' },
+                { label: 'Dark (#1A103D)', value: 'dark' },
+              ],
+            },
+          ],
+        },
+      ],
     },
   ],
 }

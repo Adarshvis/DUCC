@@ -34,16 +34,36 @@ export default function TeamGridBlock({ sectionHeading, sectionDescription, head
           {members?.map((member) => {
             const photoUrl = typeof member.photo === 'object' && member.photo?.url ? member.photo.url : null
             return (
-              <div key={member.id || member.name} className="bg-gray-800 rounded-xl overflow-hidden text-center">
+              <div
+                key={member.id || member.name}
+                className="card-hover rounded-2xl overflow-hidden text-center border"
+                style={{
+                  background: 'var(--cms-surface, #FFFFFF)',
+                  borderColor: 'var(--cms-muted-bg, #F8F4FF)',
+                }}
+              >
                 {photoUrl && (
-                  <div className="relative aspect-square">
+                  <div className="relative aspect-square overflow-hidden">
                     <Image src={photoUrl} alt={member.name} fill className="object-cover" />
                   </div>
                 )}
                 <div className="p-5">
-                  <h3 className="text-lg font-semibold text-white">{member.name}</h3>
-                  {member.role && <p className="text-blue-400 text-sm mb-2">{member.role}</p>}
-                  {member.bio && <p className="text-gray-400 text-sm">{member.bio}</p>}
+                  <h3
+                    className="text-lg font-semibold"
+                    style={{ color: 'var(--cms-secondary, #1A103D)' }}
+                  >
+                    {member.name}
+                  </h3>
+                  {member.role && (
+                    <p className="text-sm mb-2" style={{ color: 'var(--cms-primary, #4B2E83)' }}>
+                      {member.role}
+                    </p>
+                  )}
+                  {member.bio && (
+                    <p className="text-sm" style={{ color: 'var(--cms-text, #1A103D)', opacity: 0.6 }}>
+                      {member.bio}
+                    </p>
+                  )}
                 </div>
               </div>
             )

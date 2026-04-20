@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { editorAccess, schoolAdminAccess, publishedOrEditor } from '../access/roles'
+import { collectionBlocks } from '../blocks/allBlocks'
 
 export const News: CollectionConfig = {
   slug: 'news',
@@ -49,7 +50,6 @@ export const News: CollectionConfig = {
     {
       name: 'excerpt',
       type: 'textarea',
-      required: true,
       admin: {
         description: 'Brief summary/excerpt shown on news listing pages',
       },
@@ -58,7 +58,6 @@ export const News: CollectionConfig = {
       name: 'featuredImage',
       type: 'upload',
       relationTo: 'media',
-      required: true,
       admin: {
         description: 'Main image for the news article',
       },
@@ -74,7 +73,6 @@ export const News: CollectionConfig = {
     {
       name: 'content',
       type: 'richText',
-      required: true,
       admin: {
         description: 'Main news article content',
       },
@@ -121,6 +119,15 @@ export const News: CollectionConfig = {
       ],
       admin: {
         position: 'sidebar',
+      },
+    },
+    {
+      name: 'layout',
+      type: 'blocks',
+      label: 'Page Layout',
+      blocks: collectionBlocks,
+      admin: {
+        description: 'Optional content blocks for the article page',
       },
     },
   ],

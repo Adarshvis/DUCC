@@ -18,6 +18,9 @@ import { Pages } from './collections/Pages'
 import { News } from './collections/News'
 import { Resumes } from './collections/Resumes'
 import { JobApplications } from './collections/JobApplications'
+import { Software } from './collections/Software'
+import { Projects } from './collections/Projects'
+import { Trainings } from './collections/Trainings'
 import { SiteSettings } from './globals/SiteSettings'
 import { Header } from './globals/Header'
 import { Footer } from './globals/Footer'
@@ -55,7 +58,7 @@ export default buildConfig({
       afterDashboard: ['@/components/admin/ApplicationsDashboardCard#default'],
     },
   },
-  collections: [Users, Media, Pages, News, Resumes, JobApplications],
+  collections: [Users, Media, Pages, News, Resumes, JobApplications, Software, Projects, Trainings],
   globals: [SiteSettings, Header, Footer],
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [

@@ -73,6 +73,9 @@ export interface Config {
     news: News;
     resumes: Resume;
     'job-applications': JobApplication;
+    software: Software;
+    projects: Project;
+    trainings: Training;
     forms: Form;
     'form-submissions': FormSubmission;
     'payload-kv': PayloadKv;
@@ -88,6 +91,9 @@ export interface Config {
     news: NewsSelect<false> | NewsSelect<true>;
     resumes: ResumesSelect<false> | ResumesSelect<true>;
     'job-applications': JobApplicationsSelect<false> | JobApplicationsSelect<true>;
+    software: SoftwareSelect<false> | SoftwareSelect<true>;
+    projects: ProjectsSelect<false> | ProjectsSelect<true>;
+    trainings: TrainingsSelect<false> | TrainingsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -189,6 +195,14 @@ export interface Page {
   id: number;
   title: string;
   /**
+   * Optional small badge text on the page banner (e.g. "ABOUT DUCC", "SOFTWARE SERVICES")
+   */
+  bannerEyebrow?: string | null;
+  /**
+   * Optional description text below the title on the page banner
+   */
+  bannerDescription?: string | null;
+  /**
    * URL-friendly identifier (auto-generated from title if left empty)
    */
   slug: string;
@@ -226,7 +240,7 @@ export interface Page {
   layout: (
     | {
         mode: 'single' | 'carousel';
-        layout: 'fullWidth' | 'fullscreenOverlayCarousel' | 'split' | 'contained';
+        layout: 'fullWidth' | 'fullscreenOverlayCarousel' | 'duccFullscreen' | 'split' | 'contained';
         splitDirection?: ('textLeft' | 'textRight') | null;
         /**
          * Hero height in pixels (e.g. 600)
@@ -337,6 +351,10 @@ export interface Page {
            * Embed code for map, chart, or data visualization
            */
           dataVizEmbed?: string | null;
+          /**
+           * Small badge text above the heading (e.g. "ESTABLISHED 1956", "CORE SERVICE DOMAINS")
+           */
+          eyebrowText?: string | null;
           showText?: boolean | null;
           heading?: string | null;
           /**
@@ -385,6 +403,10 @@ export interface Page {
                * Embed code for map, chart, or data visualization
                */
               dataVizEmbed?: string | null;
+              /**
+               * Small badge text above the heading (e.g. "ESTABLISHED 1956", "CORE SERVICE DOMAINS")
+               */
+              eyebrowText?: string | null;
               showText?: boolean | null;
               heading?: string | null;
               /**
@@ -411,6 +433,48 @@ export interface Page {
               id?: string | null;
             }[]
           | null;
+        duccFloatingCard?: {
+          enabled?: boolean | null;
+          badgeLabel?: string | null;
+          footerText?: string | null;
+          footerLink?: string | null;
+          footerLinkLabel?: string | null;
+          stats?:
+            | {
+                value: string;
+                label: string;
+                id?: string | null;
+              }[]
+            | null;
+        };
+        duccShowSlideCounter?: boolean | null;
+        duccShowPlayPause?: boolean | null;
+        /**
+         * Floating card grid that overlaps the bottom of the hero into the next section
+         */
+        quickAccessBar?: {
+          enabled?: boolean | null;
+          /**
+           * How many pixels the bar hangs below the hero (default: 80)
+           */
+          overlapAmount?: number | null;
+          items?:
+            | {
+                label: string;
+                /**
+                 * Select a Lucide icon
+                 */
+                icon?: string | null;
+                /**
+                 * Internal path (e.g. /it-services) or external URL
+                 */
+                link: string;
+                external?: boolean | null;
+                colorVariant?: ('primary' | 'dark') | null;
+                id?: string | null;
+              }[]
+            | null;
+        };
         id?: string | null;
         blockName?: string | null;
         blockType: 'hero';
@@ -592,7 +656,7 @@ export interface Page {
         /**
          * Choose between card grid layout or circular ring/donut layout
          */
-        layout: 'cardGrid' | 'circularRings' | 'interlockingRings';
+        layout: 'cardGrid' | 'circularRings' | 'interlockingRings' | 'duccStrip';
         stats: {
           /**
            * e.g. "Students Enrolled", "Schools", "Pass Rate"
@@ -682,7 +746,7 @@ export interface Page {
         /**
          * Choose between a card grid or a featured spotlight layout
          */
-        layout: 'cards' | 'spotlight';
+        layout: 'cards' | 'spotlight' | 'duccCards';
         /**
          * Choose manual card entry or automatic fetch from News collection.
          */
@@ -1148,10 +1212,41 @@ export interface Page {
         sectionDescription?: string | null;
         headingAlignment?: ('left' | 'center' | 'right') | null;
         /**
+         * Small uppercase text above the heading (used in DUCC Service layout)
+         */
+        eyebrow?: string | null;
+        /**
+         * Link text shown next to heading (e.g. "Explore all services")
+         */
+        ctaLabel?: string | null;
+        /**
+         * URL for the CTA link
+         */
+        ctaLink?: string | null;
+        /**
          * Choose how cards should be displayed.
          */
-        cardLayout?: ('classic' | 'minimal' | 'split' | 'accentTop') | null;
+        cardLayout?:
+          | (
+              | 'classic'
+              | 'minimal'
+              | 'split'
+              | 'accentTop'
+              | 'duccService'
+              | 'duccServiceDetail'
+              | 'duccProject'
+              | 'duccTraining'
+            )
+          | null;
         columns?: ('2' | '3' | '4') | null;
+        /**
+         * Dark: dark background with light text. Light: white cards with theme-colored icons and borders.
+         */
+        cardTheme?: ('dark' | 'light') | null;
+        /**
+         * Show a faded number (01, 02, 03...) next to the icon on each card
+         */
+        showCardNumbers?: boolean | null;
         cards?:
           | {
               /**
@@ -1198,6 +1293,59 @@ export interface Page {
                * Optional URL this card links to
                */
               link?: string | null;
+              /**
+               * Small tag label (e.g. "Platform", "Security") — used in DUCC Service layout
+               */
+              tag?: string | null;
+              /**
+               * Open link in new tab
+               */
+              external?: boolean | null;
+              /**
+               * Bullet points for the Service Detail layout
+               */
+              features?:
+                | {
+                    text: string;
+                    id?: string | null;
+                  }[]
+                | null;
+              /**
+               * CTA button label (e.g. "Request Access")
+               */
+              buttonLabel?: string | null;
+              /**
+               * CTA button URL
+               */
+              buttonUrl?: string | null;
+              /**
+               * Project status badge (used in Project Cards layout)
+               */
+              status?: ('ongoing' | 'active' | 'live' | 'completed' | 'planned') | null;
+              /**
+               * Progress percentage 0-100 (used in Project Cards layout)
+               */
+              progress?: number | null;
+              /**
+               * Difficulty level (used in Training Cards layout)
+               */
+              level?: ('Beginner' | 'Intermediate' | 'Advanced') | null;
+              /**
+               * e.g. "5 Days", "1 Day" (used in Training Cards layout)
+               */
+              duration?: string | null;
+              /**
+               * e.g. "In-person", "Online", "Hybrid" (used in Training Cards layout)
+               */
+              mode?: string | null;
+              /**
+               * e.g. "Faculty", "Students & Faculty" (used in Training Cards layout)
+               */
+              audience?: string | null;
+              /**
+               * Next batch date (used in Training Cards layout)
+               */
+              date?: string | null;
               id?: string | null;
             }[]
           | null;
@@ -1215,6 +1363,10 @@ export interface Page {
          */
         sectionDescription?: string | null;
         headingAlignment?: ('left' | 'center' | 'right') | null;
+        /**
+         * Choose visual style for this CTA block
+         */
+        layout?: ('default' | 'duccBanner') | null;
         /**
          * CTA headline text
          */
@@ -1271,6 +1423,10 @@ export interface Page {
          */
         sectionDescription?: string | null;
         headingAlignment?: ('left' | 'center' | 'right') | null;
+        /**
+         * Choose visual style for the FAQ section
+         */
+        layout?: ('default' | 'duccAccordion') | null;
         items: {
           question: string;
           answer: {
@@ -1304,6 +1460,10 @@ export interface Page {
          */
         sectionDescription?: string | null;
         headingAlignment?: ('left' | 'center' | 'right') | null;
+        /**
+         * Choose visual style for testimonials
+         */
+        layout?: ('default' | 'duccQuote') | null;
         items: {
           quote: string;
           name: string;
@@ -1312,6 +1472,10 @@ export interface Page {
            */
           role?: string | null;
           avatar?: (number | null) | Media;
+          /**
+           * Initials for avatar fallback (e.g. "SS") — used in DUCC Quote layout
+           */
+          initials?: string | null;
           id?: string | null;
         }[];
         id?: string | null;
@@ -1469,6 +1633,10 @@ export interface Page {
          * Pick a color or enter hex value
          */
         sectionBgColor?: string | null;
+        /**
+         * Add a subtle radial accent glow behind this section
+         */
+        radialGlow?: boolean | null;
         gap?: ('0' | '4' | '6' | '8' | '12') | null;
         verticalAlign?: ('start' | 'center' | 'end' | 'stretch') | null;
         /**
@@ -1500,7 +1668,7 @@ export interface Page {
                       [k: string]: unknown;
                     };
                     /**
-                     * Font family for this text block
+                     * Font family for body text (paragraphs, lists)
                      */
                     fontFamily?:
                       | (
@@ -1516,6 +1684,21 @@ export interface Page {
                           | 'Playfair Display'
                           | 'Merriweather'
                           | 'Source Sans Pro'
+                        )
+                      | null;
+                    /**
+                     * Font family for headings only (h1-h6). Leave as Default to use the body font.
+                     */
+                    headingFontFamily?:
+                      | (
+                          | 'inherit'
+                          | 'Inter'
+                          | 'Playfair Display'
+                          | 'Merriweather'
+                          | 'Roboto'
+                          | 'Poppins'
+                          | 'Montserrat'
+                          | 'Raleway'
                         )
                       | null;
                     fontSize?: ('sm' | 'base' | 'lg' | 'xl' | '2xl') | null;
@@ -1637,7 +1820,7 @@ export interface Page {
                   }
                 | {
                     columns?: ('1' | '2' | '3' | '4') | null;
-                    cardStyle?: ('outline' | 'elevated' | 'soft') | null;
+                    cardStyle?: ('outline' | 'elevated' | 'soft' | 'duccAbout') | null;
                     cards: {
                       label: string;
                       value: string;
@@ -2108,11 +2291,11 @@ export interface News {
   /**
    * Brief summary/excerpt shown on news listing pages
    */
-  excerpt: string;
+  excerpt?: string | null;
   /**
    * Main image for the news article
    */
-  featuredImage: number | Media;
+  featuredImage?: (number | null) | Media;
   /**
    * Category label (e.g. Update, Press Release, Event)
    */
@@ -2120,7 +2303,7 @@ export interface News {
   /**
    * Main news article content
    */
-  content: {
+  content?: {
     root: {
       type: string;
       children: {
@@ -2134,7 +2317,7 @@ export interface News {
       version: number;
     };
     [k: string]: unknown;
-  };
+  } | null;
   /**
    * Publication date
    */
@@ -2153,6 +2336,1687 @@ export interface News {
    */
   isFeatured?: boolean | null;
   status: 'draft' | 'published';
+  /**
+   * Optional content blocks for the article page
+   */
+  layout?:
+    | (
+        | {
+            mode: 'single' | 'carousel';
+            layout: 'fullWidth' | 'fullscreenOverlayCarousel' | 'duccFullscreen' | 'split' | 'contained';
+            splitDirection?: ('textLeft' | 'textRight') | null;
+            /**
+             * Hero height in pixels (e.g. 600)
+             */
+            height?: number | null;
+            textAlignment?: ('left' | 'center' | 'right') | null;
+            textVerticalPosition?: ('top' | 'center' | 'bottom') | null;
+            /**
+             * Maximum content width in pixels for hero text container
+             */
+            contentMaxWidth?: number | null;
+            /**
+             * Horizontal content padding in pixels
+             */
+            contentPaddingX?: number | null;
+            /**
+             * Vertical content padding in pixels
+             */
+            contentPaddingY?: number | null;
+            /**
+             * Keep text/buttons constant while only the background slide changes
+             */
+            constantOverlayContent?: boolean | null;
+            constantOverlay?: {
+              showText?: boolean | null;
+              heading?: string | null;
+              /**
+               * Heading text color
+               */
+              headingColor?: string | null;
+              subtitle?: string | null;
+              /**
+               * Description text color
+               */
+              subtitleColor?: string | null;
+              buttons?:
+                | {
+                    label: string;
+                    url: string;
+                    variant?: ('primary' | 'secondary' | 'outline') | null;
+                    /**
+                     * Select button icon
+                     */
+                    icon?: string | null;
+                    id?: string | null;
+                  }[]
+                | null;
+            };
+            overlay?: {
+              enabled?: boolean | null;
+              /**
+               * Pick overlay color
+               */
+              color?: string | null;
+              /**
+               * Overlay opacity (0-100)
+               */
+              opacity?: number | null;
+            };
+            headerGlass?: {
+              enabled?: boolean | null;
+              /**
+               * Glass overlay tint color for the fixed header
+               */
+              fillColor?: string | null;
+              /**
+               * Glass tint opacity in percent
+               */
+              fillOpacity?: number | null;
+              /**
+               * Background blur amount in pixels
+               */
+              blurAmount?: number | null;
+              /**
+               * Show thin divider under header while hero is active
+               */
+              showDivider?: boolean | null;
+            };
+            carouselSettings?: {
+              autoPlay?: boolean | null;
+              /**
+               * Interval in milliseconds (e.g. 5000 = 5 seconds)
+               */
+              autoPlayInterval?: number | null;
+              showArrows?: boolean | null;
+              showDots?: boolean | null;
+            };
+            singleSlide?: {
+              mediaType: 'textOnly' | 'image' | 'video' | 'externalVideo' | 'animation' | 'dataViz';
+              image?: (number | null) | Media;
+              /**
+               * URL to self-hosted video file (mp4, webm)
+               */
+              videoUrl?: string | null;
+              /**
+               * Poster/thumbnail image for the video
+               */
+              videoPoster?: (number | null) | Media;
+              /**
+               * YouTube or Vimeo URL (e.g. https://youtube.com/watch?v=...)
+               */
+              externalVideoUrl?: string | null;
+              /**
+               * URL to Lottie JSON file or GIF image
+               */
+              animationUrl?: string | null;
+              /**
+               * Embed code for map, chart, or data visualization
+               */
+              dataVizEmbed?: string | null;
+              /**
+               * Small badge text above the heading (e.g. "ESTABLISHED 1956", "CORE SERVICE DOMAINS")
+               */
+              eyebrowText?: string | null;
+              showText?: boolean | null;
+              heading?: string | null;
+              /**
+               * Heading text color
+               */
+              headingColor?: string | null;
+              subtitle?: string | null;
+              /**
+               * Description text color
+               */
+              subtitleColor?: string | null;
+              buttons?:
+                | {
+                    label: string;
+                    url: string;
+                    variant?: ('primary' | 'secondary' | 'outline') | null;
+                    /**
+                     * Select button icon
+                     */
+                    icon?: string | null;
+                    id?: string | null;
+                  }[]
+                | null;
+            };
+            slides?:
+              | {
+                  mediaType: 'textOnly' | 'image' | 'video' | 'externalVideo' | 'animation' | 'dataViz';
+                  image?: (number | null) | Media;
+                  /**
+                   * URL to self-hosted video file (mp4, webm)
+                   */
+                  videoUrl?: string | null;
+                  /**
+                   * Poster/thumbnail image for the video
+                   */
+                  videoPoster?: (number | null) | Media;
+                  /**
+                   * YouTube or Vimeo URL (e.g. https://youtube.com/watch?v=...)
+                   */
+                  externalVideoUrl?: string | null;
+                  /**
+                   * URL to Lottie JSON file or GIF image
+                   */
+                  animationUrl?: string | null;
+                  /**
+                   * Embed code for map, chart, or data visualization
+                   */
+                  dataVizEmbed?: string | null;
+                  /**
+                   * Small badge text above the heading (e.g. "ESTABLISHED 1956", "CORE SERVICE DOMAINS")
+                   */
+                  eyebrowText?: string | null;
+                  showText?: boolean | null;
+                  heading?: string | null;
+                  /**
+                   * Heading text color
+                   */
+                  headingColor?: string | null;
+                  subtitle?: string | null;
+                  /**
+                   * Description text color
+                   */
+                  subtitleColor?: string | null;
+                  buttons?:
+                    | {
+                        label: string;
+                        url: string;
+                        variant?: ('primary' | 'secondary' | 'outline') | null;
+                        /**
+                         * Select button icon
+                         */
+                        icon?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  id?: string | null;
+                }[]
+              | null;
+            duccFloatingCard?: {
+              enabled?: boolean | null;
+              badgeLabel?: string | null;
+              footerText?: string | null;
+              footerLink?: string | null;
+              footerLinkLabel?: string | null;
+              stats?:
+                | {
+                    value: string;
+                    label: string;
+                    id?: string | null;
+                  }[]
+                | null;
+            };
+            duccShowSlideCounter?: boolean | null;
+            duccShowPlayPause?: boolean | null;
+            /**
+             * Floating card grid that overlaps the bottom of the hero into the next section
+             */
+            quickAccessBar?: {
+              enabled?: boolean | null;
+              /**
+               * How many pixels the bar hangs below the hero (default: 80)
+               */
+              overlapAmount?: number | null;
+              items?:
+                | {
+                    label: string;
+                    /**
+                     * Select a Lucide icon
+                     */
+                    icon?: string | null;
+                    /**
+                     * Internal path (e.g. /it-services) or external URL
+                     */
+                    link: string;
+                    external?: boolean | null;
+                    colorVariant?: ('primary' | 'dark') | null;
+                    id?: string | null;
+                  }[]
+                | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'hero';
+          }
+        | {
+            items: {
+              text: string;
+              /**
+               * Optional link when clicked
+               */
+              url?: string | null;
+              /**
+               * Select a Lucide icon
+               */
+              icon?: string | null;
+              /**
+               * Optional badge/label (e.g. "NEW", "IMPORTANT")
+               */
+              badge?: string | null;
+              id?: string | null;
+            }[];
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            textColor?: string | null;
+            speed?: ('slow' | 'normal' | 'fast') | null;
+            pauseOnHover?: boolean | null;
+            /**
+             * Character between items (e.g. "•", "|", "★")
+             */
+            separator?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'marquee';
+          }
+        | {
+            heading: string;
+            /**
+             * Optional descriptive text below the heading
+             */
+            description?: string | null;
+            /**
+             * Add the states that are currently onboarded
+             */
+            states: {
+              /**
+               * E.g., Maharashtra
+               */
+              stateName: string;
+              /**
+               * Link to this state's SamarthX portal (e.g., https://mah.samarthx.in)
+               */
+              portalUrl: string;
+              /**
+               * Optional short tagline (e.g., Active Since 2026)
+               */
+              tagline?: string | null;
+              /**
+               * Pick the theme color for the state card highlight and button
+               */
+              themeColor?: string | null;
+              /**
+               * Opacity of the background image (0 to 100)
+               */
+              imageOpacity?: number | null;
+              /**
+               * Optional subtle background image or map outline SVG for this card
+               */
+              backgroundImage?: (number | null) | Media;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'statesOnboarded';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Toggle between overlay cards and clean card layout
+             */
+            cardStyle: 'overlay' | 'clean';
+            columns?: ('2' | '3' | '4') | null;
+            cards: {
+              /**
+               * Card title (e.g. state name or project name)
+               */
+              title: string;
+              image: number | Media;
+              /**
+               * Short overlay caption (used in Overlay style)
+               */
+              caption?: string | null;
+              /**
+               * Small logo/emblem (used in Clean Card style)
+               */
+              logo?: (number | null) | Media;
+              /**
+               * Subtitle or location (e.g. "Rajasthan, India")
+               */
+              subtitle?: string | null;
+              /**
+               * Short description (used in Clean Card style)
+               */
+              description?: string | null;
+              /**
+               * Show a "Featured" badge on this card
+               */
+              featured?: boolean | null;
+              /**
+               * Custom badge text (e.g. "Featured", "New", "Live")
+               */
+              featuredLabel?: string | null;
+              /**
+               * Link when card is clicked
+               */
+              url?: string | null;
+              /**
+               * Select a Lucide icon
+               */
+              icon?: string | null;
+              id?: string | null;
+            }[];
+            /**
+             * Settings specific to the overlay card style
+             */
+            overlaySettings?: {
+              /**
+               * Pick a color or enter hex value
+               */
+              overlayColor?: string | null;
+              /**
+               * Overlay opacity (0-100)
+               */
+              overlayOpacity?: number | null;
+              /**
+               * Card height in pixels
+               */
+              cardHeight?: number | null;
+            };
+            bottomLink?: {
+              enabled?: boolean | null;
+              label?: string | null;
+              url?: string | null;
+            };
+            /**
+             * Pick a color or enter hex value
+             */
+            accentColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'showcaseCards';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose between card grid layout or circular ring/donut layout
+             */
+            layout: 'cardGrid' | 'circularRings' | 'interlockingRings' | 'duccStrip';
+            stats: {
+              /**
+               * e.g. "Students Enrolled", "Schools", "Pass Rate"
+               */
+              label: string;
+              /**
+               * Numeric value for count-up animation (e.g. 10000, 500, 98)
+               */
+              numericValue: number;
+              /**
+               * Suffix after the number (e.g. "+", "%", "K", "M")
+               */
+              suffix?: string | null;
+              /**
+               * Prefix before the number (e.g. "$", "₹")
+               */
+              prefix?: string | null;
+              /**
+               * Select a Lucide icon
+               */
+              icon?: string | null;
+              /**
+               * Pick a color or enter hex value
+               */
+              iconColor?: string | null;
+              /**
+               * Pick a color or enter hex value
+               */
+              ringGradientEnd?: string | null;
+              /**
+               * Pick a color or enter hex value
+               */
+              iconBgColor?: string | null;
+              /**
+               * Short description shown below the stat (optional)
+               */
+              description?: string | null;
+              /**
+               * Ring fill percentage (0-100). Used in Circular Rings layout.
+               */
+              ringPercentage?: number | null;
+              id?: string | null;
+            }[];
+            /**
+             * Color of the back ribbon (default gray)
+             */
+            ribbonBaseColor?: string | null;
+            /**
+             * Gradient start color of the front weave ribbon
+             */
+            ribbonWaveStartColor?: string | null;
+            /**
+             * Gradient end color of the front weave ribbon
+             */
+            ribbonWaveEndColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            cardBgColor?: string | null;
+            /**
+             * Animate numbers counting up when scrolled into view
+             */
+            enableCountUp?: boolean | null;
+            /**
+             * Zoom effect on card hover
+             */
+            enableHoverZoom?: boolean | null;
+            columns?: ('2' | '3' | '4') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'statistics';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose between a card grid or a featured spotlight layout
+             */
+            layout: 'cards' | 'spotlight' | 'duccCards';
+            /**
+             * Choose manual card entry or automatic fetch from News collection.
+             */
+            entryType: 'manual' | 'collection';
+            articles?:
+              | {
+                  title: string;
+                  /**
+                   * Short summary or excerpt
+                   */
+                  excerpt?: string | null;
+                  image?: (number | null) | Media;
+                  /**
+                   * Category label (e.g. "Update", "Press Release", "Event")
+                   */
+                  category?: string | null;
+                  /**
+                   * Published date
+                   */
+                  date?: string | null;
+                  /**
+                   * Link to the full article
+                   */
+                  url?: string | null;
+                  /**
+                   * Select a Lucide icon
+                   */
+                  icon?: string | null;
+                  /**
+                   * Pick a color or enter hex value
+                   */
+                  categoryColor?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            collectionSource?: {
+              /**
+               * Maximum number of cards to fetch
+               */
+              limit: number;
+              sortBy?: ('latest' | 'oldest') | null;
+              /**
+               * Optional category filter (exact match)
+               */
+              category?: string | null;
+              featuredOnly?: boolean | null;
+            };
+            columns?: ('2' | '3') | null;
+            bottomLink?: {
+              enabled?: boolean | null;
+              label?: string | null;
+              url?: string | null;
+            };
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'newsUpdates';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Map image (e.g. India map SVG/PNG)
+             */
+            mapImage?: (number | null) | Media;
+            /**
+             * Alternatively, embed URL for interactive map (iframe)
+             */
+            mapEmbedUrl?: string | null;
+            /**
+             * Map display height in pixels
+             */
+            mapHeight?: number | null;
+            /**
+             * Show progress bars alongside the map
+             */
+            showProgressBars?: boolean | null;
+            progressItems?:
+              | {
+                  /**
+                   * e.g. "Rajasthan", "Maharashtra"
+                   */
+                  label: string;
+                  /**
+                   * Progress percentage (0-100)
+                   */
+                  value: number;
+                  /**
+                   * Custom display text (e.g. "1,250 Schools")
+                   */
+                  displayValue?: string | null;
+                  /**
+                   * Pick a color or enter hex value
+                   */
+                  barColor?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            layout?: ('mapLeft' | 'mapRight' | 'stacked') | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'interactiveMap';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            screenshots: {
+              image: number | Media;
+              /**
+               * Title displayed below the screenshot
+               */
+              title?: string | null;
+              /**
+               * Short caption or description
+               */
+              caption?: string | null;
+              /**
+               * Category/module name (e.g. "Dashboard", "Reports")
+               */
+              category?: string | null;
+              id?: string | null;
+            }[];
+            columns?: ('2' | '3' | '4') | null;
+            /**
+             * Allow clicking to view full-size screenshot
+             */
+            enableLightbox?: boolean | null;
+            /**
+             * Wrap screenshots in a device frame (laptop/tablet)
+             */
+            showDeviceFrame?: boolean | null;
+            deviceType?: ('laptop' | 'tablet' | 'phone') | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'screenshotGallery';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            layout?: ('sideBySide' | 'stacked') | null;
+            supportCards?:
+              | {
+                  /**
+                   * e.g. "Technical Support", "Training Resources"
+                   */
+                  title: string;
+                  description?: string | null;
+                  /**
+                   * Select a Lucide icon
+                   */
+                  icon?: string | null;
+                  /**
+                   * Pick a color or enter hex value
+                   */
+                  iconColor?: string | null;
+                  /**
+                   * e.g. "Contact Support", "View Resources"
+                   */
+                  buttonLabel?: string | null;
+                  buttonUrl?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            video?: {
+              enabled?: boolean | null;
+              /**
+               * Video section title (e.g. "How to Get Started")
+               */
+              title?: string | null;
+              /**
+               * YouTube or Vimeo URL
+               */
+              videoUrl?: string | null;
+              /**
+               * Thumbnail/poster image for the video
+               */
+              poster?: (number | null) | Media;
+              /**
+               * Or upload a video file directly
+               */
+              uploadedVideo?: (number | null) | Media;
+            };
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            cardBgColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'helpSupport';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional rich-text description below the heading
+             */
+            sectionDescription?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Select a Form Builder form to display in this section.
+             */
+            form: number | Form;
+            maxWidth?: ('narrow' | 'medium' | 'wide' | 'full') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'formLayout';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            content: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            maxWidth?: ('narrow' | 'medium' | 'full') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'richContent';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Small uppercase text above the heading (used in DUCC Service layout)
+             */
+            eyebrow?: string | null;
+            /**
+             * Link text shown next to heading (e.g. "Explore all services")
+             */
+            ctaLabel?: string | null;
+            /**
+             * URL for the CTA link
+             */
+            ctaLink?: string | null;
+            /**
+             * Choose how cards should be displayed.
+             */
+            cardLayout?:
+              | (
+                  | 'classic'
+                  | 'minimal'
+                  | 'split'
+                  | 'accentTop'
+                  | 'duccService'
+                  | 'duccServiceDetail'
+                  | 'duccProject'
+                  | 'duccTraining'
+                )
+              | null;
+            columns?: ('2' | '3' | '4') | null;
+            /**
+             * Dark: dark background with light text. Light: white cards with theme-colored icons and borders.
+             */
+            cardTheme?: ('dark' | 'light') | null;
+            /**
+             * Show a faded number (01, 02, 03...) next to the icon on each card
+             */
+            showCardNumbers?: boolean | null;
+            cards?:
+              | {
+                  /**
+                   * Select a Lucide icon
+                   */
+                  icon?: string | null;
+                  /**
+                   * Optional card title (rich text supported).
+                   */
+                  title?: {
+                    root: {
+                      type: string;
+                      children: {
+                        type: any;
+                        version: number;
+                        [k: string]: unknown;
+                      }[];
+                      direction: ('ltr' | 'rtl') | null;
+                      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                      indent: number;
+                      version: number;
+                    };
+                    [k: string]: unknown;
+                  } | null;
+                  /**
+                   * Optional card description/details (rich text supported).
+                   */
+                  description?: {
+                    root: {
+                      type: string;
+                      children: {
+                        type: any;
+                        version: number;
+                        [k: string]: unknown;
+                      }[];
+                      direction: ('ltr' | 'rtl') | null;
+                      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                      indent: number;
+                      version: number;
+                    };
+                    [k: string]: unknown;
+                  } | null;
+                  /**
+                   * Optional URL this card links to
+                   */
+                  link?: string | null;
+                  /**
+                   * Small tag label (e.g. "Platform", "Security") — used in DUCC Service layout
+                   */
+                  tag?: string | null;
+                  /**
+                   * Open link in new tab
+                   */
+                  external?: boolean | null;
+                  /**
+                   * Bullet points for the Service Detail layout
+                   */
+                  features?:
+                    | {
+                        text: string;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  /**
+                   * CTA button label (e.g. "Request Access")
+                   */
+                  buttonLabel?: string | null;
+                  /**
+                   * CTA button URL
+                   */
+                  buttonUrl?: string | null;
+                  /**
+                   * Project status badge (used in Project Cards layout)
+                   */
+                  status?: ('ongoing' | 'active' | 'live' | 'completed' | 'planned') | null;
+                  /**
+                   * Progress percentage 0-100 (used in Project Cards layout)
+                   */
+                  progress?: number | null;
+                  /**
+                   * Difficulty level (used in Training Cards layout)
+                   */
+                  level?: ('Beginner' | 'Intermediate' | 'Advanced') | null;
+                  /**
+                   * e.g. "5 Days", "1 Day" (used in Training Cards layout)
+                   */
+                  duration?: string | null;
+                  /**
+                   * e.g. "In-person", "Online", "Hybrid" (used in Training Cards layout)
+                   */
+                  mode?: string | null;
+                  /**
+                   * e.g. "Faculty", "Students & Faculty" (used in Training Cards layout)
+                   */
+                  audience?: string | null;
+                  /**
+                   * Next batch date (used in Training Cards layout)
+                   */
+                  date?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'featureCards';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose visual style for this CTA block
+             */
+            layout?: ('default' | 'duccBanner') | null;
+            /**
+             * CTA headline text
+             */
+            heading: string;
+            /**
+             * CTA description text
+             */
+            description?: string | null;
+            buttons?:
+              | {
+                  label: string;
+                  url: string;
+                  variant?: ('primary' | 'secondary' | 'outline') | null;
+                  id?: string | null;
+                }[]
+              | null;
+            backgroundType?: ('color' | 'image') | null;
+            /**
+             * Pick background color
+             */
+            backgroundColor?: string | null;
+            backgroundImage?: (number | null) | Media;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'callToAction';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            columns?: ('2' | '3' | '4') | null;
+            images: {
+              image: number | Media;
+              caption?: string | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'imageGallery';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose visual style for the FAQ section
+             */
+            layout?: ('default' | 'duccAccordion') | null;
+            items: {
+              question: string;
+              answer: {
+                root: {
+                  type: string;
+                  children: {
+                    type: any;
+                    version: number;
+                    [k: string]: unknown;
+                  }[];
+                  direction: ('ltr' | 'rtl') | null;
+                  format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                  indent: number;
+                  version: number;
+                };
+                [k: string]: unknown;
+              };
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'faq';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose visual style for testimonials
+             */
+            layout?: ('default' | 'duccQuote') | null;
+            items: {
+              quote: string;
+              name: string;
+              /**
+               * e.g. "Student, Class 10", "Parent", "Principal"
+               */
+              role?: string | null;
+              avatar?: (number | null) | Media;
+              /**
+               * Initials for avatar fallback (e.g. "SS") — used in DUCC Quote layout
+               */
+              initials?: string | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'testimonials';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            type: 'info' | 'success' | 'warning' | 'error';
+            message: string;
+            dismissible?: boolean | null;
+            link?: {
+              label?: string | null;
+              url?: string | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'bannerAlert';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            embedType: 'html' | 'iframe';
+            /**
+             * Paste custom HTML/embed code
+             */
+            html?: string | null;
+            /**
+             * URL to embed (YouTube, Google Maps, etc.)
+             */
+            iframeUrl?: string | null;
+            /**
+             * Height in pixels
+             */
+            height?: number | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'embed';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            columns?: ('2' | '3' | '4') | null;
+            members: {
+              name: string;
+              /**
+               * e.g. "Principal", "Math Teacher", "HOD Science"
+               */
+              role?: string | null;
+              photo?: (number | null) | Media;
+              bio?: string | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'teamGrid';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            tabs: {
+              label: string;
+              content: {
+                root: {
+                  type: string;
+                  children: {
+                    type: any;
+                    version: number;
+                    [k: string]: unknown;
+                  }[];
+                  direction: ('ltr' | 'rtl') | null;
+                  format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                  indent: number;
+                  version: number;
+                };
+                [k: string]: unknown;
+              };
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'tabs';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            content: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            media: number | Media;
+            mediaPosition?: ('left' | 'right') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'contentWithMedia';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            sectionBgColor?: string | null;
+            /**
+             * Add a subtle radial accent glow behind this section
+             */
+            radialGlow?: boolean | null;
+            gap?: ('0' | '4' | '6' | '8' | '12') | null;
+            verticalAlign?: ('start' | 'center' | 'end' | 'stretch') | null;
+            /**
+             * Add columns – max 3 per row. More than 3 will wrap to new rows.
+             */
+            columns: {
+              width?: ('auto' | '25' | '33' | '50' | '66' | '75' | '100') | null;
+              /**
+               * Pick a color or enter hex value
+               */
+              columnBgColor?: string | null;
+              padding?: ('0' | '4' | '6' | '8') | null;
+              blocks?:
+                | (
+                    | {
+                        content: {
+                          root: {
+                            type: string;
+                            children: {
+                              type: any;
+                              version: number;
+                              [k: string]: unknown;
+                            }[];
+                            direction: ('ltr' | 'rtl') | null;
+                            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                            indent: number;
+                            version: number;
+                          };
+                          [k: string]: unknown;
+                        };
+                        /**
+                         * Font family for body text (paragraphs, lists)
+                         */
+                        fontFamily?:
+                          | (
+                              | 'inherit'
+                              | 'Inter'
+                              | 'Roboto'
+                              | 'Poppins'
+                              | 'Open Sans'
+                              | 'Lato'
+                              | 'Montserrat'
+                              | 'Nunito'
+                              | 'Raleway'
+                              | 'Playfair Display'
+                              | 'Merriweather'
+                              | 'Source Sans Pro'
+                            )
+                          | null;
+                        /**
+                         * Font family for headings only (h1-h6). Leave as Default to use the body font.
+                         */
+                        headingFontFamily?:
+                          | (
+                              | 'inherit'
+                              | 'Inter'
+                              | 'Playfair Display'
+                              | 'Merriweather'
+                              | 'Roboto'
+                              | 'Poppins'
+                              | 'Montserrat'
+                              | 'Raleway'
+                            )
+                          | null;
+                        fontSize?: ('sm' | 'base' | 'lg' | 'xl' | '2xl') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        textColor?: string | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexRichText';
+                      }
+                    | {
+                        image: number | Media;
+                        /**
+                         * Optional caption below the image
+                         */
+                        caption?: string | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        captionColor?: string | null;
+                        objectFit?: ('cover' | 'contain' | 'none') | null;
+                        rounded?: ('none' | 'sm' | 'md' | 'lg' | 'full') | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexImage';
+                      }
+                    | {
+                        videoSource: 'upload' | 'youtube' | 'vimeo' | 'externalUrl';
+                        /**
+                         * Upload mp4, webm, or other video file
+                         */
+                        uploadedVideo?: (number | null) | Media;
+                        /**
+                         * YouTube video URL (e.g. https://youtube.com/watch?v=...)
+                         */
+                        youtubeUrl?: string | null;
+                        /**
+                         * Vimeo video URL (e.g. https://vimeo.com/123456)
+                         */
+                        vimeoUrl?: string | null;
+                        /**
+                         * Direct URL to video file (mp4, webm)
+                         */
+                        externalVideoUrl?: string | null;
+                        /**
+                         * Thumbnail / poster image (optional)
+                         */
+                        poster?: (number | null) | Media;
+                        /**
+                         * Auto-play on load (muted)
+                         */
+                        autoplay?: boolean | null;
+                        loop?: boolean | null;
+                        /**
+                         * Show playback controls
+                         */
+                        controls?: boolean | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexVideo';
+                      }
+                    | {
+                        slides: {
+                          mediaType: 'image' | 'video' | 'youtube';
+                          image?: (number | null) | Media;
+                          video?: (number | null) | Media;
+                          /**
+                           * YouTube URL
+                           */
+                          youtubeUrl?: string | null;
+                          caption?: string | null;
+                          id?: string | null;
+                        }[];
+                        /**
+                         * Auto-advance slides
+                         */
+                        autoplay?: boolean | null;
+                        /**
+                         * Auto-play interval in milliseconds (e.g. 5000 = 5 seconds)
+                         */
+                        interval?: number | null;
+                        showDots?: boolean | null;
+                        showArrows?: boolean | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexCarousel';
+                      }
+                    | {
+                        embedType: 'iframe' | 'html';
+                        /**
+                         * URL for iframe embed (Google Maps, etc.)
+                         */
+                        iframeUrl?: string | null;
+                        /**
+                         * Paste HTML embed code
+                         */
+                        html?: string | null;
+                        /**
+                         * Height in pixels
+                         */
+                        height?: number | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexMapEmbed';
+                      }
+                    | {
+                        animationType: 'lottie' | 'gif';
+                        /**
+                         * URL to Lottie JSON file
+                         */
+                        lottieUrl?: string | null;
+                        gif?: (number | null) | Media;
+                        loop?: boolean | null;
+                        autoplay?: boolean | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexAnimation';
+                      }
+                    | {
+                        columns?: ('1' | '2' | '3' | '4') | null;
+                        cardStyle?: ('outline' | 'elevated' | 'soft' | 'duccAbout') | null;
+                        cards: {
+                          label: string;
+                          value: string;
+                          trend?: string | null;
+                          trendLabel?: string | null;
+                          /**
+                           * Select a Lucide icon
+                           */
+                          icon?: string | null;
+                          /**
+                           * Pick a color or enter hex value
+                           */
+                          iconColor?: string | null;
+                          animation?: ('none' | 'hoverLift' | 'pulse' | 'float') | null;
+                          id?: string | null;
+                        }[];
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexStatsCards';
+                      }
+                    | {
+                        columns?: ('1' | '2' | '3' | '4') | null;
+                        cardStyle?: ('borderTop' | 'outline' | 'darkGlass') | null;
+                        cards: {
+                          /**
+                           * Select a Lucide icon
+                           */
+                          icon?: string | null;
+                          /**
+                           * Pick a color or enter hex value
+                           */
+                          iconColor?: string | null;
+                          /**
+                           * Pick a color or enter hex value
+                           */
+                          accentColor?: string | null;
+                          title: {
+                            root: {
+                              type: string;
+                              children: {
+                                type: any;
+                                version: number;
+                                [k: string]: unknown;
+                              }[];
+                              direction: ('ltr' | 'rtl') | null;
+                              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                              indent: number;
+                              version: number;
+                            };
+                            [k: string]: unknown;
+                          };
+                          subtitle?: string | null;
+                          description?: {
+                            root: {
+                              type: string;
+                              children: {
+                                type: any;
+                                version: number;
+                                [k: string]: unknown;
+                              }[];
+                              direction: ('ltr' | 'rtl') | null;
+                              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                              indent: number;
+                              version: number;
+                            };
+                            [k: string]: unknown;
+                          } | null;
+                          points?:
+                            | {
+                                text: string;
+                                id?: string | null;
+                              }[]
+                            | null;
+                          animation?: ('none' | 'hoverLift' | 'pulse' | 'float') | null;
+                          id?: string | null;
+                        }[];
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexFeatureCards';
+                      }
+                    | {
+                        columns?: ('1' | '2' | '3') | null;
+                        theme?: ('light' | 'dark') | null;
+                        titleSize?: ('sm' | 'base' | 'lg' | 'xl' | '2xl') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        iconBgColor?: string | null;
+                        iconAlignment?: ('left' | 'center' | 'right') | null;
+                        cards: {
+                          /**
+                           * Select a Lucide icon
+                           */
+                          icon?: string | null;
+                          /**
+                           * Pick a color or enter hex value
+                           */
+                          iconColor?: string | null;
+                          title: string;
+                          description?: string | null;
+                          animation?: ('none' | 'hoverLift' | 'pulse' | 'float') | null;
+                          id?: string | null;
+                        }[];
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexHighlightCards';
+                      }
+                    | {
+                        alignment?: ('left' | 'center' | 'right') | null;
+                        buttons: {
+                          label: string;
+                          url: string;
+                          variant?: ('primary' | 'secondary' | 'outline' | 'ghost') | null;
+                          size?: ('sm' | 'md' | 'lg') | null;
+                          /**
+                           * Select a Lucide icon
+                           */
+                          icon?: string | null;
+                          openInNewTab?: boolean | null;
+                          id?: string | null;
+                        }[];
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexButtons';
+                      }
+                    | {
+                        layoutVariant?: ('floatingCards' | 'syncStatusPanel') | null;
+                        theme?: ('light' | 'dark') | null;
+                        /**
+                         * Number of mini tiles/rows inside the mock panel
+                         */
+                        chartCount?: number | null;
+                        topBadgeLabel?: string | null;
+                        topBadgeLabelSize?: ('sm' | 'md' | 'lg') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        topBadgeLabelColor?: string | null;
+                        topBadgeValue?: string | null;
+                        topBadgeAnimation?: ('none' | 'float' | 'pulse' | 'hoverLift') | null;
+                        topBadgeValueSize?: ('lg' | 'xl' | '2xl') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        topBadgeValueColor?: string | null;
+                        bottomChipPrimary?: string | null;
+                        bottomChipSecondary?: string | null;
+                        bottomSummary?: string | null;
+                        bottomBadgeAnimation?: ('none' | 'float' | 'pulse' | 'hoverLift') | null;
+                        bottomSummarySize?: ('sm' | 'md' | 'lg' | 'xl') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        bottomSummaryColor?: string | null;
+                        /**
+                         * Footer status text for the Sync Status Panel layout
+                         */
+                        syncFooterText?: string | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexDashboardMock';
+                      }
+                  )[]
+                | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'flexibleRow';
+          }
+        | {
+            /**
+             * Short description for preview (e.g. "Through hands-on project experience...")
+             */
+            excerpt?: string | null;
+            /**
+             * Display string like "Last Updated: March 2026"
+             */
+            effectiveDate?: string | null;
+            /**
+             * Full job description — supports headings, paragraphs, bold/italic, ordered and unordered lists
+             */
+            content?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            /**
+             * Expandable sections describing different work areas or specializations
+             */
+            problemDomains?:
+              | {
+                  /**
+                   * Domain name (e.g. "ML/DL Based Systems for Education 4.0 Applications")
+                   */
+                  title?: string | null;
+                  /**
+                   * Overview of the domain
+                   */
+                  description?: string | null;
+                  /**
+                   * Specific tasks or responsibilities for this domain
+                   */
+                  challenges?:
+                    | {
+                        text?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  /**
+                   * Required technical skills
+                   */
+                  technicalSkills?:
+                    | {
+                        skill?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  /**
+                   * Required soft / non-technical skills
+                   */
+                  nonTechnicalSkills?:
+                    | {
+                        skill?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * CTA label (e.g. "Apply Now")
+             */
+            applyButtonText?: string | null;
+            /**
+             * URL the button points to. Leave blank to use the built-in /apply page.
+             */
+            applyButtonLink?: string | null;
+            /**
+             * Whether this career posting is currently active
+             */
+            status?: ('active' | 'inactive') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'careerPosting';
+          }
+      )[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2203,6 +4067,5188 @@ export interface JobApplication {
   resume: number | Resume;
   status: 'new' | 'reviewed' | 'shortlisted' | 'rejected' | 'deleted';
   submittedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * University-licensed software catalog
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "software".
+ */
+export interface Software {
+  id: number;
+  /**
+   * Software name (e.g. "Turnitin", "MATLAB", "Adobe Creative Cloud")
+   */
+  name: string;
+  /**
+   * Software category for filtering
+   */
+  category:
+    | 'Plagiarism Detection'
+    | 'Research Software'
+    | 'Productivity'
+    | 'Statistical Software'
+    | 'e-Governance'
+    | 'Designing Tools'
+    | 'Scientific Software'
+    | 'Simulation'
+    | 'Other';
+  /**
+   * Short description of the software
+   */
+  description: string;
+  /**
+   * Select a Lucide icon for the card
+   */
+  icon?: string | null;
+  /**
+   * Number of users (e.g. "1,309", "74,000+", "Site Licence")
+   */
+  users?: string | null;
+  /**
+   * Number of submissions if applicable (e.g. "33,750"). Leave empty if N/A.
+   */
+  submissions?: string | null;
+  /**
+   * Number of licenses (e.g. "100", "Site Licence", "Campus Agreement")
+   */
+  licenses?: string | null;
+  /**
+   * When the license started
+   */
+  validityStart?: string | null;
+  /**
+   * License validity period (e.g. "3", "5", "Perpetual")
+   */
+  validityYears?: string | null;
+  /**
+   * Departments or people the software is issued to
+   */
+  issuedTo?: string | null;
+  /**
+   * Number of remaining licenses
+   */
+  remainingLicenses?: string | null;
+  licenseType?: ('network' | 'networkKey' | 'userKey' | 'campus' | 'other') | null;
+  /**
+   * Link for requesting access to this software
+   */
+  requestAccessUrl?: string | null;
+  status: 'active' | 'expired' | 'comingSoon';
+  /**
+   * Show this software prominently
+   */
+  featured?: boolean | null;
+  /**
+   * Lower numbers appear first
+   */
+  sortOrder?: number | null;
+  /**
+   * Optional page content blocks
+   */
+  layout?:
+    | (
+        | {
+            mode: 'single' | 'carousel';
+            layout: 'fullWidth' | 'fullscreenOverlayCarousel' | 'duccFullscreen' | 'split' | 'contained';
+            splitDirection?: ('textLeft' | 'textRight') | null;
+            /**
+             * Hero height in pixels (e.g. 600)
+             */
+            height?: number | null;
+            textAlignment?: ('left' | 'center' | 'right') | null;
+            textVerticalPosition?: ('top' | 'center' | 'bottom') | null;
+            /**
+             * Maximum content width in pixels for hero text container
+             */
+            contentMaxWidth?: number | null;
+            /**
+             * Horizontal content padding in pixels
+             */
+            contentPaddingX?: number | null;
+            /**
+             * Vertical content padding in pixels
+             */
+            contentPaddingY?: number | null;
+            /**
+             * Keep text/buttons constant while only the background slide changes
+             */
+            constantOverlayContent?: boolean | null;
+            constantOverlay?: {
+              showText?: boolean | null;
+              heading?: string | null;
+              /**
+               * Heading text color
+               */
+              headingColor?: string | null;
+              subtitle?: string | null;
+              /**
+               * Description text color
+               */
+              subtitleColor?: string | null;
+              buttons?:
+                | {
+                    label: string;
+                    url: string;
+                    variant?: ('primary' | 'secondary' | 'outline') | null;
+                    /**
+                     * Select button icon
+                     */
+                    icon?: string | null;
+                    id?: string | null;
+                  }[]
+                | null;
+            };
+            overlay?: {
+              enabled?: boolean | null;
+              /**
+               * Pick overlay color
+               */
+              color?: string | null;
+              /**
+               * Overlay opacity (0-100)
+               */
+              opacity?: number | null;
+            };
+            headerGlass?: {
+              enabled?: boolean | null;
+              /**
+               * Glass overlay tint color for the fixed header
+               */
+              fillColor?: string | null;
+              /**
+               * Glass tint opacity in percent
+               */
+              fillOpacity?: number | null;
+              /**
+               * Background blur amount in pixels
+               */
+              blurAmount?: number | null;
+              /**
+               * Show thin divider under header while hero is active
+               */
+              showDivider?: boolean | null;
+            };
+            carouselSettings?: {
+              autoPlay?: boolean | null;
+              /**
+               * Interval in milliseconds (e.g. 5000 = 5 seconds)
+               */
+              autoPlayInterval?: number | null;
+              showArrows?: boolean | null;
+              showDots?: boolean | null;
+            };
+            singleSlide?: {
+              mediaType: 'textOnly' | 'image' | 'video' | 'externalVideo' | 'animation' | 'dataViz';
+              image?: (number | null) | Media;
+              /**
+               * URL to self-hosted video file (mp4, webm)
+               */
+              videoUrl?: string | null;
+              /**
+               * Poster/thumbnail image for the video
+               */
+              videoPoster?: (number | null) | Media;
+              /**
+               * YouTube or Vimeo URL (e.g. https://youtube.com/watch?v=...)
+               */
+              externalVideoUrl?: string | null;
+              /**
+               * URL to Lottie JSON file or GIF image
+               */
+              animationUrl?: string | null;
+              /**
+               * Embed code for map, chart, or data visualization
+               */
+              dataVizEmbed?: string | null;
+              /**
+               * Small badge text above the heading (e.g. "ESTABLISHED 1956", "CORE SERVICE DOMAINS")
+               */
+              eyebrowText?: string | null;
+              showText?: boolean | null;
+              heading?: string | null;
+              /**
+               * Heading text color
+               */
+              headingColor?: string | null;
+              subtitle?: string | null;
+              /**
+               * Description text color
+               */
+              subtitleColor?: string | null;
+              buttons?:
+                | {
+                    label: string;
+                    url: string;
+                    variant?: ('primary' | 'secondary' | 'outline') | null;
+                    /**
+                     * Select button icon
+                     */
+                    icon?: string | null;
+                    id?: string | null;
+                  }[]
+                | null;
+            };
+            slides?:
+              | {
+                  mediaType: 'textOnly' | 'image' | 'video' | 'externalVideo' | 'animation' | 'dataViz';
+                  image?: (number | null) | Media;
+                  /**
+                   * URL to self-hosted video file (mp4, webm)
+                   */
+                  videoUrl?: string | null;
+                  /**
+                   * Poster/thumbnail image for the video
+                   */
+                  videoPoster?: (number | null) | Media;
+                  /**
+                   * YouTube or Vimeo URL (e.g. https://youtube.com/watch?v=...)
+                   */
+                  externalVideoUrl?: string | null;
+                  /**
+                   * URL to Lottie JSON file or GIF image
+                   */
+                  animationUrl?: string | null;
+                  /**
+                   * Embed code for map, chart, or data visualization
+                   */
+                  dataVizEmbed?: string | null;
+                  /**
+                   * Small badge text above the heading (e.g. "ESTABLISHED 1956", "CORE SERVICE DOMAINS")
+                   */
+                  eyebrowText?: string | null;
+                  showText?: boolean | null;
+                  heading?: string | null;
+                  /**
+                   * Heading text color
+                   */
+                  headingColor?: string | null;
+                  subtitle?: string | null;
+                  /**
+                   * Description text color
+                   */
+                  subtitleColor?: string | null;
+                  buttons?:
+                    | {
+                        label: string;
+                        url: string;
+                        variant?: ('primary' | 'secondary' | 'outline') | null;
+                        /**
+                         * Select button icon
+                         */
+                        icon?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  id?: string | null;
+                }[]
+              | null;
+            duccFloatingCard?: {
+              enabled?: boolean | null;
+              badgeLabel?: string | null;
+              footerText?: string | null;
+              footerLink?: string | null;
+              footerLinkLabel?: string | null;
+              stats?:
+                | {
+                    value: string;
+                    label: string;
+                    id?: string | null;
+                  }[]
+                | null;
+            };
+            duccShowSlideCounter?: boolean | null;
+            duccShowPlayPause?: boolean | null;
+            /**
+             * Floating card grid that overlaps the bottom of the hero into the next section
+             */
+            quickAccessBar?: {
+              enabled?: boolean | null;
+              /**
+               * How many pixels the bar hangs below the hero (default: 80)
+               */
+              overlapAmount?: number | null;
+              items?:
+                | {
+                    label: string;
+                    /**
+                     * Select a Lucide icon
+                     */
+                    icon?: string | null;
+                    /**
+                     * Internal path (e.g. /it-services) or external URL
+                     */
+                    link: string;
+                    external?: boolean | null;
+                    colorVariant?: ('primary' | 'dark') | null;
+                    id?: string | null;
+                  }[]
+                | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'hero';
+          }
+        | {
+            items: {
+              text: string;
+              /**
+               * Optional link when clicked
+               */
+              url?: string | null;
+              /**
+               * Select a Lucide icon
+               */
+              icon?: string | null;
+              /**
+               * Optional badge/label (e.g. "NEW", "IMPORTANT")
+               */
+              badge?: string | null;
+              id?: string | null;
+            }[];
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            textColor?: string | null;
+            speed?: ('slow' | 'normal' | 'fast') | null;
+            pauseOnHover?: boolean | null;
+            /**
+             * Character between items (e.g. "•", "|", "★")
+             */
+            separator?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'marquee';
+          }
+        | {
+            heading: string;
+            /**
+             * Optional descriptive text below the heading
+             */
+            description?: string | null;
+            /**
+             * Add the states that are currently onboarded
+             */
+            states: {
+              /**
+               * E.g., Maharashtra
+               */
+              stateName: string;
+              /**
+               * Link to this state's SamarthX portal (e.g., https://mah.samarthx.in)
+               */
+              portalUrl: string;
+              /**
+               * Optional short tagline (e.g., Active Since 2026)
+               */
+              tagline?: string | null;
+              /**
+               * Pick the theme color for the state card highlight and button
+               */
+              themeColor?: string | null;
+              /**
+               * Opacity of the background image (0 to 100)
+               */
+              imageOpacity?: number | null;
+              /**
+               * Optional subtle background image or map outline SVG for this card
+               */
+              backgroundImage?: (number | null) | Media;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'statesOnboarded';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Toggle between overlay cards and clean card layout
+             */
+            cardStyle: 'overlay' | 'clean';
+            columns?: ('2' | '3' | '4') | null;
+            cards: {
+              /**
+               * Card title (e.g. state name or project name)
+               */
+              title: string;
+              image: number | Media;
+              /**
+               * Short overlay caption (used in Overlay style)
+               */
+              caption?: string | null;
+              /**
+               * Small logo/emblem (used in Clean Card style)
+               */
+              logo?: (number | null) | Media;
+              /**
+               * Subtitle or location (e.g. "Rajasthan, India")
+               */
+              subtitle?: string | null;
+              /**
+               * Short description (used in Clean Card style)
+               */
+              description?: string | null;
+              /**
+               * Show a "Featured" badge on this card
+               */
+              featured?: boolean | null;
+              /**
+               * Custom badge text (e.g. "Featured", "New", "Live")
+               */
+              featuredLabel?: string | null;
+              /**
+               * Link when card is clicked
+               */
+              url?: string | null;
+              /**
+               * Select a Lucide icon
+               */
+              icon?: string | null;
+              id?: string | null;
+            }[];
+            /**
+             * Settings specific to the overlay card style
+             */
+            overlaySettings?: {
+              /**
+               * Pick a color or enter hex value
+               */
+              overlayColor?: string | null;
+              /**
+               * Overlay opacity (0-100)
+               */
+              overlayOpacity?: number | null;
+              /**
+               * Card height in pixels
+               */
+              cardHeight?: number | null;
+            };
+            bottomLink?: {
+              enabled?: boolean | null;
+              label?: string | null;
+              url?: string | null;
+            };
+            /**
+             * Pick a color or enter hex value
+             */
+            accentColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'showcaseCards';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose between card grid layout or circular ring/donut layout
+             */
+            layout: 'cardGrid' | 'circularRings' | 'interlockingRings' | 'duccStrip';
+            stats: {
+              /**
+               * e.g. "Students Enrolled", "Schools", "Pass Rate"
+               */
+              label: string;
+              /**
+               * Numeric value for count-up animation (e.g. 10000, 500, 98)
+               */
+              numericValue: number;
+              /**
+               * Suffix after the number (e.g. "+", "%", "K", "M")
+               */
+              suffix?: string | null;
+              /**
+               * Prefix before the number (e.g. "$", "₹")
+               */
+              prefix?: string | null;
+              /**
+               * Select a Lucide icon
+               */
+              icon?: string | null;
+              /**
+               * Pick a color or enter hex value
+               */
+              iconColor?: string | null;
+              /**
+               * Pick a color or enter hex value
+               */
+              ringGradientEnd?: string | null;
+              /**
+               * Pick a color or enter hex value
+               */
+              iconBgColor?: string | null;
+              /**
+               * Short description shown below the stat (optional)
+               */
+              description?: string | null;
+              /**
+               * Ring fill percentage (0-100). Used in Circular Rings layout.
+               */
+              ringPercentage?: number | null;
+              id?: string | null;
+            }[];
+            /**
+             * Color of the back ribbon (default gray)
+             */
+            ribbonBaseColor?: string | null;
+            /**
+             * Gradient start color of the front weave ribbon
+             */
+            ribbonWaveStartColor?: string | null;
+            /**
+             * Gradient end color of the front weave ribbon
+             */
+            ribbonWaveEndColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            cardBgColor?: string | null;
+            /**
+             * Animate numbers counting up when scrolled into view
+             */
+            enableCountUp?: boolean | null;
+            /**
+             * Zoom effect on card hover
+             */
+            enableHoverZoom?: boolean | null;
+            columns?: ('2' | '3' | '4') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'statistics';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose between a card grid or a featured spotlight layout
+             */
+            layout: 'cards' | 'spotlight' | 'duccCards';
+            /**
+             * Choose manual card entry or automatic fetch from News collection.
+             */
+            entryType: 'manual' | 'collection';
+            articles?:
+              | {
+                  title: string;
+                  /**
+                   * Short summary or excerpt
+                   */
+                  excerpt?: string | null;
+                  image?: (number | null) | Media;
+                  /**
+                   * Category label (e.g. "Update", "Press Release", "Event")
+                   */
+                  category?: string | null;
+                  /**
+                   * Published date
+                   */
+                  date?: string | null;
+                  /**
+                   * Link to the full article
+                   */
+                  url?: string | null;
+                  /**
+                   * Select a Lucide icon
+                   */
+                  icon?: string | null;
+                  /**
+                   * Pick a color or enter hex value
+                   */
+                  categoryColor?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            collectionSource?: {
+              /**
+               * Maximum number of cards to fetch
+               */
+              limit: number;
+              sortBy?: ('latest' | 'oldest') | null;
+              /**
+               * Optional category filter (exact match)
+               */
+              category?: string | null;
+              featuredOnly?: boolean | null;
+            };
+            columns?: ('2' | '3') | null;
+            bottomLink?: {
+              enabled?: boolean | null;
+              label?: string | null;
+              url?: string | null;
+            };
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'newsUpdates';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Map image (e.g. India map SVG/PNG)
+             */
+            mapImage?: (number | null) | Media;
+            /**
+             * Alternatively, embed URL for interactive map (iframe)
+             */
+            mapEmbedUrl?: string | null;
+            /**
+             * Map display height in pixels
+             */
+            mapHeight?: number | null;
+            /**
+             * Show progress bars alongside the map
+             */
+            showProgressBars?: boolean | null;
+            progressItems?:
+              | {
+                  /**
+                   * e.g. "Rajasthan", "Maharashtra"
+                   */
+                  label: string;
+                  /**
+                   * Progress percentage (0-100)
+                   */
+                  value: number;
+                  /**
+                   * Custom display text (e.g. "1,250 Schools")
+                   */
+                  displayValue?: string | null;
+                  /**
+                   * Pick a color or enter hex value
+                   */
+                  barColor?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            layout?: ('mapLeft' | 'mapRight' | 'stacked') | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'interactiveMap';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            screenshots: {
+              image: number | Media;
+              /**
+               * Title displayed below the screenshot
+               */
+              title?: string | null;
+              /**
+               * Short caption or description
+               */
+              caption?: string | null;
+              /**
+               * Category/module name (e.g. "Dashboard", "Reports")
+               */
+              category?: string | null;
+              id?: string | null;
+            }[];
+            columns?: ('2' | '3' | '4') | null;
+            /**
+             * Allow clicking to view full-size screenshot
+             */
+            enableLightbox?: boolean | null;
+            /**
+             * Wrap screenshots in a device frame (laptop/tablet)
+             */
+            showDeviceFrame?: boolean | null;
+            deviceType?: ('laptop' | 'tablet' | 'phone') | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'screenshotGallery';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            layout?: ('sideBySide' | 'stacked') | null;
+            supportCards?:
+              | {
+                  /**
+                   * e.g. "Technical Support", "Training Resources"
+                   */
+                  title: string;
+                  description?: string | null;
+                  /**
+                   * Select a Lucide icon
+                   */
+                  icon?: string | null;
+                  /**
+                   * Pick a color or enter hex value
+                   */
+                  iconColor?: string | null;
+                  /**
+                   * e.g. "Contact Support", "View Resources"
+                   */
+                  buttonLabel?: string | null;
+                  buttonUrl?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            video?: {
+              enabled?: boolean | null;
+              /**
+               * Video section title (e.g. "How to Get Started")
+               */
+              title?: string | null;
+              /**
+               * YouTube or Vimeo URL
+               */
+              videoUrl?: string | null;
+              /**
+               * Thumbnail/poster image for the video
+               */
+              poster?: (number | null) | Media;
+              /**
+               * Or upload a video file directly
+               */
+              uploadedVideo?: (number | null) | Media;
+            };
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            cardBgColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'helpSupport';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional rich-text description below the heading
+             */
+            sectionDescription?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Select a Form Builder form to display in this section.
+             */
+            form: number | Form;
+            maxWidth?: ('narrow' | 'medium' | 'wide' | 'full') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'formLayout';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            content: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            maxWidth?: ('narrow' | 'medium' | 'full') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'richContent';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Small uppercase text above the heading (used in DUCC Service layout)
+             */
+            eyebrow?: string | null;
+            /**
+             * Link text shown next to heading (e.g. "Explore all services")
+             */
+            ctaLabel?: string | null;
+            /**
+             * URL for the CTA link
+             */
+            ctaLink?: string | null;
+            /**
+             * Choose how cards should be displayed.
+             */
+            cardLayout?:
+              | (
+                  | 'classic'
+                  | 'minimal'
+                  | 'split'
+                  | 'accentTop'
+                  | 'duccService'
+                  | 'duccServiceDetail'
+                  | 'duccProject'
+                  | 'duccTraining'
+                )
+              | null;
+            columns?: ('2' | '3' | '4') | null;
+            /**
+             * Dark: dark background with light text. Light: white cards with theme-colored icons and borders.
+             */
+            cardTheme?: ('dark' | 'light') | null;
+            /**
+             * Show a faded number (01, 02, 03...) next to the icon on each card
+             */
+            showCardNumbers?: boolean | null;
+            cards?:
+              | {
+                  /**
+                   * Select a Lucide icon
+                   */
+                  icon?: string | null;
+                  /**
+                   * Optional card title (rich text supported).
+                   */
+                  title?: {
+                    root: {
+                      type: string;
+                      children: {
+                        type: any;
+                        version: number;
+                        [k: string]: unknown;
+                      }[];
+                      direction: ('ltr' | 'rtl') | null;
+                      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                      indent: number;
+                      version: number;
+                    };
+                    [k: string]: unknown;
+                  } | null;
+                  /**
+                   * Optional card description/details (rich text supported).
+                   */
+                  description?: {
+                    root: {
+                      type: string;
+                      children: {
+                        type: any;
+                        version: number;
+                        [k: string]: unknown;
+                      }[];
+                      direction: ('ltr' | 'rtl') | null;
+                      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                      indent: number;
+                      version: number;
+                    };
+                    [k: string]: unknown;
+                  } | null;
+                  /**
+                   * Optional URL this card links to
+                   */
+                  link?: string | null;
+                  /**
+                   * Small tag label (e.g. "Platform", "Security") — used in DUCC Service layout
+                   */
+                  tag?: string | null;
+                  /**
+                   * Open link in new tab
+                   */
+                  external?: boolean | null;
+                  /**
+                   * Bullet points for the Service Detail layout
+                   */
+                  features?:
+                    | {
+                        text: string;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  /**
+                   * CTA button label (e.g. "Request Access")
+                   */
+                  buttonLabel?: string | null;
+                  /**
+                   * CTA button URL
+                   */
+                  buttonUrl?: string | null;
+                  /**
+                   * Project status badge (used in Project Cards layout)
+                   */
+                  status?: ('ongoing' | 'active' | 'live' | 'completed' | 'planned') | null;
+                  /**
+                   * Progress percentage 0-100 (used in Project Cards layout)
+                   */
+                  progress?: number | null;
+                  /**
+                   * Difficulty level (used in Training Cards layout)
+                   */
+                  level?: ('Beginner' | 'Intermediate' | 'Advanced') | null;
+                  /**
+                   * e.g. "5 Days", "1 Day" (used in Training Cards layout)
+                   */
+                  duration?: string | null;
+                  /**
+                   * e.g. "In-person", "Online", "Hybrid" (used in Training Cards layout)
+                   */
+                  mode?: string | null;
+                  /**
+                   * e.g. "Faculty", "Students & Faculty" (used in Training Cards layout)
+                   */
+                  audience?: string | null;
+                  /**
+                   * Next batch date (used in Training Cards layout)
+                   */
+                  date?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'featureCards';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose visual style for this CTA block
+             */
+            layout?: ('default' | 'duccBanner') | null;
+            /**
+             * CTA headline text
+             */
+            heading: string;
+            /**
+             * CTA description text
+             */
+            description?: string | null;
+            buttons?:
+              | {
+                  label: string;
+                  url: string;
+                  variant?: ('primary' | 'secondary' | 'outline') | null;
+                  id?: string | null;
+                }[]
+              | null;
+            backgroundType?: ('color' | 'image') | null;
+            /**
+             * Pick background color
+             */
+            backgroundColor?: string | null;
+            backgroundImage?: (number | null) | Media;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'callToAction';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            columns?: ('2' | '3' | '4') | null;
+            images: {
+              image: number | Media;
+              caption?: string | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'imageGallery';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose visual style for the FAQ section
+             */
+            layout?: ('default' | 'duccAccordion') | null;
+            items: {
+              question: string;
+              answer: {
+                root: {
+                  type: string;
+                  children: {
+                    type: any;
+                    version: number;
+                    [k: string]: unknown;
+                  }[];
+                  direction: ('ltr' | 'rtl') | null;
+                  format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                  indent: number;
+                  version: number;
+                };
+                [k: string]: unknown;
+              };
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'faq';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose visual style for testimonials
+             */
+            layout?: ('default' | 'duccQuote') | null;
+            items: {
+              quote: string;
+              name: string;
+              /**
+               * e.g. "Student, Class 10", "Parent", "Principal"
+               */
+              role?: string | null;
+              avatar?: (number | null) | Media;
+              /**
+               * Initials for avatar fallback (e.g. "SS") — used in DUCC Quote layout
+               */
+              initials?: string | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'testimonials';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            type: 'info' | 'success' | 'warning' | 'error';
+            message: string;
+            dismissible?: boolean | null;
+            link?: {
+              label?: string | null;
+              url?: string | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'bannerAlert';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            embedType: 'html' | 'iframe';
+            /**
+             * Paste custom HTML/embed code
+             */
+            html?: string | null;
+            /**
+             * URL to embed (YouTube, Google Maps, etc.)
+             */
+            iframeUrl?: string | null;
+            /**
+             * Height in pixels
+             */
+            height?: number | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'embed';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            columns?: ('2' | '3' | '4') | null;
+            members: {
+              name: string;
+              /**
+               * e.g. "Principal", "Math Teacher", "HOD Science"
+               */
+              role?: string | null;
+              photo?: (number | null) | Media;
+              bio?: string | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'teamGrid';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            tabs: {
+              label: string;
+              content: {
+                root: {
+                  type: string;
+                  children: {
+                    type: any;
+                    version: number;
+                    [k: string]: unknown;
+                  }[];
+                  direction: ('ltr' | 'rtl') | null;
+                  format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                  indent: number;
+                  version: number;
+                };
+                [k: string]: unknown;
+              };
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'tabs';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            content: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            media: number | Media;
+            mediaPosition?: ('left' | 'right') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'contentWithMedia';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            sectionBgColor?: string | null;
+            /**
+             * Add a subtle radial accent glow behind this section
+             */
+            radialGlow?: boolean | null;
+            gap?: ('0' | '4' | '6' | '8' | '12') | null;
+            verticalAlign?: ('start' | 'center' | 'end' | 'stretch') | null;
+            /**
+             * Add columns – max 3 per row. More than 3 will wrap to new rows.
+             */
+            columns: {
+              width?: ('auto' | '25' | '33' | '50' | '66' | '75' | '100') | null;
+              /**
+               * Pick a color or enter hex value
+               */
+              columnBgColor?: string | null;
+              padding?: ('0' | '4' | '6' | '8') | null;
+              blocks?:
+                | (
+                    | {
+                        content: {
+                          root: {
+                            type: string;
+                            children: {
+                              type: any;
+                              version: number;
+                              [k: string]: unknown;
+                            }[];
+                            direction: ('ltr' | 'rtl') | null;
+                            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                            indent: number;
+                            version: number;
+                          };
+                          [k: string]: unknown;
+                        };
+                        /**
+                         * Font family for body text (paragraphs, lists)
+                         */
+                        fontFamily?:
+                          | (
+                              | 'inherit'
+                              | 'Inter'
+                              | 'Roboto'
+                              | 'Poppins'
+                              | 'Open Sans'
+                              | 'Lato'
+                              | 'Montserrat'
+                              | 'Nunito'
+                              | 'Raleway'
+                              | 'Playfair Display'
+                              | 'Merriweather'
+                              | 'Source Sans Pro'
+                            )
+                          | null;
+                        /**
+                         * Font family for headings only (h1-h6). Leave as Default to use the body font.
+                         */
+                        headingFontFamily?:
+                          | (
+                              | 'inherit'
+                              | 'Inter'
+                              | 'Playfair Display'
+                              | 'Merriweather'
+                              | 'Roboto'
+                              | 'Poppins'
+                              | 'Montserrat'
+                              | 'Raleway'
+                            )
+                          | null;
+                        fontSize?: ('sm' | 'base' | 'lg' | 'xl' | '2xl') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        textColor?: string | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexRichText';
+                      }
+                    | {
+                        image: number | Media;
+                        /**
+                         * Optional caption below the image
+                         */
+                        caption?: string | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        captionColor?: string | null;
+                        objectFit?: ('cover' | 'contain' | 'none') | null;
+                        rounded?: ('none' | 'sm' | 'md' | 'lg' | 'full') | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexImage';
+                      }
+                    | {
+                        videoSource: 'upload' | 'youtube' | 'vimeo' | 'externalUrl';
+                        /**
+                         * Upload mp4, webm, or other video file
+                         */
+                        uploadedVideo?: (number | null) | Media;
+                        /**
+                         * YouTube video URL (e.g. https://youtube.com/watch?v=...)
+                         */
+                        youtubeUrl?: string | null;
+                        /**
+                         * Vimeo video URL (e.g. https://vimeo.com/123456)
+                         */
+                        vimeoUrl?: string | null;
+                        /**
+                         * Direct URL to video file (mp4, webm)
+                         */
+                        externalVideoUrl?: string | null;
+                        /**
+                         * Thumbnail / poster image (optional)
+                         */
+                        poster?: (number | null) | Media;
+                        /**
+                         * Auto-play on load (muted)
+                         */
+                        autoplay?: boolean | null;
+                        loop?: boolean | null;
+                        /**
+                         * Show playback controls
+                         */
+                        controls?: boolean | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexVideo';
+                      }
+                    | {
+                        slides: {
+                          mediaType: 'image' | 'video' | 'youtube';
+                          image?: (number | null) | Media;
+                          video?: (number | null) | Media;
+                          /**
+                           * YouTube URL
+                           */
+                          youtubeUrl?: string | null;
+                          caption?: string | null;
+                          id?: string | null;
+                        }[];
+                        /**
+                         * Auto-advance slides
+                         */
+                        autoplay?: boolean | null;
+                        /**
+                         * Auto-play interval in milliseconds (e.g. 5000 = 5 seconds)
+                         */
+                        interval?: number | null;
+                        showDots?: boolean | null;
+                        showArrows?: boolean | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexCarousel';
+                      }
+                    | {
+                        embedType: 'iframe' | 'html';
+                        /**
+                         * URL for iframe embed (Google Maps, etc.)
+                         */
+                        iframeUrl?: string | null;
+                        /**
+                         * Paste HTML embed code
+                         */
+                        html?: string | null;
+                        /**
+                         * Height in pixels
+                         */
+                        height?: number | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexMapEmbed';
+                      }
+                    | {
+                        animationType: 'lottie' | 'gif';
+                        /**
+                         * URL to Lottie JSON file
+                         */
+                        lottieUrl?: string | null;
+                        gif?: (number | null) | Media;
+                        loop?: boolean | null;
+                        autoplay?: boolean | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexAnimation';
+                      }
+                    | {
+                        columns?: ('1' | '2' | '3' | '4') | null;
+                        cardStyle?: ('outline' | 'elevated' | 'soft' | 'duccAbout') | null;
+                        cards: {
+                          label: string;
+                          value: string;
+                          trend?: string | null;
+                          trendLabel?: string | null;
+                          /**
+                           * Select a Lucide icon
+                           */
+                          icon?: string | null;
+                          /**
+                           * Pick a color or enter hex value
+                           */
+                          iconColor?: string | null;
+                          animation?: ('none' | 'hoverLift' | 'pulse' | 'float') | null;
+                          id?: string | null;
+                        }[];
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexStatsCards';
+                      }
+                    | {
+                        columns?: ('1' | '2' | '3' | '4') | null;
+                        cardStyle?: ('borderTop' | 'outline' | 'darkGlass') | null;
+                        cards: {
+                          /**
+                           * Select a Lucide icon
+                           */
+                          icon?: string | null;
+                          /**
+                           * Pick a color or enter hex value
+                           */
+                          iconColor?: string | null;
+                          /**
+                           * Pick a color or enter hex value
+                           */
+                          accentColor?: string | null;
+                          title: {
+                            root: {
+                              type: string;
+                              children: {
+                                type: any;
+                                version: number;
+                                [k: string]: unknown;
+                              }[];
+                              direction: ('ltr' | 'rtl') | null;
+                              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                              indent: number;
+                              version: number;
+                            };
+                            [k: string]: unknown;
+                          };
+                          subtitle?: string | null;
+                          description?: {
+                            root: {
+                              type: string;
+                              children: {
+                                type: any;
+                                version: number;
+                                [k: string]: unknown;
+                              }[];
+                              direction: ('ltr' | 'rtl') | null;
+                              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                              indent: number;
+                              version: number;
+                            };
+                            [k: string]: unknown;
+                          } | null;
+                          points?:
+                            | {
+                                text: string;
+                                id?: string | null;
+                              }[]
+                            | null;
+                          animation?: ('none' | 'hoverLift' | 'pulse' | 'float') | null;
+                          id?: string | null;
+                        }[];
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexFeatureCards';
+                      }
+                    | {
+                        columns?: ('1' | '2' | '3') | null;
+                        theme?: ('light' | 'dark') | null;
+                        titleSize?: ('sm' | 'base' | 'lg' | 'xl' | '2xl') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        iconBgColor?: string | null;
+                        iconAlignment?: ('left' | 'center' | 'right') | null;
+                        cards: {
+                          /**
+                           * Select a Lucide icon
+                           */
+                          icon?: string | null;
+                          /**
+                           * Pick a color or enter hex value
+                           */
+                          iconColor?: string | null;
+                          title: string;
+                          description?: string | null;
+                          animation?: ('none' | 'hoverLift' | 'pulse' | 'float') | null;
+                          id?: string | null;
+                        }[];
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexHighlightCards';
+                      }
+                    | {
+                        alignment?: ('left' | 'center' | 'right') | null;
+                        buttons: {
+                          label: string;
+                          url: string;
+                          variant?: ('primary' | 'secondary' | 'outline' | 'ghost') | null;
+                          size?: ('sm' | 'md' | 'lg') | null;
+                          /**
+                           * Select a Lucide icon
+                           */
+                          icon?: string | null;
+                          openInNewTab?: boolean | null;
+                          id?: string | null;
+                        }[];
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexButtons';
+                      }
+                    | {
+                        layoutVariant?: ('floatingCards' | 'syncStatusPanel') | null;
+                        theme?: ('light' | 'dark') | null;
+                        /**
+                         * Number of mini tiles/rows inside the mock panel
+                         */
+                        chartCount?: number | null;
+                        topBadgeLabel?: string | null;
+                        topBadgeLabelSize?: ('sm' | 'md' | 'lg') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        topBadgeLabelColor?: string | null;
+                        topBadgeValue?: string | null;
+                        topBadgeAnimation?: ('none' | 'float' | 'pulse' | 'hoverLift') | null;
+                        topBadgeValueSize?: ('lg' | 'xl' | '2xl') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        topBadgeValueColor?: string | null;
+                        bottomChipPrimary?: string | null;
+                        bottomChipSecondary?: string | null;
+                        bottomSummary?: string | null;
+                        bottomBadgeAnimation?: ('none' | 'float' | 'pulse' | 'hoverLift') | null;
+                        bottomSummarySize?: ('sm' | 'md' | 'lg' | 'xl') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        bottomSummaryColor?: string | null;
+                        /**
+                         * Footer status text for the Sync Status Panel layout
+                         */
+                        syncFooterText?: string | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexDashboardMock';
+                      }
+                  )[]
+                | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'flexibleRow';
+          }
+        | {
+            /**
+             * Short description for preview (e.g. "Through hands-on project experience...")
+             */
+            excerpt?: string | null;
+            /**
+             * Display string like "Last Updated: March 2026"
+             */
+            effectiveDate?: string | null;
+            /**
+             * Full job description — supports headings, paragraphs, bold/italic, ordered and unordered lists
+             */
+            content?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            /**
+             * Expandable sections describing different work areas or specializations
+             */
+            problemDomains?:
+              | {
+                  /**
+                   * Domain name (e.g. "ML/DL Based Systems for Education 4.0 Applications")
+                   */
+                  title?: string | null;
+                  /**
+                   * Overview of the domain
+                   */
+                  description?: string | null;
+                  /**
+                   * Specific tasks or responsibilities for this domain
+                   */
+                  challenges?:
+                    | {
+                        text?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  /**
+                   * Required technical skills
+                   */
+                  technicalSkills?:
+                    | {
+                        skill?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  /**
+                   * Required soft / non-technical skills
+                   */
+                  nonTechnicalSkills?:
+                    | {
+                        skill?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * CTA label (e.g. "Apply Now")
+             */
+            applyButtonText?: string | null;
+            /**
+             * URL the button points to. Leave blank to use the built-in /apply page.
+             */
+            applyButtonLink?: string | null;
+            /**
+             * Whether this career posting is currently active
+             */
+            status?: ('active' | 'inactive') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'careerPosting';
+          }
+      )[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * IT projects and initiatives
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects".
+ */
+export interface Project {
+  id: number;
+  title: string;
+  description: string;
+  status: 'ongoing' | 'active' | 'live' | 'completed' | 'planned';
+  /**
+   * Progress percentage (0-100)
+   */
+  progress?: number | null;
+  modules?:
+    | {
+        name: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional link for "View details"
+   */
+  link?: string | null;
+  sortOrder?: number | null;
+  layout?:
+    | (
+        | {
+            mode: 'single' | 'carousel';
+            layout: 'fullWidth' | 'fullscreenOverlayCarousel' | 'duccFullscreen' | 'split' | 'contained';
+            splitDirection?: ('textLeft' | 'textRight') | null;
+            /**
+             * Hero height in pixels (e.g. 600)
+             */
+            height?: number | null;
+            textAlignment?: ('left' | 'center' | 'right') | null;
+            textVerticalPosition?: ('top' | 'center' | 'bottom') | null;
+            /**
+             * Maximum content width in pixels for hero text container
+             */
+            contentMaxWidth?: number | null;
+            /**
+             * Horizontal content padding in pixels
+             */
+            contentPaddingX?: number | null;
+            /**
+             * Vertical content padding in pixels
+             */
+            contentPaddingY?: number | null;
+            /**
+             * Keep text/buttons constant while only the background slide changes
+             */
+            constantOverlayContent?: boolean | null;
+            constantOverlay?: {
+              showText?: boolean | null;
+              heading?: string | null;
+              /**
+               * Heading text color
+               */
+              headingColor?: string | null;
+              subtitle?: string | null;
+              /**
+               * Description text color
+               */
+              subtitleColor?: string | null;
+              buttons?:
+                | {
+                    label: string;
+                    url: string;
+                    variant?: ('primary' | 'secondary' | 'outline') | null;
+                    /**
+                     * Select button icon
+                     */
+                    icon?: string | null;
+                    id?: string | null;
+                  }[]
+                | null;
+            };
+            overlay?: {
+              enabled?: boolean | null;
+              /**
+               * Pick overlay color
+               */
+              color?: string | null;
+              /**
+               * Overlay opacity (0-100)
+               */
+              opacity?: number | null;
+            };
+            headerGlass?: {
+              enabled?: boolean | null;
+              /**
+               * Glass overlay tint color for the fixed header
+               */
+              fillColor?: string | null;
+              /**
+               * Glass tint opacity in percent
+               */
+              fillOpacity?: number | null;
+              /**
+               * Background blur amount in pixels
+               */
+              blurAmount?: number | null;
+              /**
+               * Show thin divider under header while hero is active
+               */
+              showDivider?: boolean | null;
+            };
+            carouselSettings?: {
+              autoPlay?: boolean | null;
+              /**
+               * Interval in milliseconds (e.g. 5000 = 5 seconds)
+               */
+              autoPlayInterval?: number | null;
+              showArrows?: boolean | null;
+              showDots?: boolean | null;
+            };
+            singleSlide?: {
+              mediaType: 'textOnly' | 'image' | 'video' | 'externalVideo' | 'animation' | 'dataViz';
+              image?: (number | null) | Media;
+              /**
+               * URL to self-hosted video file (mp4, webm)
+               */
+              videoUrl?: string | null;
+              /**
+               * Poster/thumbnail image for the video
+               */
+              videoPoster?: (number | null) | Media;
+              /**
+               * YouTube or Vimeo URL (e.g. https://youtube.com/watch?v=...)
+               */
+              externalVideoUrl?: string | null;
+              /**
+               * URL to Lottie JSON file or GIF image
+               */
+              animationUrl?: string | null;
+              /**
+               * Embed code for map, chart, or data visualization
+               */
+              dataVizEmbed?: string | null;
+              /**
+               * Small badge text above the heading (e.g. "ESTABLISHED 1956", "CORE SERVICE DOMAINS")
+               */
+              eyebrowText?: string | null;
+              showText?: boolean | null;
+              heading?: string | null;
+              /**
+               * Heading text color
+               */
+              headingColor?: string | null;
+              subtitle?: string | null;
+              /**
+               * Description text color
+               */
+              subtitleColor?: string | null;
+              buttons?:
+                | {
+                    label: string;
+                    url: string;
+                    variant?: ('primary' | 'secondary' | 'outline') | null;
+                    /**
+                     * Select button icon
+                     */
+                    icon?: string | null;
+                    id?: string | null;
+                  }[]
+                | null;
+            };
+            slides?:
+              | {
+                  mediaType: 'textOnly' | 'image' | 'video' | 'externalVideo' | 'animation' | 'dataViz';
+                  image?: (number | null) | Media;
+                  /**
+                   * URL to self-hosted video file (mp4, webm)
+                   */
+                  videoUrl?: string | null;
+                  /**
+                   * Poster/thumbnail image for the video
+                   */
+                  videoPoster?: (number | null) | Media;
+                  /**
+                   * YouTube or Vimeo URL (e.g. https://youtube.com/watch?v=...)
+                   */
+                  externalVideoUrl?: string | null;
+                  /**
+                   * URL to Lottie JSON file or GIF image
+                   */
+                  animationUrl?: string | null;
+                  /**
+                   * Embed code for map, chart, or data visualization
+                   */
+                  dataVizEmbed?: string | null;
+                  /**
+                   * Small badge text above the heading (e.g. "ESTABLISHED 1956", "CORE SERVICE DOMAINS")
+                   */
+                  eyebrowText?: string | null;
+                  showText?: boolean | null;
+                  heading?: string | null;
+                  /**
+                   * Heading text color
+                   */
+                  headingColor?: string | null;
+                  subtitle?: string | null;
+                  /**
+                   * Description text color
+                   */
+                  subtitleColor?: string | null;
+                  buttons?:
+                    | {
+                        label: string;
+                        url: string;
+                        variant?: ('primary' | 'secondary' | 'outline') | null;
+                        /**
+                         * Select button icon
+                         */
+                        icon?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  id?: string | null;
+                }[]
+              | null;
+            duccFloatingCard?: {
+              enabled?: boolean | null;
+              badgeLabel?: string | null;
+              footerText?: string | null;
+              footerLink?: string | null;
+              footerLinkLabel?: string | null;
+              stats?:
+                | {
+                    value: string;
+                    label: string;
+                    id?: string | null;
+                  }[]
+                | null;
+            };
+            duccShowSlideCounter?: boolean | null;
+            duccShowPlayPause?: boolean | null;
+            /**
+             * Floating card grid that overlaps the bottom of the hero into the next section
+             */
+            quickAccessBar?: {
+              enabled?: boolean | null;
+              /**
+               * How many pixels the bar hangs below the hero (default: 80)
+               */
+              overlapAmount?: number | null;
+              items?:
+                | {
+                    label: string;
+                    /**
+                     * Select a Lucide icon
+                     */
+                    icon?: string | null;
+                    /**
+                     * Internal path (e.g. /it-services) or external URL
+                     */
+                    link: string;
+                    external?: boolean | null;
+                    colorVariant?: ('primary' | 'dark') | null;
+                    id?: string | null;
+                  }[]
+                | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'hero';
+          }
+        | {
+            items: {
+              text: string;
+              /**
+               * Optional link when clicked
+               */
+              url?: string | null;
+              /**
+               * Select a Lucide icon
+               */
+              icon?: string | null;
+              /**
+               * Optional badge/label (e.g. "NEW", "IMPORTANT")
+               */
+              badge?: string | null;
+              id?: string | null;
+            }[];
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            textColor?: string | null;
+            speed?: ('slow' | 'normal' | 'fast') | null;
+            pauseOnHover?: boolean | null;
+            /**
+             * Character between items (e.g. "•", "|", "★")
+             */
+            separator?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'marquee';
+          }
+        | {
+            heading: string;
+            /**
+             * Optional descriptive text below the heading
+             */
+            description?: string | null;
+            /**
+             * Add the states that are currently onboarded
+             */
+            states: {
+              /**
+               * E.g., Maharashtra
+               */
+              stateName: string;
+              /**
+               * Link to this state's SamarthX portal (e.g., https://mah.samarthx.in)
+               */
+              portalUrl: string;
+              /**
+               * Optional short tagline (e.g., Active Since 2026)
+               */
+              tagline?: string | null;
+              /**
+               * Pick the theme color for the state card highlight and button
+               */
+              themeColor?: string | null;
+              /**
+               * Opacity of the background image (0 to 100)
+               */
+              imageOpacity?: number | null;
+              /**
+               * Optional subtle background image or map outline SVG for this card
+               */
+              backgroundImage?: (number | null) | Media;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'statesOnboarded';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Toggle between overlay cards and clean card layout
+             */
+            cardStyle: 'overlay' | 'clean';
+            columns?: ('2' | '3' | '4') | null;
+            cards: {
+              /**
+               * Card title (e.g. state name or project name)
+               */
+              title: string;
+              image: number | Media;
+              /**
+               * Short overlay caption (used in Overlay style)
+               */
+              caption?: string | null;
+              /**
+               * Small logo/emblem (used in Clean Card style)
+               */
+              logo?: (number | null) | Media;
+              /**
+               * Subtitle or location (e.g. "Rajasthan, India")
+               */
+              subtitle?: string | null;
+              /**
+               * Short description (used in Clean Card style)
+               */
+              description?: string | null;
+              /**
+               * Show a "Featured" badge on this card
+               */
+              featured?: boolean | null;
+              /**
+               * Custom badge text (e.g. "Featured", "New", "Live")
+               */
+              featuredLabel?: string | null;
+              /**
+               * Link when card is clicked
+               */
+              url?: string | null;
+              /**
+               * Select a Lucide icon
+               */
+              icon?: string | null;
+              id?: string | null;
+            }[];
+            /**
+             * Settings specific to the overlay card style
+             */
+            overlaySettings?: {
+              /**
+               * Pick a color or enter hex value
+               */
+              overlayColor?: string | null;
+              /**
+               * Overlay opacity (0-100)
+               */
+              overlayOpacity?: number | null;
+              /**
+               * Card height in pixels
+               */
+              cardHeight?: number | null;
+            };
+            bottomLink?: {
+              enabled?: boolean | null;
+              label?: string | null;
+              url?: string | null;
+            };
+            /**
+             * Pick a color or enter hex value
+             */
+            accentColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'showcaseCards';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose between card grid layout or circular ring/donut layout
+             */
+            layout: 'cardGrid' | 'circularRings' | 'interlockingRings' | 'duccStrip';
+            stats: {
+              /**
+               * e.g. "Students Enrolled", "Schools", "Pass Rate"
+               */
+              label: string;
+              /**
+               * Numeric value for count-up animation (e.g. 10000, 500, 98)
+               */
+              numericValue: number;
+              /**
+               * Suffix after the number (e.g. "+", "%", "K", "M")
+               */
+              suffix?: string | null;
+              /**
+               * Prefix before the number (e.g. "$", "₹")
+               */
+              prefix?: string | null;
+              /**
+               * Select a Lucide icon
+               */
+              icon?: string | null;
+              /**
+               * Pick a color or enter hex value
+               */
+              iconColor?: string | null;
+              /**
+               * Pick a color or enter hex value
+               */
+              ringGradientEnd?: string | null;
+              /**
+               * Pick a color or enter hex value
+               */
+              iconBgColor?: string | null;
+              /**
+               * Short description shown below the stat (optional)
+               */
+              description?: string | null;
+              /**
+               * Ring fill percentage (0-100). Used in Circular Rings layout.
+               */
+              ringPercentage?: number | null;
+              id?: string | null;
+            }[];
+            /**
+             * Color of the back ribbon (default gray)
+             */
+            ribbonBaseColor?: string | null;
+            /**
+             * Gradient start color of the front weave ribbon
+             */
+            ribbonWaveStartColor?: string | null;
+            /**
+             * Gradient end color of the front weave ribbon
+             */
+            ribbonWaveEndColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            cardBgColor?: string | null;
+            /**
+             * Animate numbers counting up when scrolled into view
+             */
+            enableCountUp?: boolean | null;
+            /**
+             * Zoom effect on card hover
+             */
+            enableHoverZoom?: boolean | null;
+            columns?: ('2' | '3' | '4') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'statistics';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose between a card grid or a featured spotlight layout
+             */
+            layout: 'cards' | 'spotlight' | 'duccCards';
+            /**
+             * Choose manual card entry or automatic fetch from News collection.
+             */
+            entryType: 'manual' | 'collection';
+            articles?:
+              | {
+                  title: string;
+                  /**
+                   * Short summary or excerpt
+                   */
+                  excerpt?: string | null;
+                  image?: (number | null) | Media;
+                  /**
+                   * Category label (e.g. "Update", "Press Release", "Event")
+                   */
+                  category?: string | null;
+                  /**
+                   * Published date
+                   */
+                  date?: string | null;
+                  /**
+                   * Link to the full article
+                   */
+                  url?: string | null;
+                  /**
+                   * Select a Lucide icon
+                   */
+                  icon?: string | null;
+                  /**
+                   * Pick a color or enter hex value
+                   */
+                  categoryColor?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            collectionSource?: {
+              /**
+               * Maximum number of cards to fetch
+               */
+              limit: number;
+              sortBy?: ('latest' | 'oldest') | null;
+              /**
+               * Optional category filter (exact match)
+               */
+              category?: string | null;
+              featuredOnly?: boolean | null;
+            };
+            columns?: ('2' | '3') | null;
+            bottomLink?: {
+              enabled?: boolean | null;
+              label?: string | null;
+              url?: string | null;
+            };
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'newsUpdates';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Map image (e.g. India map SVG/PNG)
+             */
+            mapImage?: (number | null) | Media;
+            /**
+             * Alternatively, embed URL for interactive map (iframe)
+             */
+            mapEmbedUrl?: string | null;
+            /**
+             * Map display height in pixels
+             */
+            mapHeight?: number | null;
+            /**
+             * Show progress bars alongside the map
+             */
+            showProgressBars?: boolean | null;
+            progressItems?:
+              | {
+                  /**
+                   * e.g. "Rajasthan", "Maharashtra"
+                   */
+                  label: string;
+                  /**
+                   * Progress percentage (0-100)
+                   */
+                  value: number;
+                  /**
+                   * Custom display text (e.g. "1,250 Schools")
+                   */
+                  displayValue?: string | null;
+                  /**
+                   * Pick a color or enter hex value
+                   */
+                  barColor?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            layout?: ('mapLeft' | 'mapRight' | 'stacked') | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'interactiveMap';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            screenshots: {
+              image: number | Media;
+              /**
+               * Title displayed below the screenshot
+               */
+              title?: string | null;
+              /**
+               * Short caption or description
+               */
+              caption?: string | null;
+              /**
+               * Category/module name (e.g. "Dashboard", "Reports")
+               */
+              category?: string | null;
+              id?: string | null;
+            }[];
+            columns?: ('2' | '3' | '4') | null;
+            /**
+             * Allow clicking to view full-size screenshot
+             */
+            enableLightbox?: boolean | null;
+            /**
+             * Wrap screenshots in a device frame (laptop/tablet)
+             */
+            showDeviceFrame?: boolean | null;
+            deviceType?: ('laptop' | 'tablet' | 'phone') | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'screenshotGallery';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            layout?: ('sideBySide' | 'stacked') | null;
+            supportCards?:
+              | {
+                  /**
+                   * e.g. "Technical Support", "Training Resources"
+                   */
+                  title: string;
+                  description?: string | null;
+                  /**
+                   * Select a Lucide icon
+                   */
+                  icon?: string | null;
+                  /**
+                   * Pick a color or enter hex value
+                   */
+                  iconColor?: string | null;
+                  /**
+                   * e.g. "Contact Support", "View Resources"
+                   */
+                  buttonLabel?: string | null;
+                  buttonUrl?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            video?: {
+              enabled?: boolean | null;
+              /**
+               * Video section title (e.g. "How to Get Started")
+               */
+              title?: string | null;
+              /**
+               * YouTube or Vimeo URL
+               */
+              videoUrl?: string | null;
+              /**
+               * Thumbnail/poster image for the video
+               */
+              poster?: (number | null) | Media;
+              /**
+               * Or upload a video file directly
+               */
+              uploadedVideo?: (number | null) | Media;
+            };
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            cardBgColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'helpSupport';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional rich-text description below the heading
+             */
+            sectionDescription?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Select a Form Builder form to display in this section.
+             */
+            form: number | Form;
+            maxWidth?: ('narrow' | 'medium' | 'wide' | 'full') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'formLayout';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            content: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            maxWidth?: ('narrow' | 'medium' | 'full') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'richContent';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Small uppercase text above the heading (used in DUCC Service layout)
+             */
+            eyebrow?: string | null;
+            /**
+             * Link text shown next to heading (e.g. "Explore all services")
+             */
+            ctaLabel?: string | null;
+            /**
+             * URL for the CTA link
+             */
+            ctaLink?: string | null;
+            /**
+             * Choose how cards should be displayed.
+             */
+            cardLayout?:
+              | (
+                  | 'classic'
+                  | 'minimal'
+                  | 'split'
+                  | 'accentTop'
+                  | 'duccService'
+                  | 'duccServiceDetail'
+                  | 'duccProject'
+                  | 'duccTraining'
+                )
+              | null;
+            columns?: ('2' | '3' | '4') | null;
+            /**
+             * Dark: dark background with light text. Light: white cards with theme-colored icons and borders.
+             */
+            cardTheme?: ('dark' | 'light') | null;
+            /**
+             * Show a faded number (01, 02, 03...) next to the icon on each card
+             */
+            showCardNumbers?: boolean | null;
+            cards?:
+              | {
+                  /**
+                   * Select a Lucide icon
+                   */
+                  icon?: string | null;
+                  /**
+                   * Optional card title (rich text supported).
+                   */
+                  title?: {
+                    root: {
+                      type: string;
+                      children: {
+                        type: any;
+                        version: number;
+                        [k: string]: unknown;
+                      }[];
+                      direction: ('ltr' | 'rtl') | null;
+                      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                      indent: number;
+                      version: number;
+                    };
+                    [k: string]: unknown;
+                  } | null;
+                  /**
+                   * Optional card description/details (rich text supported).
+                   */
+                  description?: {
+                    root: {
+                      type: string;
+                      children: {
+                        type: any;
+                        version: number;
+                        [k: string]: unknown;
+                      }[];
+                      direction: ('ltr' | 'rtl') | null;
+                      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                      indent: number;
+                      version: number;
+                    };
+                    [k: string]: unknown;
+                  } | null;
+                  /**
+                   * Optional URL this card links to
+                   */
+                  link?: string | null;
+                  /**
+                   * Small tag label (e.g. "Platform", "Security") — used in DUCC Service layout
+                   */
+                  tag?: string | null;
+                  /**
+                   * Open link in new tab
+                   */
+                  external?: boolean | null;
+                  /**
+                   * Bullet points for the Service Detail layout
+                   */
+                  features?:
+                    | {
+                        text: string;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  /**
+                   * CTA button label (e.g. "Request Access")
+                   */
+                  buttonLabel?: string | null;
+                  /**
+                   * CTA button URL
+                   */
+                  buttonUrl?: string | null;
+                  /**
+                   * Project status badge (used in Project Cards layout)
+                   */
+                  status?: ('ongoing' | 'active' | 'live' | 'completed' | 'planned') | null;
+                  /**
+                   * Progress percentage 0-100 (used in Project Cards layout)
+                   */
+                  progress?: number | null;
+                  /**
+                   * Difficulty level (used in Training Cards layout)
+                   */
+                  level?: ('Beginner' | 'Intermediate' | 'Advanced') | null;
+                  /**
+                   * e.g. "5 Days", "1 Day" (used in Training Cards layout)
+                   */
+                  duration?: string | null;
+                  /**
+                   * e.g. "In-person", "Online", "Hybrid" (used in Training Cards layout)
+                   */
+                  mode?: string | null;
+                  /**
+                   * e.g. "Faculty", "Students & Faculty" (used in Training Cards layout)
+                   */
+                  audience?: string | null;
+                  /**
+                   * Next batch date (used in Training Cards layout)
+                   */
+                  date?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'featureCards';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose visual style for this CTA block
+             */
+            layout?: ('default' | 'duccBanner') | null;
+            /**
+             * CTA headline text
+             */
+            heading: string;
+            /**
+             * CTA description text
+             */
+            description?: string | null;
+            buttons?:
+              | {
+                  label: string;
+                  url: string;
+                  variant?: ('primary' | 'secondary' | 'outline') | null;
+                  id?: string | null;
+                }[]
+              | null;
+            backgroundType?: ('color' | 'image') | null;
+            /**
+             * Pick background color
+             */
+            backgroundColor?: string | null;
+            backgroundImage?: (number | null) | Media;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'callToAction';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            columns?: ('2' | '3' | '4') | null;
+            images: {
+              image: number | Media;
+              caption?: string | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'imageGallery';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose visual style for the FAQ section
+             */
+            layout?: ('default' | 'duccAccordion') | null;
+            items: {
+              question: string;
+              answer: {
+                root: {
+                  type: string;
+                  children: {
+                    type: any;
+                    version: number;
+                    [k: string]: unknown;
+                  }[];
+                  direction: ('ltr' | 'rtl') | null;
+                  format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                  indent: number;
+                  version: number;
+                };
+                [k: string]: unknown;
+              };
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'faq';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose visual style for testimonials
+             */
+            layout?: ('default' | 'duccQuote') | null;
+            items: {
+              quote: string;
+              name: string;
+              /**
+               * e.g. "Student, Class 10", "Parent", "Principal"
+               */
+              role?: string | null;
+              avatar?: (number | null) | Media;
+              /**
+               * Initials for avatar fallback (e.g. "SS") — used in DUCC Quote layout
+               */
+              initials?: string | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'testimonials';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            type: 'info' | 'success' | 'warning' | 'error';
+            message: string;
+            dismissible?: boolean | null;
+            link?: {
+              label?: string | null;
+              url?: string | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'bannerAlert';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            embedType: 'html' | 'iframe';
+            /**
+             * Paste custom HTML/embed code
+             */
+            html?: string | null;
+            /**
+             * URL to embed (YouTube, Google Maps, etc.)
+             */
+            iframeUrl?: string | null;
+            /**
+             * Height in pixels
+             */
+            height?: number | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'embed';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            columns?: ('2' | '3' | '4') | null;
+            members: {
+              name: string;
+              /**
+               * e.g. "Principal", "Math Teacher", "HOD Science"
+               */
+              role?: string | null;
+              photo?: (number | null) | Media;
+              bio?: string | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'teamGrid';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            tabs: {
+              label: string;
+              content: {
+                root: {
+                  type: string;
+                  children: {
+                    type: any;
+                    version: number;
+                    [k: string]: unknown;
+                  }[];
+                  direction: ('ltr' | 'rtl') | null;
+                  format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                  indent: number;
+                  version: number;
+                };
+                [k: string]: unknown;
+              };
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'tabs';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            content: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            media: number | Media;
+            mediaPosition?: ('left' | 'right') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'contentWithMedia';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            sectionBgColor?: string | null;
+            /**
+             * Add a subtle radial accent glow behind this section
+             */
+            radialGlow?: boolean | null;
+            gap?: ('0' | '4' | '6' | '8' | '12') | null;
+            verticalAlign?: ('start' | 'center' | 'end' | 'stretch') | null;
+            /**
+             * Add columns – max 3 per row. More than 3 will wrap to new rows.
+             */
+            columns: {
+              width?: ('auto' | '25' | '33' | '50' | '66' | '75' | '100') | null;
+              /**
+               * Pick a color or enter hex value
+               */
+              columnBgColor?: string | null;
+              padding?: ('0' | '4' | '6' | '8') | null;
+              blocks?:
+                | (
+                    | {
+                        content: {
+                          root: {
+                            type: string;
+                            children: {
+                              type: any;
+                              version: number;
+                              [k: string]: unknown;
+                            }[];
+                            direction: ('ltr' | 'rtl') | null;
+                            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                            indent: number;
+                            version: number;
+                          };
+                          [k: string]: unknown;
+                        };
+                        /**
+                         * Font family for body text (paragraphs, lists)
+                         */
+                        fontFamily?:
+                          | (
+                              | 'inherit'
+                              | 'Inter'
+                              | 'Roboto'
+                              | 'Poppins'
+                              | 'Open Sans'
+                              | 'Lato'
+                              | 'Montserrat'
+                              | 'Nunito'
+                              | 'Raleway'
+                              | 'Playfair Display'
+                              | 'Merriweather'
+                              | 'Source Sans Pro'
+                            )
+                          | null;
+                        /**
+                         * Font family for headings only (h1-h6). Leave as Default to use the body font.
+                         */
+                        headingFontFamily?:
+                          | (
+                              | 'inherit'
+                              | 'Inter'
+                              | 'Playfair Display'
+                              | 'Merriweather'
+                              | 'Roboto'
+                              | 'Poppins'
+                              | 'Montserrat'
+                              | 'Raleway'
+                            )
+                          | null;
+                        fontSize?: ('sm' | 'base' | 'lg' | 'xl' | '2xl') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        textColor?: string | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexRichText';
+                      }
+                    | {
+                        image: number | Media;
+                        /**
+                         * Optional caption below the image
+                         */
+                        caption?: string | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        captionColor?: string | null;
+                        objectFit?: ('cover' | 'contain' | 'none') | null;
+                        rounded?: ('none' | 'sm' | 'md' | 'lg' | 'full') | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexImage';
+                      }
+                    | {
+                        videoSource: 'upload' | 'youtube' | 'vimeo' | 'externalUrl';
+                        /**
+                         * Upload mp4, webm, or other video file
+                         */
+                        uploadedVideo?: (number | null) | Media;
+                        /**
+                         * YouTube video URL (e.g. https://youtube.com/watch?v=...)
+                         */
+                        youtubeUrl?: string | null;
+                        /**
+                         * Vimeo video URL (e.g. https://vimeo.com/123456)
+                         */
+                        vimeoUrl?: string | null;
+                        /**
+                         * Direct URL to video file (mp4, webm)
+                         */
+                        externalVideoUrl?: string | null;
+                        /**
+                         * Thumbnail / poster image (optional)
+                         */
+                        poster?: (number | null) | Media;
+                        /**
+                         * Auto-play on load (muted)
+                         */
+                        autoplay?: boolean | null;
+                        loop?: boolean | null;
+                        /**
+                         * Show playback controls
+                         */
+                        controls?: boolean | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexVideo';
+                      }
+                    | {
+                        slides: {
+                          mediaType: 'image' | 'video' | 'youtube';
+                          image?: (number | null) | Media;
+                          video?: (number | null) | Media;
+                          /**
+                           * YouTube URL
+                           */
+                          youtubeUrl?: string | null;
+                          caption?: string | null;
+                          id?: string | null;
+                        }[];
+                        /**
+                         * Auto-advance slides
+                         */
+                        autoplay?: boolean | null;
+                        /**
+                         * Auto-play interval in milliseconds (e.g. 5000 = 5 seconds)
+                         */
+                        interval?: number | null;
+                        showDots?: boolean | null;
+                        showArrows?: boolean | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexCarousel';
+                      }
+                    | {
+                        embedType: 'iframe' | 'html';
+                        /**
+                         * URL for iframe embed (Google Maps, etc.)
+                         */
+                        iframeUrl?: string | null;
+                        /**
+                         * Paste HTML embed code
+                         */
+                        html?: string | null;
+                        /**
+                         * Height in pixels
+                         */
+                        height?: number | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexMapEmbed';
+                      }
+                    | {
+                        animationType: 'lottie' | 'gif';
+                        /**
+                         * URL to Lottie JSON file
+                         */
+                        lottieUrl?: string | null;
+                        gif?: (number | null) | Media;
+                        loop?: boolean | null;
+                        autoplay?: boolean | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexAnimation';
+                      }
+                    | {
+                        columns?: ('1' | '2' | '3' | '4') | null;
+                        cardStyle?: ('outline' | 'elevated' | 'soft' | 'duccAbout') | null;
+                        cards: {
+                          label: string;
+                          value: string;
+                          trend?: string | null;
+                          trendLabel?: string | null;
+                          /**
+                           * Select a Lucide icon
+                           */
+                          icon?: string | null;
+                          /**
+                           * Pick a color or enter hex value
+                           */
+                          iconColor?: string | null;
+                          animation?: ('none' | 'hoverLift' | 'pulse' | 'float') | null;
+                          id?: string | null;
+                        }[];
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexStatsCards';
+                      }
+                    | {
+                        columns?: ('1' | '2' | '3' | '4') | null;
+                        cardStyle?: ('borderTop' | 'outline' | 'darkGlass') | null;
+                        cards: {
+                          /**
+                           * Select a Lucide icon
+                           */
+                          icon?: string | null;
+                          /**
+                           * Pick a color or enter hex value
+                           */
+                          iconColor?: string | null;
+                          /**
+                           * Pick a color or enter hex value
+                           */
+                          accentColor?: string | null;
+                          title: {
+                            root: {
+                              type: string;
+                              children: {
+                                type: any;
+                                version: number;
+                                [k: string]: unknown;
+                              }[];
+                              direction: ('ltr' | 'rtl') | null;
+                              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                              indent: number;
+                              version: number;
+                            };
+                            [k: string]: unknown;
+                          };
+                          subtitle?: string | null;
+                          description?: {
+                            root: {
+                              type: string;
+                              children: {
+                                type: any;
+                                version: number;
+                                [k: string]: unknown;
+                              }[];
+                              direction: ('ltr' | 'rtl') | null;
+                              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                              indent: number;
+                              version: number;
+                            };
+                            [k: string]: unknown;
+                          } | null;
+                          points?:
+                            | {
+                                text: string;
+                                id?: string | null;
+                              }[]
+                            | null;
+                          animation?: ('none' | 'hoverLift' | 'pulse' | 'float') | null;
+                          id?: string | null;
+                        }[];
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexFeatureCards';
+                      }
+                    | {
+                        columns?: ('1' | '2' | '3') | null;
+                        theme?: ('light' | 'dark') | null;
+                        titleSize?: ('sm' | 'base' | 'lg' | 'xl' | '2xl') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        iconBgColor?: string | null;
+                        iconAlignment?: ('left' | 'center' | 'right') | null;
+                        cards: {
+                          /**
+                           * Select a Lucide icon
+                           */
+                          icon?: string | null;
+                          /**
+                           * Pick a color or enter hex value
+                           */
+                          iconColor?: string | null;
+                          title: string;
+                          description?: string | null;
+                          animation?: ('none' | 'hoverLift' | 'pulse' | 'float') | null;
+                          id?: string | null;
+                        }[];
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexHighlightCards';
+                      }
+                    | {
+                        alignment?: ('left' | 'center' | 'right') | null;
+                        buttons: {
+                          label: string;
+                          url: string;
+                          variant?: ('primary' | 'secondary' | 'outline' | 'ghost') | null;
+                          size?: ('sm' | 'md' | 'lg') | null;
+                          /**
+                           * Select a Lucide icon
+                           */
+                          icon?: string | null;
+                          openInNewTab?: boolean | null;
+                          id?: string | null;
+                        }[];
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexButtons';
+                      }
+                    | {
+                        layoutVariant?: ('floatingCards' | 'syncStatusPanel') | null;
+                        theme?: ('light' | 'dark') | null;
+                        /**
+                         * Number of mini tiles/rows inside the mock panel
+                         */
+                        chartCount?: number | null;
+                        topBadgeLabel?: string | null;
+                        topBadgeLabelSize?: ('sm' | 'md' | 'lg') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        topBadgeLabelColor?: string | null;
+                        topBadgeValue?: string | null;
+                        topBadgeAnimation?: ('none' | 'float' | 'pulse' | 'hoverLift') | null;
+                        topBadgeValueSize?: ('lg' | 'xl' | '2xl') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        topBadgeValueColor?: string | null;
+                        bottomChipPrimary?: string | null;
+                        bottomChipSecondary?: string | null;
+                        bottomSummary?: string | null;
+                        bottomBadgeAnimation?: ('none' | 'float' | 'pulse' | 'hoverLift') | null;
+                        bottomSummarySize?: ('sm' | 'md' | 'lg' | 'xl') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        bottomSummaryColor?: string | null;
+                        /**
+                         * Footer status text for the Sync Status Panel layout
+                         */
+                        syncFooterText?: string | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexDashboardMock';
+                      }
+                  )[]
+                | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'flexibleRow';
+          }
+        | {
+            /**
+             * Short description for preview (e.g. "Through hands-on project experience...")
+             */
+            excerpt?: string | null;
+            /**
+             * Display string like "Last Updated: March 2026"
+             */
+            effectiveDate?: string | null;
+            /**
+             * Full job description — supports headings, paragraphs, bold/italic, ordered and unordered lists
+             */
+            content?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            /**
+             * Expandable sections describing different work areas or specializations
+             */
+            problemDomains?:
+              | {
+                  /**
+                   * Domain name (e.g. "ML/DL Based Systems for Education 4.0 Applications")
+                   */
+                  title?: string | null;
+                  /**
+                   * Overview of the domain
+                   */
+                  description?: string | null;
+                  /**
+                   * Specific tasks or responsibilities for this domain
+                   */
+                  challenges?:
+                    | {
+                        text?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  /**
+                   * Required technical skills
+                   */
+                  technicalSkills?:
+                    | {
+                        skill?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  /**
+                   * Required soft / non-technical skills
+                   */
+                  nonTechnicalSkills?:
+                    | {
+                        skill?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * CTA label (e.g. "Apply Now")
+             */
+            applyButtonText?: string | null;
+            /**
+             * URL the button points to. Leave blank to use the built-in /apply page.
+             */
+            applyButtonLink?: string | null;
+            /**
+             * Whether this career posting is currently active
+             */
+            status?: ('active' | 'inactive') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'careerPosting';
+          }
+      )[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Training programmes and workshops
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "trainings".
+ */
+export interface Training {
+  id: number;
+  title: string;
+  /**
+   * e.g. "5 Days", "1 Day", "2 Days"
+   */
+  duration: string;
+  mode: 'In-person' | 'Online' | 'Hybrid';
+  /**
+   * e.g. "Faculty", "Administrative Staff", "Students & Faculty"
+   */
+  audience: string;
+  level: 'Beginner' | 'Intermediate' | 'Advanced';
+  /**
+   * When the next batch starts
+   */
+  nextBatch?: string | null;
+  topics?:
+    | {
+        name: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Link for the Register button
+   */
+  registerUrl?: string | null;
+  status?: ('active' | 'upcoming' | 'completed') | null;
+  sortOrder?: number | null;
+  layout?:
+    | (
+        | {
+            mode: 'single' | 'carousel';
+            layout: 'fullWidth' | 'fullscreenOverlayCarousel' | 'duccFullscreen' | 'split' | 'contained';
+            splitDirection?: ('textLeft' | 'textRight') | null;
+            /**
+             * Hero height in pixels (e.g. 600)
+             */
+            height?: number | null;
+            textAlignment?: ('left' | 'center' | 'right') | null;
+            textVerticalPosition?: ('top' | 'center' | 'bottom') | null;
+            /**
+             * Maximum content width in pixels for hero text container
+             */
+            contentMaxWidth?: number | null;
+            /**
+             * Horizontal content padding in pixels
+             */
+            contentPaddingX?: number | null;
+            /**
+             * Vertical content padding in pixels
+             */
+            contentPaddingY?: number | null;
+            /**
+             * Keep text/buttons constant while only the background slide changes
+             */
+            constantOverlayContent?: boolean | null;
+            constantOverlay?: {
+              showText?: boolean | null;
+              heading?: string | null;
+              /**
+               * Heading text color
+               */
+              headingColor?: string | null;
+              subtitle?: string | null;
+              /**
+               * Description text color
+               */
+              subtitleColor?: string | null;
+              buttons?:
+                | {
+                    label: string;
+                    url: string;
+                    variant?: ('primary' | 'secondary' | 'outline') | null;
+                    /**
+                     * Select button icon
+                     */
+                    icon?: string | null;
+                    id?: string | null;
+                  }[]
+                | null;
+            };
+            overlay?: {
+              enabled?: boolean | null;
+              /**
+               * Pick overlay color
+               */
+              color?: string | null;
+              /**
+               * Overlay opacity (0-100)
+               */
+              opacity?: number | null;
+            };
+            headerGlass?: {
+              enabled?: boolean | null;
+              /**
+               * Glass overlay tint color for the fixed header
+               */
+              fillColor?: string | null;
+              /**
+               * Glass tint opacity in percent
+               */
+              fillOpacity?: number | null;
+              /**
+               * Background blur amount in pixels
+               */
+              blurAmount?: number | null;
+              /**
+               * Show thin divider under header while hero is active
+               */
+              showDivider?: boolean | null;
+            };
+            carouselSettings?: {
+              autoPlay?: boolean | null;
+              /**
+               * Interval in milliseconds (e.g. 5000 = 5 seconds)
+               */
+              autoPlayInterval?: number | null;
+              showArrows?: boolean | null;
+              showDots?: boolean | null;
+            };
+            singleSlide?: {
+              mediaType: 'textOnly' | 'image' | 'video' | 'externalVideo' | 'animation' | 'dataViz';
+              image?: (number | null) | Media;
+              /**
+               * URL to self-hosted video file (mp4, webm)
+               */
+              videoUrl?: string | null;
+              /**
+               * Poster/thumbnail image for the video
+               */
+              videoPoster?: (number | null) | Media;
+              /**
+               * YouTube or Vimeo URL (e.g. https://youtube.com/watch?v=...)
+               */
+              externalVideoUrl?: string | null;
+              /**
+               * URL to Lottie JSON file or GIF image
+               */
+              animationUrl?: string | null;
+              /**
+               * Embed code for map, chart, or data visualization
+               */
+              dataVizEmbed?: string | null;
+              /**
+               * Small badge text above the heading (e.g. "ESTABLISHED 1956", "CORE SERVICE DOMAINS")
+               */
+              eyebrowText?: string | null;
+              showText?: boolean | null;
+              heading?: string | null;
+              /**
+               * Heading text color
+               */
+              headingColor?: string | null;
+              subtitle?: string | null;
+              /**
+               * Description text color
+               */
+              subtitleColor?: string | null;
+              buttons?:
+                | {
+                    label: string;
+                    url: string;
+                    variant?: ('primary' | 'secondary' | 'outline') | null;
+                    /**
+                     * Select button icon
+                     */
+                    icon?: string | null;
+                    id?: string | null;
+                  }[]
+                | null;
+            };
+            slides?:
+              | {
+                  mediaType: 'textOnly' | 'image' | 'video' | 'externalVideo' | 'animation' | 'dataViz';
+                  image?: (number | null) | Media;
+                  /**
+                   * URL to self-hosted video file (mp4, webm)
+                   */
+                  videoUrl?: string | null;
+                  /**
+                   * Poster/thumbnail image for the video
+                   */
+                  videoPoster?: (number | null) | Media;
+                  /**
+                   * YouTube or Vimeo URL (e.g. https://youtube.com/watch?v=...)
+                   */
+                  externalVideoUrl?: string | null;
+                  /**
+                   * URL to Lottie JSON file or GIF image
+                   */
+                  animationUrl?: string | null;
+                  /**
+                   * Embed code for map, chart, or data visualization
+                   */
+                  dataVizEmbed?: string | null;
+                  /**
+                   * Small badge text above the heading (e.g. "ESTABLISHED 1956", "CORE SERVICE DOMAINS")
+                   */
+                  eyebrowText?: string | null;
+                  showText?: boolean | null;
+                  heading?: string | null;
+                  /**
+                   * Heading text color
+                   */
+                  headingColor?: string | null;
+                  subtitle?: string | null;
+                  /**
+                   * Description text color
+                   */
+                  subtitleColor?: string | null;
+                  buttons?:
+                    | {
+                        label: string;
+                        url: string;
+                        variant?: ('primary' | 'secondary' | 'outline') | null;
+                        /**
+                         * Select button icon
+                         */
+                        icon?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  id?: string | null;
+                }[]
+              | null;
+            duccFloatingCard?: {
+              enabled?: boolean | null;
+              badgeLabel?: string | null;
+              footerText?: string | null;
+              footerLink?: string | null;
+              footerLinkLabel?: string | null;
+              stats?:
+                | {
+                    value: string;
+                    label: string;
+                    id?: string | null;
+                  }[]
+                | null;
+            };
+            duccShowSlideCounter?: boolean | null;
+            duccShowPlayPause?: boolean | null;
+            /**
+             * Floating card grid that overlaps the bottom of the hero into the next section
+             */
+            quickAccessBar?: {
+              enabled?: boolean | null;
+              /**
+               * How many pixels the bar hangs below the hero (default: 80)
+               */
+              overlapAmount?: number | null;
+              items?:
+                | {
+                    label: string;
+                    /**
+                     * Select a Lucide icon
+                     */
+                    icon?: string | null;
+                    /**
+                     * Internal path (e.g. /it-services) or external URL
+                     */
+                    link: string;
+                    external?: boolean | null;
+                    colorVariant?: ('primary' | 'dark') | null;
+                    id?: string | null;
+                  }[]
+                | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'hero';
+          }
+        | {
+            items: {
+              text: string;
+              /**
+               * Optional link when clicked
+               */
+              url?: string | null;
+              /**
+               * Select a Lucide icon
+               */
+              icon?: string | null;
+              /**
+               * Optional badge/label (e.g. "NEW", "IMPORTANT")
+               */
+              badge?: string | null;
+              id?: string | null;
+            }[];
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            textColor?: string | null;
+            speed?: ('slow' | 'normal' | 'fast') | null;
+            pauseOnHover?: boolean | null;
+            /**
+             * Character between items (e.g. "•", "|", "★")
+             */
+            separator?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'marquee';
+          }
+        | {
+            heading: string;
+            /**
+             * Optional descriptive text below the heading
+             */
+            description?: string | null;
+            /**
+             * Add the states that are currently onboarded
+             */
+            states: {
+              /**
+               * E.g., Maharashtra
+               */
+              stateName: string;
+              /**
+               * Link to this state's SamarthX portal (e.g., https://mah.samarthx.in)
+               */
+              portalUrl: string;
+              /**
+               * Optional short tagline (e.g., Active Since 2026)
+               */
+              tagline?: string | null;
+              /**
+               * Pick the theme color for the state card highlight and button
+               */
+              themeColor?: string | null;
+              /**
+               * Opacity of the background image (0 to 100)
+               */
+              imageOpacity?: number | null;
+              /**
+               * Optional subtle background image or map outline SVG for this card
+               */
+              backgroundImage?: (number | null) | Media;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'statesOnboarded';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Toggle between overlay cards and clean card layout
+             */
+            cardStyle: 'overlay' | 'clean';
+            columns?: ('2' | '3' | '4') | null;
+            cards: {
+              /**
+               * Card title (e.g. state name or project name)
+               */
+              title: string;
+              image: number | Media;
+              /**
+               * Short overlay caption (used in Overlay style)
+               */
+              caption?: string | null;
+              /**
+               * Small logo/emblem (used in Clean Card style)
+               */
+              logo?: (number | null) | Media;
+              /**
+               * Subtitle or location (e.g. "Rajasthan, India")
+               */
+              subtitle?: string | null;
+              /**
+               * Short description (used in Clean Card style)
+               */
+              description?: string | null;
+              /**
+               * Show a "Featured" badge on this card
+               */
+              featured?: boolean | null;
+              /**
+               * Custom badge text (e.g. "Featured", "New", "Live")
+               */
+              featuredLabel?: string | null;
+              /**
+               * Link when card is clicked
+               */
+              url?: string | null;
+              /**
+               * Select a Lucide icon
+               */
+              icon?: string | null;
+              id?: string | null;
+            }[];
+            /**
+             * Settings specific to the overlay card style
+             */
+            overlaySettings?: {
+              /**
+               * Pick a color or enter hex value
+               */
+              overlayColor?: string | null;
+              /**
+               * Overlay opacity (0-100)
+               */
+              overlayOpacity?: number | null;
+              /**
+               * Card height in pixels
+               */
+              cardHeight?: number | null;
+            };
+            bottomLink?: {
+              enabled?: boolean | null;
+              label?: string | null;
+              url?: string | null;
+            };
+            /**
+             * Pick a color or enter hex value
+             */
+            accentColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'showcaseCards';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose between card grid layout or circular ring/donut layout
+             */
+            layout: 'cardGrid' | 'circularRings' | 'interlockingRings' | 'duccStrip';
+            stats: {
+              /**
+               * e.g. "Students Enrolled", "Schools", "Pass Rate"
+               */
+              label: string;
+              /**
+               * Numeric value for count-up animation (e.g. 10000, 500, 98)
+               */
+              numericValue: number;
+              /**
+               * Suffix after the number (e.g. "+", "%", "K", "M")
+               */
+              suffix?: string | null;
+              /**
+               * Prefix before the number (e.g. "$", "₹")
+               */
+              prefix?: string | null;
+              /**
+               * Select a Lucide icon
+               */
+              icon?: string | null;
+              /**
+               * Pick a color or enter hex value
+               */
+              iconColor?: string | null;
+              /**
+               * Pick a color or enter hex value
+               */
+              ringGradientEnd?: string | null;
+              /**
+               * Pick a color or enter hex value
+               */
+              iconBgColor?: string | null;
+              /**
+               * Short description shown below the stat (optional)
+               */
+              description?: string | null;
+              /**
+               * Ring fill percentage (0-100). Used in Circular Rings layout.
+               */
+              ringPercentage?: number | null;
+              id?: string | null;
+            }[];
+            /**
+             * Color of the back ribbon (default gray)
+             */
+            ribbonBaseColor?: string | null;
+            /**
+             * Gradient start color of the front weave ribbon
+             */
+            ribbonWaveStartColor?: string | null;
+            /**
+             * Gradient end color of the front weave ribbon
+             */
+            ribbonWaveEndColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            cardBgColor?: string | null;
+            /**
+             * Animate numbers counting up when scrolled into view
+             */
+            enableCountUp?: boolean | null;
+            /**
+             * Zoom effect on card hover
+             */
+            enableHoverZoom?: boolean | null;
+            columns?: ('2' | '3' | '4') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'statistics';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose between a card grid or a featured spotlight layout
+             */
+            layout: 'cards' | 'spotlight' | 'duccCards';
+            /**
+             * Choose manual card entry or automatic fetch from News collection.
+             */
+            entryType: 'manual' | 'collection';
+            articles?:
+              | {
+                  title: string;
+                  /**
+                   * Short summary or excerpt
+                   */
+                  excerpt?: string | null;
+                  image?: (number | null) | Media;
+                  /**
+                   * Category label (e.g. "Update", "Press Release", "Event")
+                   */
+                  category?: string | null;
+                  /**
+                   * Published date
+                   */
+                  date?: string | null;
+                  /**
+                   * Link to the full article
+                   */
+                  url?: string | null;
+                  /**
+                   * Select a Lucide icon
+                   */
+                  icon?: string | null;
+                  /**
+                   * Pick a color or enter hex value
+                   */
+                  categoryColor?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            collectionSource?: {
+              /**
+               * Maximum number of cards to fetch
+               */
+              limit: number;
+              sortBy?: ('latest' | 'oldest') | null;
+              /**
+               * Optional category filter (exact match)
+               */
+              category?: string | null;
+              featuredOnly?: boolean | null;
+            };
+            columns?: ('2' | '3') | null;
+            bottomLink?: {
+              enabled?: boolean | null;
+              label?: string | null;
+              url?: string | null;
+            };
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'newsUpdates';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Map image (e.g. India map SVG/PNG)
+             */
+            mapImage?: (number | null) | Media;
+            /**
+             * Alternatively, embed URL for interactive map (iframe)
+             */
+            mapEmbedUrl?: string | null;
+            /**
+             * Map display height in pixels
+             */
+            mapHeight?: number | null;
+            /**
+             * Show progress bars alongside the map
+             */
+            showProgressBars?: boolean | null;
+            progressItems?:
+              | {
+                  /**
+                   * e.g. "Rajasthan", "Maharashtra"
+                   */
+                  label: string;
+                  /**
+                   * Progress percentage (0-100)
+                   */
+                  value: number;
+                  /**
+                   * Custom display text (e.g. "1,250 Schools")
+                   */
+                  displayValue?: string | null;
+                  /**
+                   * Pick a color or enter hex value
+                   */
+                  barColor?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            layout?: ('mapLeft' | 'mapRight' | 'stacked') | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'interactiveMap';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            screenshots: {
+              image: number | Media;
+              /**
+               * Title displayed below the screenshot
+               */
+              title?: string | null;
+              /**
+               * Short caption or description
+               */
+              caption?: string | null;
+              /**
+               * Category/module name (e.g. "Dashboard", "Reports")
+               */
+              category?: string | null;
+              id?: string | null;
+            }[];
+            columns?: ('2' | '3' | '4') | null;
+            /**
+             * Allow clicking to view full-size screenshot
+             */
+            enableLightbox?: boolean | null;
+            /**
+             * Wrap screenshots in a device frame (laptop/tablet)
+             */
+            showDeviceFrame?: boolean | null;
+            deviceType?: ('laptop' | 'tablet' | 'phone') | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'screenshotGallery';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            layout?: ('sideBySide' | 'stacked') | null;
+            supportCards?:
+              | {
+                  /**
+                   * e.g. "Technical Support", "Training Resources"
+                   */
+                  title: string;
+                  description?: string | null;
+                  /**
+                   * Select a Lucide icon
+                   */
+                  icon?: string | null;
+                  /**
+                   * Pick a color or enter hex value
+                   */
+                  iconColor?: string | null;
+                  /**
+                   * e.g. "Contact Support", "View Resources"
+                   */
+                  buttonLabel?: string | null;
+                  buttonUrl?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            video?: {
+              enabled?: boolean | null;
+              /**
+               * Video section title (e.g. "How to Get Started")
+               */
+              title?: string | null;
+              /**
+               * YouTube or Vimeo URL
+               */
+              videoUrl?: string | null;
+              /**
+               * Thumbnail/poster image for the video
+               */
+              poster?: (number | null) | Media;
+              /**
+               * Or upload a video file directly
+               */
+              uploadedVideo?: (number | null) | Media;
+            };
+            /**
+             * Pick a color or enter hex value
+             */
+            backgroundColor?: string | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            cardBgColor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'helpSupport';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional rich-text description below the heading
+             */
+            sectionDescription?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Select a Form Builder form to display in this section.
+             */
+            form: number | Form;
+            maxWidth?: ('narrow' | 'medium' | 'wide' | 'full') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'formLayout';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            content: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            maxWidth?: ('narrow' | 'medium' | 'full') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'richContent';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Small uppercase text above the heading (used in DUCC Service layout)
+             */
+            eyebrow?: string | null;
+            /**
+             * Link text shown next to heading (e.g. "Explore all services")
+             */
+            ctaLabel?: string | null;
+            /**
+             * URL for the CTA link
+             */
+            ctaLink?: string | null;
+            /**
+             * Choose how cards should be displayed.
+             */
+            cardLayout?:
+              | (
+                  | 'classic'
+                  | 'minimal'
+                  | 'split'
+                  | 'accentTop'
+                  | 'duccService'
+                  | 'duccServiceDetail'
+                  | 'duccProject'
+                  | 'duccTraining'
+                )
+              | null;
+            columns?: ('2' | '3' | '4') | null;
+            /**
+             * Dark: dark background with light text. Light: white cards with theme-colored icons and borders.
+             */
+            cardTheme?: ('dark' | 'light') | null;
+            /**
+             * Show a faded number (01, 02, 03...) next to the icon on each card
+             */
+            showCardNumbers?: boolean | null;
+            cards?:
+              | {
+                  /**
+                   * Select a Lucide icon
+                   */
+                  icon?: string | null;
+                  /**
+                   * Optional card title (rich text supported).
+                   */
+                  title?: {
+                    root: {
+                      type: string;
+                      children: {
+                        type: any;
+                        version: number;
+                        [k: string]: unknown;
+                      }[];
+                      direction: ('ltr' | 'rtl') | null;
+                      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                      indent: number;
+                      version: number;
+                    };
+                    [k: string]: unknown;
+                  } | null;
+                  /**
+                   * Optional card description/details (rich text supported).
+                   */
+                  description?: {
+                    root: {
+                      type: string;
+                      children: {
+                        type: any;
+                        version: number;
+                        [k: string]: unknown;
+                      }[];
+                      direction: ('ltr' | 'rtl') | null;
+                      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                      indent: number;
+                      version: number;
+                    };
+                    [k: string]: unknown;
+                  } | null;
+                  /**
+                   * Optional URL this card links to
+                   */
+                  link?: string | null;
+                  /**
+                   * Small tag label (e.g. "Platform", "Security") — used in DUCC Service layout
+                   */
+                  tag?: string | null;
+                  /**
+                   * Open link in new tab
+                   */
+                  external?: boolean | null;
+                  /**
+                   * Bullet points for the Service Detail layout
+                   */
+                  features?:
+                    | {
+                        text: string;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  /**
+                   * CTA button label (e.g. "Request Access")
+                   */
+                  buttonLabel?: string | null;
+                  /**
+                   * CTA button URL
+                   */
+                  buttonUrl?: string | null;
+                  /**
+                   * Project status badge (used in Project Cards layout)
+                   */
+                  status?: ('ongoing' | 'active' | 'live' | 'completed' | 'planned') | null;
+                  /**
+                   * Progress percentage 0-100 (used in Project Cards layout)
+                   */
+                  progress?: number | null;
+                  /**
+                   * Difficulty level (used in Training Cards layout)
+                   */
+                  level?: ('Beginner' | 'Intermediate' | 'Advanced') | null;
+                  /**
+                   * e.g. "5 Days", "1 Day" (used in Training Cards layout)
+                   */
+                  duration?: string | null;
+                  /**
+                   * e.g. "In-person", "Online", "Hybrid" (used in Training Cards layout)
+                   */
+                  mode?: string | null;
+                  /**
+                   * e.g. "Faculty", "Students & Faculty" (used in Training Cards layout)
+                   */
+                  audience?: string | null;
+                  /**
+                   * Next batch date (used in Training Cards layout)
+                   */
+                  date?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'featureCards';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose visual style for this CTA block
+             */
+            layout?: ('default' | 'duccBanner') | null;
+            /**
+             * CTA headline text
+             */
+            heading: string;
+            /**
+             * CTA description text
+             */
+            description?: string | null;
+            buttons?:
+              | {
+                  label: string;
+                  url: string;
+                  variant?: ('primary' | 'secondary' | 'outline') | null;
+                  id?: string | null;
+                }[]
+              | null;
+            backgroundType?: ('color' | 'image') | null;
+            /**
+             * Pick background color
+             */
+            backgroundColor?: string | null;
+            backgroundImage?: (number | null) | Media;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'callToAction';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            columns?: ('2' | '3' | '4') | null;
+            images: {
+              image: number | Media;
+              caption?: string | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'imageGallery';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose visual style for the FAQ section
+             */
+            layout?: ('default' | 'duccAccordion') | null;
+            items: {
+              question: string;
+              answer: {
+                root: {
+                  type: string;
+                  children: {
+                    type: any;
+                    version: number;
+                    [k: string]: unknown;
+                  }[];
+                  direction: ('ltr' | 'rtl') | null;
+                  format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                  indent: number;
+                  version: number;
+                };
+                [k: string]: unknown;
+              };
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'faq';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Choose visual style for testimonials
+             */
+            layout?: ('default' | 'duccQuote') | null;
+            items: {
+              quote: string;
+              name: string;
+              /**
+               * e.g. "Student, Class 10", "Parent", "Principal"
+               */
+              role?: string | null;
+              avatar?: (number | null) | Media;
+              /**
+               * Initials for avatar fallback (e.g. "SS") — used in DUCC Quote layout
+               */
+              initials?: string | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'testimonials';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            type: 'info' | 'success' | 'warning' | 'error';
+            message: string;
+            dismissible?: boolean | null;
+            link?: {
+              label?: string | null;
+              url?: string | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'bannerAlert';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            embedType: 'html' | 'iframe';
+            /**
+             * Paste custom HTML/embed code
+             */
+            html?: string | null;
+            /**
+             * URL to embed (YouTube, Google Maps, etc.)
+             */
+            iframeUrl?: string | null;
+            /**
+             * Height in pixels
+             */
+            height?: number | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'embed';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            columns?: ('2' | '3' | '4') | null;
+            members: {
+              name: string;
+              /**
+               * e.g. "Principal", "Math Teacher", "HOD Science"
+               */
+              role?: string | null;
+              photo?: (number | null) | Media;
+              bio?: string | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'teamGrid';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            tabs: {
+              label: string;
+              content: {
+                root: {
+                  type: string;
+                  children: {
+                    type: any;
+                    version: number;
+                    [k: string]: unknown;
+                  }[];
+                  direction: ('ltr' | 'rtl') | null;
+                  format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                  indent: number;
+                  version: number;
+                };
+                [k: string]: unknown;
+              };
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'tabs';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            content: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            media: number | Media;
+            mediaPosition?: ('left' | 'right') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'contentWithMedia';
+          }
+        | {
+            /**
+             * Section heading displayed above this block
+             */
+            sectionHeading?: string | null;
+            /**
+             * Optional description below the heading
+             */
+            sectionDescription?: string | null;
+            headingAlignment?: ('left' | 'center' | 'right') | null;
+            /**
+             * Pick a color or enter hex value
+             */
+            sectionBgColor?: string | null;
+            /**
+             * Add a subtle radial accent glow behind this section
+             */
+            radialGlow?: boolean | null;
+            gap?: ('0' | '4' | '6' | '8' | '12') | null;
+            verticalAlign?: ('start' | 'center' | 'end' | 'stretch') | null;
+            /**
+             * Add columns – max 3 per row. More than 3 will wrap to new rows.
+             */
+            columns: {
+              width?: ('auto' | '25' | '33' | '50' | '66' | '75' | '100') | null;
+              /**
+               * Pick a color or enter hex value
+               */
+              columnBgColor?: string | null;
+              padding?: ('0' | '4' | '6' | '8') | null;
+              blocks?:
+                | (
+                    | {
+                        content: {
+                          root: {
+                            type: string;
+                            children: {
+                              type: any;
+                              version: number;
+                              [k: string]: unknown;
+                            }[];
+                            direction: ('ltr' | 'rtl') | null;
+                            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                            indent: number;
+                            version: number;
+                          };
+                          [k: string]: unknown;
+                        };
+                        /**
+                         * Font family for body text (paragraphs, lists)
+                         */
+                        fontFamily?:
+                          | (
+                              | 'inherit'
+                              | 'Inter'
+                              | 'Roboto'
+                              | 'Poppins'
+                              | 'Open Sans'
+                              | 'Lato'
+                              | 'Montserrat'
+                              | 'Nunito'
+                              | 'Raleway'
+                              | 'Playfair Display'
+                              | 'Merriweather'
+                              | 'Source Sans Pro'
+                            )
+                          | null;
+                        /**
+                         * Font family for headings only (h1-h6). Leave as Default to use the body font.
+                         */
+                        headingFontFamily?:
+                          | (
+                              | 'inherit'
+                              | 'Inter'
+                              | 'Playfair Display'
+                              | 'Merriweather'
+                              | 'Roboto'
+                              | 'Poppins'
+                              | 'Montserrat'
+                              | 'Raleway'
+                            )
+                          | null;
+                        fontSize?: ('sm' | 'base' | 'lg' | 'xl' | '2xl') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        textColor?: string | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexRichText';
+                      }
+                    | {
+                        image: number | Media;
+                        /**
+                         * Optional caption below the image
+                         */
+                        caption?: string | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        captionColor?: string | null;
+                        objectFit?: ('cover' | 'contain' | 'none') | null;
+                        rounded?: ('none' | 'sm' | 'md' | 'lg' | 'full') | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexImage';
+                      }
+                    | {
+                        videoSource: 'upload' | 'youtube' | 'vimeo' | 'externalUrl';
+                        /**
+                         * Upload mp4, webm, or other video file
+                         */
+                        uploadedVideo?: (number | null) | Media;
+                        /**
+                         * YouTube video URL (e.g. https://youtube.com/watch?v=...)
+                         */
+                        youtubeUrl?: string | null;
+                        /**
+                         * Vimeo video URL (e.g. https://vimeo.com/123456)
+                         */
+                        vimeoUrl?: string | null;
+                        /**
+                         * Direct URL to video file (mp4, webm)
+                         */
+                        externalVideoUrl?: string | null;
+                        /**
+                         * Thumbnail / poster image (optional)
+                         */
+                        poster?: (number | null) | Media;
+                        /**
+                         * Auto-play on load (muted)
+                         */
+                        autoplay?: boolean | null;
+                        loop?: boolean | null;
+                        /**
+                         * Show playback controls
+                         */
+                        controls?: boolean | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexVideo';
+                      }
+                    | {
+                        slides: {
+                          mediaType: 'image' | 'video' | 'youtube';
+                          image?: (number | null) | Media;
+                          video?: (number | null) | Media;
+                          /**
+                           * YouTube URL
+                           */
+                          youtubeUrl?: string | null;
+                          caption?: string | null;
+                          id?: string | null;
+                        }[];
+                        /**
+                         * Auto-advance slides
+                         */
+                        autoplay?: boolean | null;
+                        /**
+                         * Auto-play interval in milliseconds (e.g. 5000 = 5 seconds)
+                         */
+                        interval?: number | null;
+                        showDots?: boolean | null;
+                        showArrows?: boolean | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexCarousel';
+                      }
+                    | {
+                        embedType: 'iframe' | 'html';
+                        /**
+                         * URL for iframe embed (Google Maps, etc.)
+                         */
+                        iframeUrl?: string | null;
+                        /**
+                         * Paste HTML embed code
+                         */
+                        html?: string | null;
+                        /**
+                         * Height in pixels
+                         */
+                        height?: number | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexMapEmbed';
+                      }
+                    | {
+                        animationType: 'lottie' | 'gif';
+                        /**
+                         * URL to Lottie JSON file
+                         */
+                        lottieUrl?: string | null;
+                        gif?: (number | null) | Media;
+                        loop?: boolean | null;
+                        autoplay?: boolean | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexAnimation';
+                      }
+                    | {
+                        columns?: ('1' | '2' | '3' | '4') | null;
+                        cardStyle?: ('outline' | 'elevated' | 'soft' | 'duccAbout') | null;
+                        cards: {
+                          label: string;
+                          value: string;
+                          trend?: string | null;
+                          trendLabel?: string | null;
+                          /**
+                           * Select a Lucide icon
+                           */
+                          icon?: string | null;
+                          /**
+                           * Pick a color or enter hex value
+                           */
+                          iconColor?: string | null;
+                          animation?: ('none' | 'hoverLift' | 'pulse' | 'float') | null;
+                          id?: string | null;
+                        }[];
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexStatsCards';
+                      }
+                    | {
+                        columns?: ('1' | '2' | '3' | '4') | null;
+                        cardStyle?: ('borderTop' | 'outline' | 'darkGlass') | null;
+                        cards: {
+                          /**
+                           * Select a Lucide icon
+                           */
+                          icon?: string | null;
+                          /**
+                           * Pick a color or enter hex value
+                           */
+                          iconColor?: string | null;
+                          /**
+                           * Pick a color or enter hex value
+                           */
+                          accentColor?: string | null;
+                          title: {
+                            root: {
+                              type: string;
+                              children: {
+                                type: any;
+                                version: number;
+                                [k: string]: unknown;
+                              }[];
+                              direction: ('ltr' | 'rtl') | null;
+                              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                              indent: number;
+                              version: number;
+                            };
+                            [k: string]: unknown;
+                          };
+                          subtitle?: string | null;
+                          description?: {
+                            root: {
+                              type: string;
+                              children: {
+                                type: any;
+                                version: number;
+                                [k: string]: unknown;
+                              }[];
+                              direction: ('ltr' | 'rtl') | null;
+                              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                              indent: number;
+                              version: number;
+                            };
+                            [k: string]: unknown;
+                          } | null;
+                          points?:
+                            | {
+                                text: string;
+                                id?: string | null;
+                              }[]
+                            | null;
+                          animation?: ('none' | 'hoverLift' | 'pulse' | 'float') | null;
+                          id?: string | null;
+                        }[];
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexFeatureCards';
+                      }
+                    | {
+                        columns?: ('1' | '2' | '3') | null;
+                        theme?: ('light' | 'dark') | null;
+                        titleSize?: ('sm' | 'base' | 'lg' | 'xl' | '2xl') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        iconBgColor?: string | null;
+                        iconAlignment?: ('left' | 'center' | 'right') | null;
+                        cards: {
+                          /**
+                           * Select a Lucide icon
+                           */
+                          icon?: string | null;
+                          /**
+                           * Pick a color or enter hex value
+                           */
+                          iconColor?: string | null;
+                          title: string;
+                          description?: string | null;
+                          animation?: ('none' | 'hoverLift' | 'pulse' | 'float') | null;
+                          id?: string | null;
+                        }[];
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexHighlightCards';
+                      }
+                    | {
+                        alignment?: ('left' | 'center' | 'right') | null;
+                        buttons: {
+                          label: string;
+                          url: string;
+                          variant?: ('primary' | 'secondary' | 'outline' | 'ghost') | null;
+                          size?: ('sm' | 'md' | 'lg') | null;
+                          /**
+                           * Select a Lucide icon
+                           */
+                          icon?: string | null;
+                          openInNewTab?: boolean | null;
+                          id?: string | null;
+                        }[];
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexButtons';
+                      }
+                    | {
+                        layoutVariant?: ('floatingCards' | 'syncStatusPanel') | null;
+                        theme?: ('light' | 'dark') | null;
+                        /**
+                         * Number of mini tiles/rows inside the mock panel
+                         */
+                        chartCount?: number | null;
+                        topBadgeLabel?: string | null;
+                        topBadgeLabelSize?: ('sm' | 'md' | 'lg') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        topBadgeLabelColor?: string | null;
+                        topBadgeValue?: string | null;
+                        topBadgeAnimation?: ('none' | 'float' | 'pulse' | 'hoverLift') | null;
+                        topBadgeValueSize?: ('lg' | 'xl' | '2xl') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        topBadgeValueColor?: string | null;
+                        bottomChipPrimary?: string | null;
+                        bottomChipSecondary?: string | null;
+                        bottomSummary?: string | null;
+                        bottomBadgeAnimation?: ('none' | 'float' | 'pulse' | 'hoverLift') | null;
+                        bottomSummarySize?: ('sm' | 'md' | 'lg' | 'xl') | null;
+                        /**
+                         * Pick a color or enter hex value
+                         */
+                        bottomSummaryColor?: string | null;
+                        /**
+                         * Footer status text for the Sync Status Panel layout
+                         */
+                        syncFooterText?: string | null;
+                        id?: string | null;
+                        blockName?: string | null;
+                        blockType: 'flexDashboardMock';
+                      }
+                  )[]
+                | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'flexibleRow';
+          }
+        | {
+            /**
+             * Short description for preview (e.g. "Through hands-on project experience...")
+             */
+            excerpt?: string | null;
+            /**
+             * Display string like "Last Updated: March 2026"
+             */
+            effectiveDate?: string | null;
+            /**
+             * Full job description — supports headings, paragraphs, bold/italic, ordered and unordered lists
+             */
+            content?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            /**
+             * Expandable sections describing different work areas or specializations
+             */
+            problemDomains?:
+              | {
+                  /**
+                   * Domain name (e.g. "ML/DL Based Systems for Education 4.0 Applications")
+                   */
+                  title?: string | null;
+                  /**
+                   * Overview of the domain
+                   */
+                  description?: string | null;
+                  /**
+                   * Specific tasks or responsibilities for this domain
+                   */
+                  challenges?:
+                    | {
+                        text?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  /**
+                   * Required technical skills
+                   */
+                  technicalSkills?:
+                    | {
+                        skill?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  /**
+                   * Required soft / non-technical skills
+                   */
+                  nonTechnicalSkills?:
+                    | {
+                        skill?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * CTA label (e.g. "Apply Now")
+             */
+            applyButtonText?: string | null;
+            /**
+             * URL the button points to. Leave blank to use the built-in /apply page.
+             */
+            applyButtonLink?: string | null;
+            /**
+             * Whether this career posting is currently active
+             */
+            status?: ('active' | 'inactive') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'careerPosting';
+          }
+      )[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2270,6 +9316,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'job-applications';
         value: number | JobApplication;
+      } | null)
+    | ({
+        relationTo: 'software';
+        value: number | Software;
+      } | null)
+    | ({
+        relationTo: 'projects';
+        value: number | Project;
+      } | null)
+    | ({
+        relationTo: 'trainings';
+        value: number | Training;
       } | null)
     | ({
         relationTo: 'forms';
@@ -2370,6 +9428,8 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
+  bannerEyebrow?: T;
+  bannerDescription?: T;
   slug?: T;
   parent?: T;
   meta?:
@@ -2451,6 +9511,7 @@ export interface PagesSelect<T extends boolean = true> {
                     externalVideoUrl?: T;
                     animationUrl?: T;
                     dataVizEmbed?: T;
+                    eyebrowText?: T;
                     showText?: T;
                     heading?: T;
                     headingColor?: T;
@@ -2476,6 +9537,7 @@ export interface PagesSelect<T extends boolean = true> {
                     externalVideoUrl?: T;
                     animationUrl?: T;
                     dataVizEmbed?: T;
+                    eyebrowText?: T;
                     showText?: T;
                     heading?: T;
                     headingColor?: T;
@@ -2491,6 +9553,40 @@ export interface PagesSelect<T extends boolean = true> {
                           id?: T;
                         };
                     id?: T;
+                  };
+              duccFloatingCard?:
+                | T
+                | {
+                    enabled?: T;
+                    badgeLabel?: T;
+                    footerText?: T;
+                    footerLink?: T;
+                    footerLinkLabel?: T;
+                    stats?:
+                      | T
+                      | {
+                          value?: T;
+                          label?: T;
+                          id?: T;
+                        };
+                  };
+              duccShowSlideCounter?: T;
+              duccShowPlayPause?: T;
+              quickAccessBar?:
+                | T
+                | {
+                    enabled?: T;
+                    overlapAmount?: T;
+                    items?:
+                      | T
+                      | {
+                          label?: T;
+                          icon?: T;
+                          link?: T;
+                          external?: T;
+                          colorVariant?: T;
+                          id?: T;
+                        };
                   };
               id?: T;
               blockName?: T;
@@ -2893,8 +9989,13 @@ export interface PagesSelect<T extends boolean = true> {
               sectionHeading?: T;
               sectionDescription?: T;
               headingAlignment?: T;
+              eyebrow?: T;
+              ctaLabel?: T;
+              ctaLink?: T;
               cardLayout?: T;
               columns?: T;
+              cardTheme?: T;
+              showCardNumbers?: T;
               cards?:
                 | T
                 | {
@@ -2902,6 +10003,23 @@ export interface PagesSelect<T extends boolean = true> {
                     title?: T;
                     description?: T;
                     link?: T;
+                    tag?: T;
+                    external?: T;
+                    features?:
+                      | T
+                      | {
+                          text?: T;
+                          id?: T;
+                        };
+                    buttonLabel?: T;
+                    buttonUrl?: T;
+                    status?: T;
+                    progress?: T;
+                    level?: T;
+                    duration?: T;
+                    mode?: T;
+                    audience?: T;
+                    date?: T;
                     id?: T;
                   };
               id?: T;
@@ -2913,6 +10031,7 @@ export interface PagesSelect<T extends boolean = true> {
               sectionHeading?: T;
               sectionDescription?: T;
               headingAlignment?: T;
+              layout?: T;
               heading?: T;
               description?: T;
               buttons?:
@@ -2952,6 +10071,7 @@ export interface PagesSelect<T extends boolean = true> {
               sectionHeading?: T;
               sectionDescription?: T;
               headingAlignment?: T;
+              layout?: T;
               items?:
                 | T
                 | {
@@ -2968,6 +10088,7 @@ export interface PagesSelect<T extends boolean = true> {
               sectionHeading?: T;
               sectionDescription?: T;
               headingAlignment?: T;
+              layout?: T;
               items?:
                 | T
                 | {
@@ -2975,6 +10096,7 @@ export interface PagesSelect<T extends boolean = true> {
                     name?: T;
                     role?: T;
                     avatar?: T;
+                    initials?: T;
                     id?: T;
                   };
               id?: T;
@@ -3065,6 +10187,7 @@ export interface PagesSelect<T extends boolean = true> {
               sectionDescription?: T;
               headingAlignment?: T;
               sectionBgColor?: T;
+              radialGlow?: T;
               gap?: T;
               verticalAlign?: T;
               columns?:
@@ -3081,6 +10204,7 @@ export interface PagesSelect<T extends boolean = true> {
                             | {
                                 content?: T;
                                 fontFamily?: T;
+                                headingFontFamily?: T;
                                 fontSize?: T;
                                 textColor?: T;
                                 id?: T;
@@ -3328,6 +10452,856 @@ export interface NewsSelect<T extends boolean = true> {
       };
   isFeatured?: T;
   status?: T;
+  layout?:
+    | T
+    | {
+        hero?:
+          | T
+          | {
+              mode?: T;
+              layout?: T;
+              splitDirection?: T;
+              height?: T;
+              textAlignment?: T;
+              textVerticalPosition?: T;
+              contentMaxWidth?: T;
+              contentPaddingX?: T;
+              contentPaddingY?: T;
+              constantOverlayContent?: T;
+              constantOverlay?:
+                | T
+                | {
+                    showText?: T;
+                    heading?: T;
+                    headingColor?: T;
+                    subtitle?: T;
+                    subtitleColor?: T;
+                    buttons?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          variant?: T;
+                          icon?: T;
+                          id?: T;
+                        };
+                  };
+              overlay?:
+                | T
+                | {
+                    enabled?: T;
+                    color?: T;
+                    opacity?: T;
+                  };
+              headerGlass?:
+                | T
+                | {
+                    enabled?: T;
+                    fillColor?: T;
+                    fillOpacity?: T;
+                    blurAmount?: T;
+                    showDivider?: T;
+                  };
+              carouselSettings?:
+                | T
+                | {
+                    autoPlay?: T;
+                    autoPlayInterval?: T;
+                    showArrows?: T;
+                    showDots?: T;
+                  };
+              singleSlide?:
+                | T
+                | {
+                    mediaType?: T;
+                    image?: T;
+                    videoUrl?: T;
+                    videoPoster?: T;
+                    externalVideoUrl?: T;
+                    animationUrl?: T;
+                    dataVizEmbed?: T;
+                    eyebrowText?: T;
+                    showText?: T;
+                    heading?: T;
+                    headingColor?: T;
+                    subtitle?: T;
+                    subtitleColor?: T;
+                    buttons?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          variant?: T;
+                          icon?: T;
+                          id?: T;
+                        };
+                  };
+              slides?:
+                | T
+                | {
+                    mediaType?: T;
+                    image?: T;
+                    videoUrl?: T;
+                    videoPoster?: T;
+                    externalVideoUrl?: T;
+                    animationUrl?: T;
+                    dataVizEmbed?: T;
+                    eyebrowText?: T;
+                    showText?: T;
+                    heading?: T;
+                    headingColor?: T;
+                    subtitle?: T;
+                    subtitleColor?: T;
+                    buttons?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          variant?: T;
+                          icon?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              duccFloatingCard?:
+                | T
+                | {
+                    enabled?: T;
+                    badgeLabel?: T;
+                    footerText?: T;
+                    footerLink?: T;
+                    footerLinkLabel?: T;
+                    stats?:
+                      | T
+                      | {
+                          value?: T;
+                          label?: T;
+                          id?: T;
+                        };
+                  };
+              duccShowSlideCounter?: T;
+              duccShowPlayPause?: T;
+              quickAccessBar?:
+                | T
+                | {
+                    enabled?: T;
+                    overlapAmount?: T;
+                    items?:
+                      | T
+                      | {
+                          label?: T;
+                          icon?: T;
+                          link?: T;
+                          external?: T;
+                          colorVariant?: T;
+                          id?: T;
+                        };
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        marquee?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    text?: T;
+                    url?: T;
+                    icon?: T;
+                    badge?: T;
+                    id?: T;
+                  };
+              backgroundColor?: T;
+              textColor?: T;
+              speed?: T;
+              pauseOnHover?: T;
+              separator?: T;
+              id?: T;
+              blockName?: T;
+            };
+        statesOnboarded?:
+          | T
+          | {
+              heading?: T;
+              description?: T;
+              states?:
+                | T
+                | {
+                    stateName?: T;
+                    portalUrl?: T;
+                    tagline?: T;
+                    themeColor?: T;
+                    imageOpacity?: T;
+                    backgroundImage?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        showcaseCards?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              cardStyle?: T;
+              columns?: T;
+              cards?:
+                | T
+                | {
+                    title?: T;
+                    image?: T;
+                    caption?: T;
+                    logo?: T;
+                    subtitle?: T;
+                    description?: T;
+                    featured?: T;
+                    featuredLabel?: T;
+                    url?: T;
+                    icon?: T;
+                    id?: T;
+                  };
+              overlaySettings?:
+                | T
+                | {
+                    overlayColor?: T;
+                    overlayOpacity?: T;
+                    cardHeight?: T;
+                  };
+              bottomLink?:
+                | T
+                | {
+                    enabled?: T;
+                    label?: T;
+                    url?: T;
+                  };
+              accentColor?: T;
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        statistics?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              stats?:
+                | T
+                | {
+                    label?: T;
+                    numericValue?: T;
+                    suffix?: T;
+                    prefix?: T;
+                    icon?: T;
+                    iconColor?: T;
+                    ringGradientEnd?: T;
+                    iconBgColor?: T;
+                    description?: T;
+                    ringPercentage?: T;
+                    id?: T;
+                  };
+              ribbonBaseColor?: T;
+              ribbonWaveStartColor?: T;
+              ribbonWaveEndColor?: T;
+              backgroundColor?: T;
+              cardBgColor?: T;
+              enableCountUp?: T;
+              enableHoverZoom?: T;
+              columns?: T;
+              id?: T;
+              blockName?: T;
+            };
+        newsUpdates?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              entryType?: T;
+              articles?:
+                | T
+                | {
+                    title?: T;
+                    excerpt?: T;
+                    image?: T;
+                    category?: T;
+                    date?: T;
+                    url?: T;
+                    icon?: T;
+                    categoryColor?: T;
+                    id?: T;
+                  };
+              collectionSource?:
+                | T
+                | {
+                    limit?: T;
+                    sortBy?: T;
+                    category?: T;
+                    featuredOnly?: T;
+                  };
+              columns?: T;
+              bottomLink?:
+                | T
+                | {
+                    enabled?: T;
+                    label?: T;
+                    url?: T;
+                  };
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        interactiveMap?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              mapImage?: T;
+              mapEmbedUrl?: T;
+              mapHeight?: T;
+              showProgressBars?: T;
+              progressItems?:
+                | T
+                | {
+                    label?: T;
+                    value?: T;
+                    displayValue?: T;
+                    barColor?: T;
+                    id?: T;
+                  };
+              layout?: T;
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        screenshotGallery?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              screenshots?:
+                | T
+                | {
+                    image?: T;
+                    title?: T;
+                    caption?: T;
+                    category?: T;
+                    id?: T;
+                  };
+              columns?: T;
+              enableLightbox?: T;
+              showDeviceFrame?: T;
+              deviceType?: T;
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        helpSupport?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              supportCards?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    icon?: T;
+                    iconColor?: T;
+                    buttonLabel?: T;
+                    buttonUrl?: T;
+                    id?: T;
+                  };
+              video?:
+                | T
+                | {
+                    enabled?: T;
+                    title?: T;
+                    videoUrl?: T;
+                    poster?: T;
+                    uploadedVideo?: T;
+                  };
+              backgroundColor?: T;
+              cardBgColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        formLayout?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              form?: T;
+              maxWidth?: T;
+              id?: T;
+              blockName?: T;
+            };
+        richContent?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              content?: T;
+              maxWidth?: T;
+              id?: T;
+              blockName?: T;
+            };
+        featureCards?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              eyebrow?: T;
+              ctaLabel?: T;
+              ctaLink?: T;
+              cardLayout?: T;
+              columns?: T;
+              cardTheme?: T;
+              showCardNumbers?: T;
+              cards?:
+                | T
+                | {
+                    icon?: T;
+                    title?: T;
+                    description?: T;
+                    link?: T;
+                    tag?: T;
+                    external?: T;
+                    features?:
+                      | T
+                      | {
+                          text?: T;
+                          id?: T;
+                        };
+                    buttonLabel?: T;
+                    buttonUrl?: T;
+                    status?: T;
+                    progress?: T;
+                    level?: T;
+                    duration?: T;
+                    mode?: T;
+                    audience?: T;
+                    date?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        callToAction?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              heading?: T;
+              description?: T;
+              buttons?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    variant?: T;
+                    id?: T;
+                  };
+              backgroundType?: T;
+              backgroundColor?: T;
+              backgroundImage?: T;
+              id?: T;
+              blockName?: T;
+            };
+        imageGallery?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              columns?: T;
+              images?:
+                | T
+                | {
+                    image?: T;
+                    caption?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        faq?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              items?:
+                | T
+                | {
+                    question?: T;
+                    answer?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        testimonials?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              items?:
+                | T
+                | {
+                    quote?: T;
+                    name?: T;
+                    role?: T;
+                    avatar?: T;
+                    initials?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        bannerAlert?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              type?: T;
+              message?: T;
+              dismissible?: T;
+              link?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        embed?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              embedType?: T;
+              html?: T;
+              iframeUrl?: T;
+              height?: T;
+              id?: T;
+              blockName?: T;
+            };
+        teamGrid?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              columns?: T;
+              members?:
+                | T
+                | {
+                    name?: T;
+                    role?: T;
+                    photo?: T;
+                    bio?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        tabs?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              tabs?:
+                | T
+                | {
+                    label?: T;
+                    content?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        contentWithMedia?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              content?: T;
+              media?: T;
+              mediaPosition?: T;
+              id?: T;
+              blockName?: T;
+            };
+        flexibleRow?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              sectionBgColor?: T;
+              radialGlow?: T;
+              gap?: T;
+              verticalAlign?: T;
+              columns?:
+                | T
+                | {
+                    width?: T;
+                    columnBgColor?: T;
+                    padding?: T;
+                    blocks?:
+                      | T
+                      | {
+                          flexRichText?:
+                            | T
+                            | {
+                                content?: T;
+                                fontFamily?: T;
+                                headingFontFamily?: T;
+                                fontSize?: T;
+                                textColor?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexImage?:
+                            | T
+                            | {
+                                image?: T;
+                                caption?: T;
+                                captionColor?: T;
+                                objectFit?: T;
+                                rounded?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexVideo?:
+                            | T
+                            | {
+                                videoSource?: T;
+                                uploadedVideo?: T;
+                                youtubeUrl?: T;
+                                vimeoUrl?: T;
+                                externalVideoUrl?: T;
+                                poster?: T;
+                                autoplay?: T;
+                                loop?: T;
+                                controls?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexCarousel?:
+                            | T
+                            | {
+                                slides?:
+                                  | T
+                                  | {
+                                      mediaType?: T;
+                                      image?: T;
+                                      video?: T;
+                                      youtubeUrl?: T;
+                                      caption?: T;
+                                      id?: T;
+                                    };
+                                autoplay?: T;
+                                interval?: T;
+                                showDots?: T;
+                                showArrows?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexMapEmbed?:
+                            | T
+                            | {
+                                embedType?: T;
+                                iframeUrl?: T;
+                                html?: T;
+                                height?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexAnimation?:
+                            | T
+                            | {
+                                animationType?: T;
+                                lottieUrl?: T;
+                                gif?: T;
+                                loop?: T;
+                                autoplay?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexStatsCards?:
+                            | T
+                            | {
+                                columns?: T;
+                                cardStyle?: T;
+                                cards?:
+                                  | T
+                                  | {
+                                      label?: T;
+                                      value?: T;
+                                      trend?: T;
+                                      trendLabel?: T;
+                                      icon?: T;
+                                      iconColor?: T;
+                                      animation?: T;
+                                      id?: T;
+                                    };
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexFeatureCards?:
+                            | T
+                            | {
+                                columns?: T;
+                                cardStyle?: T;
+                                cards?:
+                                  | T
+                                  | {
+                                      icon?: T;
+                                      iconColor?: T;
+                                      accentColor?: T;
+                                      title?: T;
+                                      subtitle?: T;
+                                      description?: T;
+                                      points?:
+                                        | T
+                                        | {
+                                            text?: T;
+                                            id?: T;
+                                          };
+                                      animation?: T;
+                                      id?: T;
+                                    };
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexHighlightCards?:
+                            | T
+                            | {
+                                columns?: T;
+                                theme?: T;
+                                titleSize?: T;
+                                iconBgColor?: T;
+                                iconAlignment?: T;
+                                cards?:
+                                  | T
+                                  | {
+                                      icon?: T;
+                                      iconColor?: T;
+                                      title?: T;
+                                      description?: T;
+                                      animation?: T;
+                                      id?: T;
+                                    };
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexButtons?:
+                            | T
+                            | {
+                                alignment?: T;
+                                buttons?:
+                                  | T
+                                  | {
+                                      label?: T;
+                                      url?: T;
+                                      variant?: T;
+                                      size?: T;
+                                      icon?: T;
+                                      openInNewTab?: T;
+                                      id?: T;
+                                    };
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexDashboardMock?:
+                            | T
+                            | {
+                                layoutVariant?: T;
+                                theme?: T;
+                                chartCount?: T;
+                                topBadgeLabel?: T;
+                                topBadgeLabelSize?: T;
+                                topBadgeLabelColor?: T;
+                                topBadgeValue?: T;
+                                topBadgeAnimation?: T;
+                                topBadgeValueSize?: T;
+                                topBadgeValueColor?: T;
+                                bottomChipPrimary?: T;
+                                bottomChipSecondary?: T;
+                                bottomSummary?: T;
+                                bottomBadgeAnimation?: T;
+                                bottomSummarySize?: T;
+                                bottomSummaryColor?: T;
+                                syncFooterText?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                        };
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        careerPosting?:
+          | T
+          | {
+              excerpt?: T;
+              effectiveDate?: T;
+              content?: T;
+              problemDomains?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    challenges?:
+                      | T
+                      | {
+                          text?: T;
+                          id?: T;
+                        };
+                    technicalSkills?:
+                      | T
+                      | {
+                          skill?: T;
+                          id?: T;
+                        };
+                    nonTechnicalSkills?:
+                      | T
+                      | {
+                          skill?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              applyButtonText?: T;
+              applyButtonLink?: T;
+              status?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3366,6 +11340,2623 @@ export interface JobApplicationsSelect<T extends boolean = true> {
   resume?: T;
   status?: T;
   submittedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "software_select".
+ */
+export interface SoftwareSelect<T extends boolean = true> {
+  name?: T;
+  category?: T;
+  description?: T;
+  icon?: T;
+  users?: T;
+  submissions?: T;
+  licenses?: T;
+  validityStart?: T;
+  validityYears?: T;
+  issuedTo?: T;
+  remainingLicenses?: T;
+  licenseType?: T;
+  requestAccessUrl?: T;
+  status?: T;
+  featured?: T;
+  sortOrder?: T;
+  layout?:
+    | T
+    | {
+        hero?:
+          | T
+          | {
+              mode?: T;
+              layout?: T;
+              splitDirection?: T;
+              height?: T;
+              textAlignment?: T;
+              textVerticalPosition?: T;
+              contentMaxWidth?: T;
+              contentPaddingX?: T;
+              contentPaddingY?: T;
+              constantOverlayContent?: T;
+              constantOverlay?:
+                | T
+                | {
+                    showText?: T;
+                    heading?: T;
+                    headingColor?: T;
+                    subtitle?: T;
+                    subtitleColor?: T;
+                    buttons?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          variant?: T;
+                          icon?: T;
+                          id?: T;
+                        };
+                  };
+              overlay?:
+                | T
+                | {
+                    enabled?: T;
+                    color?: T;
+                    opacity?: T;
+                  };
+              headerGlass?:
+                | T
+                | {
+                    enabled?: T;
+                    fillColor?: T;
+                    fillOpacity?: T;
+                    blurAmount?: T;
+                    showDivider?: T;
+                  };
+              carouselSettings?:
+                | T
+                | {
+                    autoPlay?: T;
+                    autoPlayInterval?: T;
+                    showArrows?: T;
+                    showDots?: T;
+                  };
+              singleSlide?:
+                | T
+                | {
+                    mediaType?: T;
+                    image?: T;
+                    videoUrl?: T;
+                    videoPoster?: T;
+                    externalVideoUrl?: T;
+                    animationUrl?: T;
+                    dataVizEmbed?: T;
+                    eyebrowText?: T;
+                    showText?: T;
+                    heading?: T;
+                    headingColor?: T;
+                    subtitle?: T;
+                    subtitleColor?: T;
+                    buttons?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          variant?: T;
+                          icon?: T;
+                          id?: T;
+                        };
+                  };
+              slides?:
+                | T
+                | {
+                    mediaType?: T;
+                    image?: T;
+                    videoUrl?: T;
+                    videoPoster?: T;
+                    externalVideoUrl?: T;
+                    animationUrl?: T;
+                    dataVizEmbed?: T;
+                    eyebrowText?: T;
+                    showText?: T;
+                    heading?: T;
+                    headingColor?: T;
+                    subtitle?: T;
+                    subtitleColor?: T;
+                    buttons?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          variant?: T;
+                          icon?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              duccFloatingCard?:
+                | T
+                | {
+                    enabled?: T;
+                    badgeLabel?: T;
+                    footerText?: T;
+                    footerLink?: T;
+                    footerLinkLabel?: T;
+                    stats?:
+                      | T
+                      | {
+                          value?: T;
+                          label?: T;
+                          id?: T;
+                        };
+                  };
+              duccShowSlideCounter?: T;
+              duccShowPlayPause?: T;
+              quickAccessBar?:
+                | T
+                | {
+                    enabled?: T;
+                    overlapAmount?: T;
+                    items?:
+                      | T
+                      | {
+                          label?: T;
+                          icon?: T;
+                          link?: T;
+                          external?: T;
+                          colorVariant?: T;
+                          id?: T;
+                        };
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        marquee?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    text?: T;
+                    url?: T;
+                    icon?: T;
+                    badge?: T;
+                    id?: T;
+                  };
+              backgroundColor?: T;
+              textColor?: T;
+              speed?: T;
+              pauseOnHover?: T;
+              separator?: T;
+              id?: T;
+              blockName?: T;
+            };
+        statesOnboarded?:
+          | T
+          | {
+              heading?: T;
+              description?: T;
+              states?:
+                | T
+                | {
+                    stateName?: T;
+                    portalUrl?: T;
+                    tagline?: T;
+                    themeColor?: T;
+                    imageOpacity?: T;
+                    backgroundImage?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        showcaseCards?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              cardStyle?: T;
+              columns?: T;
+              cards?:
+                | T
+                | {
+                    title?: T;
+                    image?: T;
+                    caption?: T;
+                    logo?: T;
+                    subtitle?: T;
+                    description?: T;
+                    featured?: T;
+                    featuredLabel?: T;
+                    url?: T;
+                    icon?: T;
+                    id?: T;
+                  };
+              overlaySettings?:
+                | T
+                | {
+                    overlayColor?: T;
+                    overlayOpacity?: T;
+                    cardHeight?: T;
+                  };
+              bottomLink?:
+                | T
+                | {
+                    enabled?: T;
+                    label?: T;
+                    url?: T;
+                  };
+              accentColor?: T;
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        statistics?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              stats?:
+                | T
+                | {
+                    label?: T;
+                    numericValue?: T;
+                    suffix?: T;
+                    prefix?: T;
+                    icon?: T;
+                    iconColor?: T;
+                    ringGradientEnd?: T;
+                    iconBgColor?: T;
+                    description?: T;
+                    ringPercentage?: T;
+                    id?: T;
+                  };
+              ribbonBaseColor?: T;
+              ribbonWaveStartColor?: T;
+              ribbonWaveEndColor?: T;
+              backgroundColor?: T;
+              cardBgColor?: T;
+              enableCountUp?: T;
+              enableHoverZoom?: T;
+              columns?: T;
+              id?: T;
+              blockName?: T;
+            };
+        newsUpdates?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              entryType?: T;
+              articles?:
+                | T
+                | {
+                    title?: T;
+                    excerpt?: T;
+                    image?: T;
+                    category?: T;
+                    date?: T;
+                    url?: T;
+                    icon?: T;
+                    categoryColor?: T;
+                    id?: T;
+                  };
+              collectionSource?:
+                | T
+                | {
+                    limit?: T;
+                    sortBy?: T;
+                    category?: T;
+                    featuredOnly?: T;
+                  };
+              columns?: T;
+              bottomLink?:
+                | T
+                | {
+                    enabled?: T;
+                    label?: T;
+                    url?: T;
+                  };
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        interactiveMap?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              mapImage?: T;
+              mapEmbedUrl?: T;
+              mapHeight?: T;
+              showProgressBars?: T;
+              progressItems?:
+                | T
+                | {
+                    label?: T;
+                    value?: T;
+                    displayValue?: T;
+                    barColor?: T;
+                    id?: T;
+                  };
+              layout?: T;
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        screenshotGallery?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              screenshots?:
+                | T
+                | {
+                    image?: T;
+                    title?: T;
+                    caption?: T;
+                    category?: T;
+                    id?: T;
+                  };
+              columns?: T;
+              enableLightbox?: T;
+              showDeviceFrame?: T;
+              deviceType?: T;
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        helpSupport?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              supportCards?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    icon?: T;
+                    iconColor?: T;
+                    buttonLabel?: T;
+                    buttonUrl?: T;
+                    id?: T;
+                  };
+              video?:
+                | T
+                | {
+                    enabled?: T;
+                    title?: T;
+                    videoUrl?: T;
+                    poster?: T;
+                    uploadedVideo?: T;
+                  };
+              backgroundColor?: T;
+              cardBgColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        formLayout?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              form?: T;
+              maxWidth?: T;
+              id?: T;
+              blockName?: T;
+            };
+        richContent?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              content?: T;
+              maxWidth?: T;
+              id?: T;
+              blockName?: T;
+            };
+        featureCards?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              eyebrow?: T;
+              ctaLabel?: T;
+              ctaLink?: T;
+              cardLayout?: T;
+              columns?: T;
+              cardTheme?: T;
+              showCardNumbers?: T;
+              cards?:
+                | T
+                | {
+                    icon?: T;
+                    title?: T;
+                    description?: T;
+                    link?: T;
+                    tag?: T;
+                    external?: T;
+                    features?:
+                      | T
+                      | {
+                          text?: T;
+                          id?: T;
+                        };
+                    buttonLabel?: T;
+                    buttonUrl?: T;
+                    status?: T;
+                    progress?: T;
+                    level?: T;
+                    duration?: T;
+                    mode?: T;
+                    audience?: T;
+                    date?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        callToAction?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              heading?: T;
+              description?: T;
+              buttons?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    variant?: T;
+                    id?: T;
+                  };
+              backgroundType?: T;
+              backgroundColor?: T;
+              backgroundImage?: T;
+              id?: T;
+              blockName?: T;
+            };
+        imageGallery?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              columns?: T;
+              images?:
+                | T
+                | {
+                    image?: T;
+                    caption?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        faq?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              items?:
+                | T
+                | {
+                    question?: T;
+                    answer?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        testimonials?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              items?:
+                | T
+                | {
+                    quote?: T;
+                    name?: T;
+                    role?: T;
+                    avatar?: T;
+                    initials?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        bannerAlert?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              type?: T;
+              message?: T;
+              dismissible?: T;
+              link?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        embed?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              embedType?: T;
+              html?: T;
+              iframeUrl?: T;
+              height?: T;
+              id?: T;
+              blockName?: T;
+            };
+        teamGrid?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              columns?: T;
+              members?:
+                | T
+                | {
+                    name?: T;
+                    role?: T;
+                    photo?: T;
+                    bio?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        tabs?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              tabs?:
+                | T
+                | {
+                    label?: T;
+                    content?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        contentWithMedia?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              content?: T;
+              media?: T;
+              mediaPosition?: T;
+              id?: T;
+              blockName?: T;
+            };
+        flexibleRow?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              sectionBgColor?: T;
+              radialGlow?: T;
+              gap?: T;
+              verticalAlign?: T;
+              columns?:
+                | T
+                | {
+                    width?: T;
+                    columnBgColor?: T;
+                    padding?: T;
+                    blocks?:
+                      | T
+                      | {
+                          flexRichText?:
+                            | T
+                            | {
+                                content?: T;
+                                fontFamily?: T;
+                                headingFontFamily?: T;
+                                fontSize?: T;
+                                textColor?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexImage?:
+                            | T
+                            | {
+                                image?: T;
+                                caption?: T;
+                                captionColor?: T;
+                                objectFit?: T;
+                                rounded?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexVideo?:
+                            | T
+                            | {
+                                videoSource?: T;
+                                uploadedVideo?: T;
+                                youtubeUrl?: T;
+                                vimeoUrl?: T;
+                                externalVideoUrl?: T;
+                                poster?: T;
+                                autoplay?: T;
+                                loop?: T;
+                                controls?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexCarousel?:
+                            | T
+                            | {
+                                slides?:
+                                  | T
+                                  | {
+                                      mediaType?: T;
+                                      image?: T;
+                                      video?: T;
+                                      youtubeUrl?: T;
+                                      caption?: T;
+                                      id?: T;
+                                    };
+                                autoplay?: T;
+                                interval?: T;
+                                showDots?: T;
+                                showArrows?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexMapEmbed?:
+                            | T
+                            | {
+                                embedType?: T;
+                                iframeUrl?: T;
+                                html?: T;
+                                height?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexAnimation?:
+                            | T
+                            | {
+                                animationType?: T;
+                                lottieUrl?: T;
+                                gif?: T;
+                                loop?: T;
+                                autoplay?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexStatsCards?:
+                            | T
+                            | {
+                                columns?: T;
+                                cardStyle?: T;
+                                cards?:
+                                  | T
+                                  | {
+                                      label?: T;
+                                      value?: T;
+                                      trend?: T;
+                                      trendLabel?: T;
+                                      icon?: T;
+                                      iconColor?: T;
+                                      animation?: T;
+                                      id?: T;
+                                    };
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexFeatureCards?:
+                            | T
+                            | {
+                                columns?: T;
+                                cardStyle?: T;
+                                cards?:
+                                  | T
+                                  | {
+                                      icon?: T;
+                                      iconColor?: T;
+                                      accentColor?: T;
+                                      title?: T;
+                                      subtitle?: T;
+                                      description?: T;
+                                      points?:
+                                        | T
+                                        | {
+                                            text?: T;
+                                            id?: T;
+                                          };
+                                      animation?: T;
+                                      id?: T;
+                                    };
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexHighlightCards?:
+                            | T
+                            | {
+                                columns?: T;
+                                theme?: T;
+                                titleSize?: T;
+                                iconBgColor?: T;
+                                iconAlignment?: T;
+                                cards?:
+                                  | T
+                                  | {
+                                      icon?: T;
+                                      iconColor?: T;
+                                      title?: T;
+                                      description?: T;
+                                      animation?: T;
+                                      id?: T;
+                                    };
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexButtons?:
+                            | T
+                            | {
+                                alignment?: T;
+                                buttons?:
+                                  | T
+                                  | {
+                                      label?: T;
+                                      url?: T;
+                                      variant?: T;
+                                      size?: T;
+                                      icon?: T;
+                                      openInNewTab?: T;
+                                      id?: T;
+                                    };
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexDashboardMock?:
+                            | T
+                            | {
+                                layoutVariant?: T;
+                                theme?: T;
+                                chartCount?: T;
+                                topBadgeLabel?: T;
+                                topBadgeLabelSize?: T;
+                                topBadgeLabelColor?: T;
+                                topBadgeValue?: T;
+                                topBadgeAnimation?: T;
+                                topBadgeValueSize?: T;
+                                topBadgeValueColor?: T;
+                                bottomChipPrimary?: T;
+                                bottomChipSecondary?: T;
+                                bottomSummary?: T;
+                                bottomBadgeAnimation?: T;
+                                bottomSummarySize?: T;
+                                bottomSummaryColor?: T;
+                                syncFooterText?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                        };
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        careerPosting?:
+          | T
+          | {
+              excerpt?: T;
+              effectiveDate?: T;
+              content?: T;
+              problemDomains?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    challenges?:
+                      | T
+                      | {
+                          text?: T;
+                          id?: T;
+                        };
+                    technicalSkills?:
+                      | T
+                      | {
+                          skill?: T;
+                          id?: T;
+                        };
+                    nonTechnicalSkills?:
+                      | T
+                      | {
+                          skill?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              applyButtonText?: T;
+              applyButtonLink?: T;
+              status?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects_select".
+ */
+export interface ProjectsSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  status?: T;
+  progress?: T;
+  modules?:
+    | T
+    | {
+        name?: T;
+        id?: T;
+      };
+  link?: T;
+  sortOrder?: T;
+  layout?:
+    | T
+    | {
+        hero?:
+          | T
+          | {
+              mode?: T;
+              layout?: T;
+              splitDirection?: T;
+              height?: T;
+              textAlignment?: T;
+              textVerticalPosition?: T;
+              contentMaxWidth?: T;
+              contentPaddingX?: T;
+              contentPaddingY?: T;
+              constantOverlayContent?: T;
+              constantOverlay?:
+                | T
+                | {
+                    showText?: T;
+                    heading?: T;
+                    headingColor?: T;
+                    subtitle?: T;
+                    subtitleColor?: T;
+                    buttons?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          variant?: T;
+                          icon?: T;
+                          id?: T;
+                        };
+                  };
+              overlay?:
+                | T
+                | {
+                    enabled?: T;
+                    color?: T;
+                    opacity?: T;
+                  };
+              headerGlass?:
+                | T
+                | {
+                    enabled?: T;
+                    fillColor?: T;
+                    fillOpacity?: T;
+                    blurAmount?: T;
+                    showDivider?: T;
+                  };
+              carouselSettings?:
+                | T
+                | {
+                    autoPlay?: T;
+                    autoPlayInterval?: T;
+                    showArrows?: T;
+                    showDots?: T;
+                  };
+              singleSlide?:
+                | T
+                | {
+                    mediaType?: T;
+                    image?: T;
+                    videoUrl?: T;
+                    videoPoster?: T;
+                    externalVideoUrl?: T;
+                    animationUrl?: T;
+                    dataVizEmbed?: T;
+                    eyebrowText?: T;
+                    showText?: T;
+                    heading?: T;
+                    headingColor?: T;
+                    subtitle?: T;
+                    subtitleColor?: T;
+                    buttons?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          variant?: T;
+                          icon?: T;
+                          id?: T;
+                        };
+                  };
+              slides?:
+                | T
+                | {
+                    mediaType?: T;
+                    image?: T;
+                    videoUrl?: T;
+                    videoPoster?: T;
+                    externalVideoUrl?: T;
+                    animationUrl?: T;
+                    dataVizEmbed?: T;
+                    eyebrowText?: T;
+                    showText?: T;
+                    heading?: T;
+                    headingColor?: T;
+                    subtitle?: T;
+                    subtitleColor?: T;
+                    buttons?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          variant?: T;
+                          icon?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              duccFloatingCard?:
+                | T
+                | {
+                    enabled?: T;
+                    badgeLabel?: T;
+                    footerText?: T;
+                    footerLink?: T;
+                    footerLinkLabel?: T;
+                    stats?:
+                      | T
+                      | {
+                          value?: T;
+                          label?: T;
+                          id?: T;
+                        };
+                  };
+              duccShowSlideCounter?: T;
+              duccShowPlayPause?: T;
+              quickAccessBar?:
+                | T
+                | {
+                    enabled?: T;
+                    overlapAmount?: T;
+                    items?:
+                      | T
+                      | {
+                          label?: T;
+                          icon?: T;
+                          link?: T;
+                          external?: T;
+                          colorVariant?: T;
+                          id?: T;
+                        };
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        marquee?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    text?: T;
+                    url?: T;
+                    icon?: T;
+                    badge?: T;
+                    id?: T;
+                  };
+              backgroundColor?: T;
+              textColor?: T;
+              speed?: T;
+              pauseOnHover?: T;
+              separator?: T;
+              id?: T;
+              blockName?: T;
+            };
+        statesOnboarded?:
+          | T
+          | {
+              heading?: T;
+              description?: T;
+              states?:
+                | T
+                | {
+                    stateName?: T;
+                    portalUrl?: T;
+                    tagline?: T;
+                    themeColor?: T;
+                    imageOpacity?: T;
+                    backgroundImage?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        showcaseCards?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              cardStyle?: T;
+              columns?: T;
+              cards?:
+                | T
+                | {
+                    title?: T;
+                    image?: T;
+                    caption?: T;
+                    logo?: T;
+                    subtitle?: T;
+                    description?: T;
+                    featured?: T;
+                    featuredLabel?: T;
+                    url?: T;
+                    icon?: T;
+                    id?: T;
+                  };
+              overlaySettings?:
+                | T
+                | {
+                    overlayColor?: T;
+                    overlayOpacity?: T;
+                    cardHeight?: T;
+                  };
+              bottomLink?:
+                | T
+                | {
+                    enabled?: T;
+                    label?: T;
+                    url?: T;
+                  };
+              accentColor?: T;
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        statistics?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              stats?:
+                | T
+                | {
+                    label?: T;
+                    numericValue?: T;
+                    suffix?: T;
+                    prefix?: T;
+                    icon?: T;
+                    iconColor?: T;
+                    ringGradientEnd?: T;
+                    iconBgColor?: T;
+                    description?: T;
+                    ringPercentage?: T;
+                    id?: T;
+                  };
+              ribbonBaseColor?: T;
+              ribbonWaveStartColor?: T;
+              ribbonWaveEndColor?: T;
+              backgroundColor?: T;
+              cardBgColor?: T;
+              enableCountUp?: T;
+              enableHoverZoom?: T;
+              columns?: T;
+              id?: T;
+              blockName?: T;
+            };
+        newsUpdates?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              entryType?: T;
+              articles?:
+                | T
+                | {
+                    title?: T;
+                    excerpt?: T;
+                    image?: T;
+                    category?: T;
+                    date?: T;
+                    url?: T;
+                    icon?: T;
+                    categoryColor?: T;
+                    id?: T;
+                  };
+              collectionSource?:
+                | T
+                | {
+                    limit?: T;
+                    sortBy?: T;
+                    category?: T;
+                    featuredOnly?: T;
+                  };
+              columns?: T;
+              bottomLink?:
+                | T
+                | {
+                    enabled?: T;
+                    label?: T;
+                    url?: T;
+                  };
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        interactiveMap?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              mapImage?: T;
+              mapEmbedUrl?: T;
+              mapHeight?: T;
+              showProgressBars?: T;
+              progressItems?:
+                | T
+                | {
+                    label?: T;
+                    value?: T;
+                    displayValue?: T;
+                    barColor?: T;
+                    id?: T;
+                  };
+              layout?: T;
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        screenshotGallery?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              screenshots?:
+                | T
+                | {
+                    image?: T;
+                    title?: T;
+                    caption?: T;
+                    category?: T;
+                    id?: T;
+                  };
+              columns?: T;
+              enableLightbox?: T;
+              showDeviceFrame?: T;
+              deviceType?: T;
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        helpSupport?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              supportCards?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    icon?: T;
+                    iconColor?: T;
+                    buttonLabel?: T;
+                    buttonUrl?: T;
+                    id?: T;
+                  };
+              video?:
+                | T
+                | {
+                    enabled?: T;
+                    title?: T;
+                    videoUrl?: T;
+                    poster?: T;
+                    uploadedVideo?: T;
+                  };
+              backgroundColor?: T;
+              cardBgColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        formLayout?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              form?: T;
+              maxWidth?: T;
+              id?: T;
+              blockName?: T;
+            };
+        richContent?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              content?: T;
+              maxWidth?: T;
+              id?: T;
+              blockName?: T;
+            };
+        featureCards?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              eyebrow?: T;
+              ctaLabel?: T;
+              ctaLink?: T;
+              cardLayout?: T;
+              columns?: T;
+              cardTheme?: T;
+              showCardNumbers?: T;
+              cards?:
+                | T
+                | {
+                    icon?: T;
+                    title?: T;
+                    description?: T;
+                    link?: T;
+                    tag?: T;
+                    external?: T;
+                    features?:
+                      | T
+                      | {
+                          text?: T;
+                          id?: T;
+                        };
+                    buttonLabel?: T;
+                    buttonUrl?: T;
+                    status?: T;
+                    progress?: T;
+                    level?: T;
+                    duration?: T;
+                    mode?: T;
+                    audience?: T;
+                    date?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        callToAction?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              heading?: T;
+              description?: T;
+              buttons?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    variant?: T;
+                    id?: T;
+                  };
+              backgroundType?: T;
+              backgroundColor?: T;
+              backgroundImage?: T;
+              id?: T;
+              blockName?: T;
+            };
+        imageGallery?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              columns?: T;
+              images?:
+                | T
+                | {
+                    image?: T;
+                    caption?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        faq?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              items?:
+                | T
+                | {
+                    question?: T;
+                    answer?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        testimonials?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              items?:
+                | T
+                | {
+                    quote?: T;
+                    name?: T;
+                    role?: T;
+                    avatar?: T;
+                    initials?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        bannerAlert?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              type?: T;
+              message?: T;
+              dismissible?: T;
+              link?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        embed?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              embedType?: T;
+              html?: T;
+              iframeUrl?: T;
+              height?: T;
+              id?: T;
+              blockName?: T;
+            };
+        teamGrid?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              columns?: T;
+              members?:
+                | T
+                | {
+                    name?: T;
+                    role?: T;
+                    photo?: T;
+                    bio?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        tabs?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              tabs?:
+                | T
+                | {
+                    label?: T;
+                    content?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        contentWithMedia?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              content?: T;
+              media?: T;
+              mediaPosition?: T;
+              id?: T;
+              blockName?: T;
+            };
+        flexibleRow?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              sectionBgColor?: T;
+              radialGlow?: T;
+              gap?: T;
+              verticalAlign?: T;
+              columns?:
+                | T
+                | {
+                    width?: T;
+                    columnBgColor?: T;
+                    padding?: T;
+                    blocks?:
+                      | T
+                      | {
+                          flexRichText?:
+                            | T
+                            | {
+                                content?: T;
+                                fontFamily?: T;
+                                headingFontFamily?: T;
+                                fontSize?: T;
+                                textColor?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexImage?:
+                            | T
+                            | {
+                                image?: T;
+                                caption?: T;
+                                captionColor?: T;
+                                objectFit?: T;
+                                rounded?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexVideo?:
+                            | T
+                            | {
+                                videoSource?: T;
+                                uploadedVideo?: T;
+                                youtubeUrl?: T;
+                                vimeoUrl?: T;
+                                externalVideoUrl?: T;
+                                poster?: T;
+                                autoplay?: T;
+                                loop?: T;
+                                controls?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexCarousel?:
+                            | T
+                            | {
+                                slides?:
+                                  | T
+                                  | {
+                                      mediaType?: T;
+                                      image?: T;
+                                      video?: T;
+                                      youtubeUrl?: T;
+                                      caption?: T;
+                                      id?: T;
+                                    };
+                                autoplay?: T;
+                                interval?: T;
+                                showDots?: T;
+                                showArrows?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexMapEmbed?:
+                            | T
+                            | {
+                                embedType?: T;
+                                iframeUrl?: T;
+                                html?: T;
+                                height?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexAnimation?:
+                            | T
+                            | {
+                                animationType?: T;
+                                lottieUrl?: T;
+                                gif?: T;
+                                loop?: T;
+                                autoplay?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexStatsCards?:
+                            | T
+                            | {
+                                columns?: T;
+                                cardStyle?: T;
+                                cards?:
+                                  | T
+                                  | {
+                                      label?: T;
+                                      value?: T;
+                                      trend?: T;
+                                      trendLabel?: T;
+                                      icon?: T;
+                                      iconColor?: T;
+                                      animation?: T;
+                                      id?: T;
+                                    };
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexFeatureCards?:
+                            | T
+                            | {
+                                columns?: T;
+                                cardStyle?: T;
+                                cards?:
+                                  | T
+                                  | {
+                                      icon?: T;
+                                      iconColor?: T;
+                                      accentColor?: T;
+                                      title?: T;
+                                      subtitle?: T;
+                                      description?: T;
+                                      points?:
+                                        | T
+                                        | {
+                                            text?: T;
+                                            id?: T;
+                                          };
+                                      animation?: T;
+                                      id?: T;
+                                    };
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexHighlightCards?:
+                            | T
+                            | {
+                                columns?: T;
+                                theme?: T;
+                                titleSize?: T;
+                                iconBgColor?: T;
+                                iconAlignment?: T;
+                                cards?:
+                                  | T
+                                  | {
+                                      icon?: T;
+                                      iconColor?: T;
+                                      title?: T;
+                                      description?: T;
+                                      animation?: T;
+                                      id?: T;
+                                    };
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexButtons?:
+                            | T
+                            | {
+                                alignment?: T;
+                                buttons?:
+                                  | T
+                                  | {
+                                      label?: T;
+                                      url?: T;
+                                      variant?: T;
+                                      size?: T;
+                                      icon?: T;
+                                      openInNewTab?: T;
+                                      id?: T;
+                                    };
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexDashboardMock?:
+                            | T
+                            | {
+                                layoutVariant?: T;
+                                theme?: T;
+                                chartCount?: T;
+                                topBadgeLabel?: T;
+                                topBadgeLabelSize?: T;
+                                topBadgeLabelColor?: T;
+                                topBadgeValue?: T;
+                                topBadgeAnimation?: T;
+                                topBadgeValueSize?: T;
+                                topBadgeValueColor?: T;
+                                bottomChipPrimary?: T;
+                                bottomChipSecondary?: T;
+                                bottomSummary?: T;
+                                bottomBadgeAnimation?: T;
+                                bottomSummarySize?: T;
+                                bottomSummaryColor?: T;
+                                syncFooterText?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                        };
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        careerPosting?:
+          | T
+          | {
+              excerpt?: T;
+              effectiveDate?: T;
+              content?: T;
+              problemDomains?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    challenges?:
+                      | T
+                      | {
+                          text?: T;
+                          id?: T;
+                        };
+                    technicalSkills?:
+                      | T
+                      | {
+                          skill?: T;
+                          id?: T;
+                        };
+                    nonTechnicalSkills?:
+                      | T
+                      | {
+                          skill?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              applyButtonText?: T;
+              applyButtonLink?: T;
+              status?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "trainings_select".
+ */
+export interface TrainingsSelect<T extends boolean = true> {
+  title?: T;
+  duration?: T;
+  mode?: T;
+  audience?: T;
+  level?: T;
+  nextBatch?: T;
+  topics?:
+    | T
+    | {
+        name?: T;
+        id?: T;
+      };
+  registerUrl?: T;
+  status?: T;
+  sortOrder?: T;
+  layout?:
+    | T
+    | {
+        hero?:
+          | T
+          | {
+              mode?: T;
+              layout?: T;
+              splitDirection?: T;
+              height?: T;
+              textAlignment?: T;
+              textVerticalPosition?: T;
+              contentMaxWidth?: T;
+              contentPaddingX?: T;
+              contentPaddingY?: T;
+              constantOverlayContent?: T;
+              constantOverlay?:
+                | T
+                | {
+                    showText?: T;
+                    heading?: T;
+                    headingColor?: T;
+                    subtitle?: T;
+                    subtitleColor?: T;
+                    buttons?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          variant?: T;
+                          icon?: T;
+                          id?: T;
+                        };
+                  };
+              overlay?:
+                | T
+                | {
+                    enabled?: T;
+                    color?: T;
+                    opacity?: T;
+                  };
+              headerGlass?:
+                | T
+                | {
+                    enabled?: T;
+                    fillColor?: T;
+                    fillOpacity?: T;
+                    blurAmount?: T;
+                    showDivider?: T;
+                  };
+              carouselSettings?:
+                | T
+                | {
+                    autoPlay?: T;
+                    autoPlayInterval?: T;
+                    showArrows?: T;
+                    showDots?: T;
+                  };
+              singleSlide?:
+                | T
+                | {
+                    mediaType?: T;
+                    image?: T;
+                    videoUrl?: T;
+                    videoPoster?: T;
+                    externalVideoUrl?: T;
+                    animationUrl?: T;
+                    dataVizEmbed?: T;
+                    eyebrowText?: T;
+                    showText?: T;
+                    heading?: T;
+                    headingColor?: T;
+                    subtitle?: T;
+                    subtitleColor?: T;
+                    buttons?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          variant?: T;
+                          icon?: T;
+                          id?: T;
+                        };
+                  };
+              slides?:
+                | T
+                | {
+                    mediaType?: T;
+                    image?: T;
+                    videoUrl?: T;
+                    videoPoster?: T;
+                    externalVideoUrl?: T;
+                    animationUrl?: T;
+                    dataVizEmbed?: T;
+                    eyebrowText?: T;
+                    showText?: T;
+                    heading?: T;
+                    headingColor?: T;
+                    subtitle?: T;
+                    subtitleColor?: T;
+                    buttons?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          variant?: T;
+                          icon?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              duccFloatingCard?:
+                | T
+                | {
+                    enabled?: T;
+                    badgeLabel?: T;
+                    footerText?: T;
+                    footerLink?: T;
+                    footerLinkLabel?: T;
+                    stats?:
+                      | T
+                      | {
+                          value?: T;
+                          label?: T;
+                          id?: T;
+                        };
+                  };
+              duccShowSlideCounter?: T;
+              duccShowPlayPause?: T;
+              quickAccessBar?:
+                | T
+                | {
+                    enabled?: T;
+                    overlapAmount?: T;
+                    items?:
+                      | T
+                      | {
+                          label?: T;
+                          icon?: T;
+                          link?: T;
+                          external?: T;
+                          colorVariant?: T;
+                          id?: T;
+                        };
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        marquee?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    text?: T;
+                    url?: T;
+                    icon?: T;
+                    badge?: T;
+                    id?: T;
+                  };
+              backgroundColor?: T;
+              textColor?: T;
+              speed?: T;
+              pauseOnHover?: T;
+              separator?: T;
+              id?: T;
+              blockName?: T;
+            };
+        statesOnboarded?:
+          | T
+          | {
+              heading?: T;
+              description?: T;
+              states?:
+                | T
+                | {
+                    stateName?: T;
+                    portalUrl?: T;
+                    tagline?: T;
+                    themeColor?: T;
+                    imageOpacity?: T;
+                    backgroundImage?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        showcaseCards?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              cardStyle?: T;
+              columns?: T;
+              cards?:
+                | T
+                | {
+                    title?: T;
+                    image?: T;
+                    caption?: T;
+                    logo?: T;
+                    subtitle?: T;
+                    description?: T;
+                    featured?: T;
+                    featuredLabel?: T;
+                    url?: T;
+                    icon?: T;
+                    id?: T;
+                  };
+              overlaySettings?:
+                | T
+                | {
+                    overlayColor?: T;
+                    overlayOpacity?: T;
+                    cardHeight?: T;
+                  };
+              bottomLink?:
+                | T
+                | {
+                    enabled?: T;
+                    label?: T;
+                    url?: T;
+                  };
+              accentColor?: T;
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        statistics?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              stats?:
+                | T
+                | {
+                    label?: T;
+                    numericValue?: T;
+                    suffix?: T;
+                    prefix?: T;
+                    icon?: T;
+                    iconColor?: T;
+                    ringGradientEnd?: T;
+                    iconBgColor?: T;
+                    description?: T;
+                    ringPercentage?: T;
+                    id?: T;
+                  };
+              ribbonBaseColor?: T;
+              ribbonWaveStartColor?: T;
+              ribbonWaveEndColor?: T;
+              backgroundColor?: T;
+              cardBgColor?: T;
+              enableCountUp?: T;
+              enableHoverZoom?: T;
+              columns?: T;
+              id?: T;
+              blockName?: T;
+            };
+        newsUpdates?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              entryType?: T;
+              articles?:
+                | T
+                | {
+                    title?: T;
+                    excerpt?: T;
+                    image?: T;
+                    category?: T;
+                    date?: T;
+                    url?: T;
+                    icon?: T;
+                    categoryColor?: T;
+                    id?: T;
+                  };
+              collectionSource?:
+                | T
+                | {
+                    limit?: T;
+                    sortBy?: T;
+                    category?: T;
+                    featuredOnly?: T;
+                  };
+              columns?: T;
+              bottomLink?:
+                | T
+                | {
+                    enabled?: T;
+                    label?: T;
+                    url?: T;
+                  };
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        interactiveMap?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              mapImage?: T;
+              mapEmbedUrl?: T;
+              mapHeight?: T;
+              showProgressBars?: T;
+              progressItems?:
+                | T
+                | {
+                    label?: T;
+                    value?: T;
+                    displayValue?: T;
+                    barColor?: T;
+                    id?: T;
+                  };
+              layout?: T;
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        screenshotGallery?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              screenshots?:
+                | T
+                | {
+                    image?: T;
+                    title?: T;
+                    caption?: T;
+                    category?: T;
+                    id?: T;
+                  };
+              columns?: T;
+              enableLightbox?: T;
+              showDeviceFrame?: T;
+              deviceType?: T;
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        helpSupport?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              supportCards?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    icon?: T;
+                    iconColor?: T;
+                    buttonLabel?: T;
+                    buttonUrl?: T;
+                    id?: T;
+                  };
+              video?:
+                | T
+                | {
+                    enabled?: T;
+                    title?: T;
+                    videoUrl?: T;
+                    poster?: T;
+                    uploadedVideo?: T;
+                  };
+              backgroundColor?: T;
+              cardBgColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        formLayout?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              form?: T;
+              maxWidth?: T;
+              id?: T;
+              blockName?: T;
+            };
+        richContent?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              content?: T;
+              maxWidth?: T;
+              id?: T;
+              blockName?: T;
+            };
+        featureCards?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              eyebrow?: T;
+              ctaLabel?: T;
+              ctaLink?: T;
+              cardLayout?: T;
+              columns?: T;
+              cardTheme?: T;
+              showCardNumbers?: T;
+              cards?:
+                | T
+                | {
+                    icon?: T;
+                    title?: T;
+                    description?: T;
+                    link?: T;
+                    tag?: T;
+                    external?: T;
+                    features?:
+                      | T
+                      | {
+                          text?: T;
+                          id?: T;
+                        };
+                    buttonLabel?: T;
+                    buttonUrl?: T;
+                    status?: T;
+                    progress?: T;
+                    level?: T;
+                    duration?: T;
+                    mode?: T;
+                    audience?: T;
+                    date?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        callToAction?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              heading?: T;
+              description?: T;
+              buttons?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    variant?: T;
+                    id?: T;
+                  };
+              backgroundType?: T;
+              backgroundColor?: T;
+              backgroundImage?: T;
+              id?: T;
+              blockName?: T;
+            };
+        imageGallery?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              columns?: T;
+              images?:
+                | T
+                | {
+                    image?: T;
+                    caption?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        faq?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              items?:
+                | T
+                | {
+                    question?: T;
+                    answer?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        testimonials?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              layout?: T;
+              items?:
+                | T
+                | {
+                    quote?: T;
+                    name?: T;
+                    role?: T;
+                    avatar?: T;
+                    initials?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        bannerAlert?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              type?: T;
+              message?: T;
+              dismissible?: T;
+              link?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        embed?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              embedType?: T;
+              html?: T;
+              iframeUrl?: T;
+              height?: T;
+              id?: T;
+              blockName?: T;
+            };
+        teamGrid?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              columns?: T;
+              members?:
+                | T
+                | {
+                    name?: T;
+                    role?: T;
+                    photo?: T;
+                    bio?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        tabs?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              tabs?:
+                | T
+                | {
+                    label?: T;
+                    content?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        contentWithMedia?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              content?: T;
+              media?: T;
+              mediaPosition?: T;
+              id?: T;
+              blockName?: T;
+            };
+        flexibleRow?:
+          | T
+          | {
+              sectionHeading?: T;
+              sectionDescription?: T;
+              headingAlignment?: T;
+              sectionBgColor?: T;
+              radialGlow?: T;
+              gap?: T;
+              verticalAlign?: T;
+              columns?:
+                | T
+                | {
+                    width?: T;
+                    columnBgColor?: T;
+                    padding?: T;
+                    blocks?:
+                      | T
+                      | {
+                          flexRichText?:
+                            | T
+                            | {
+                                content?: T;
+                                fontFamily?: T;
+                                headingFontFamily?: T;
+                                fontSize?: T;
+                                textColor?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexImage?:
+                            | T
+                            | {
+                                image?: T;
+                                caption?: T;
+                                captionColor?: T;
+                                objectFit?: T;
+                                rounded?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexVideo?:
+                            | T
+                            | {
+                                videoSource?: T;
+                                uploadedVideo?: T;
+                                youtubeUrl?: T;
+                                vimeoUrl?: T;
+                                externalVideoUrl?: T;
+                                poster?: T;
+                                autoplay?: T;
+                                loop?: T;
+                                controls?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexCarousel?:
+                            | T
+                            | {
+                                slides?:
+                                  | T
+                                  | {
+                                      mediaType?: T;
+                                      image?: T;
+                                      video?: T;
+                                      youtubeUrl?: T;
+                                      caption?: T;
+                                      id?: T;
+                                    };
+                                autoplay?: T;
+                                interval?: T;
+                                showDots?: T;
+                                showArrows?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexMapEmbed?:
+                            | T
+                            | {
+                                embedType?: T;
+                                iframeUrl?: T;
+                                html?: T;
+                                height?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexAnimation?:
+                            | T
+                            | {
+                                animationType?: T;
+                                lottieUrl?: T;
+                                gif?: T;
+                                loop?: T;
+                                autoplay?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexStatsCards?:
+                            | T
+                            | {
+                                columns?: T;
+                                cardStyle?: T;
+                                cards?:
+                                  | T
+                                  | {
+                                      label?: T;
+                                      value?: T;
+                                      trend?: T;
+                                      trendLabel?: T;
+                                      icon?: T;
+                                      iconColor?: T;
+                                      animation?: T;
+                                      id?: T;
+                                    };
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexFeatureCards?:
+                            | T
+                            | {
+                                columns?: T;
+                                cardStyle?: T;
+                                cards?:
+                                  | T
+                                  | {
+                                      icon?: T;
+                                      iconColor?: T;
+                                      accentColor?: T;
+                                      title?: T;
+                                      subtitle?: T;
+                                      description?: T;
+                                      points?:
+                                        | T
+                                        | {
+                                            text?: T;
+                                            id?: T;
+                                          };
+                                      animation?: T;
+                                      id?: T;
+                                    };
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexHighlightCards?:
+                            | T
+                            | {
+                                columns?: T;
+                                theme?: T;
+                                titleSize?: T;
+                                iconBgColor?: T;
+                                iconAlignment?: T;
+                                cards?:
+                                  | T
+                                  | {
+                                      icon?: T;
+                                      iconColor?: T;
+                                      title?: T;
+                                      description?: T;
+                                      animation?: T;
+                                      id?: T;
+                                    };
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexButtons?:
+                            | T
+                            | {
+                                alignment?: T;
+                                buttons?:
+                                  | T
+                                  | {
+                                      label?: T;
+                                      url?: T;
+                                      variant?: T;
+                                      size?: T;
+                                      icon?: T;
+                                      openInNewTab?: T;
+                                      id?: T;
+                                    };
+                                id?: T;
+                                blockName?: T;
+                              };
+                          flexDashboardMock?:
+                            | T
+                            | {
+                                layoutVariant?: T;
+                                theme?: T;
+                                chartCount?: T;
+                                topBadgeLabel?: T;
+                                topBadgeLabelSize?: T;
+                                topBadgeLabelColor?: T;
+                                topBadgeValue?: T;
+                                topBadgeAnimation?: T;
+                                topBadgeValueSize?: T;
+                                topBadgeValueColor?: T;
+                                bottomChipPrimary?: T;
+                                bottomChipSecondary?: T;
+                                bottomSummary?: T;
+                                bottomBadgeAnimation?: T;
+                                bottomSummarySize?: T;
+                                bottomSummaryColor?: T;
+                                syncFooterText?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                        };
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        careerPosting?:
+          | T
+          | {
+              excerpt?: T;
+              effectiveDate?: T;
+              content?: T;
+              problemDomains?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    challenges?:
+                      | T
+                      | {
+                          text?: T;
+                          id?: T;
+                        };
+                    technicalSkills?:
+                      | T
+                      | {
+                          skill?: T;
+                          id?: T;
+                        };
+                    nonTechnicalSkills?:
+                      | T
+                      | {
+                          skill?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              applyButtonText?: T;
+              applyButtonLink?: T;
+              status?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3578,7 +14169,7 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface SiteSetting {
   id: number;
-  siteName: string;
+  siteName?: string | null;
   favicon?: (number | null) | Media;
   themeColors?: {
     /**

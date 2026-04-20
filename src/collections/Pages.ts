@@ -1,30 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { editorAccess, schoolAdminAccess, publishedOrEditor } from '../access/roles'
 import { syncNavAfterChange, syncNavAfterDelete } from '../hooks/syncNavItems'
-import { Hero } from '../blocks/Hero'
-import { RichContent } from '../blocks/RichContent'
-import { FeatureCards } from '../blocks/FeatureCards'
-import { CallToAction } from '../blocks/CallToAction'
-import { ImageGallery } from '../blocks/ImageGallery'
-import { FAQ } from '../blocks/FAQ'
-import { Statistics } from '../blocks/Statistics'
-import { Testimonials } from '../blocks/Testimonials'
-import { BannerAlert } from '../blocks/BannerAlert'
-import { Embed } from '../blocks/Embed'
-import { TeamGrid } from '../blocks/TeamGrid'
-import { Tabs } from '../blocks/Tabs'
-import { ContentWithMedia } from '../blocks/ContentWithMedia'
-import { Marquee } from '../blocks/Marquee'
-import { ShowcaseCards } from '../blocks/ShowcaseCards'
-import { NewsUpdates } from '../blocks/NewsUpdates'
-import { InteractiveMap } from '../blocks/InteractiveMap'
-import { ScreenshotGallery } from '../blocks/ScreenshotGallery'
-import { HelpSupport } from '../blocks/HelpSupport'
-import { FlexibleRow } from '../blocks/FlexibleRow'
-import { CareerPosting } from '../blocks/CareerPosting'
-import { StatesOnboarded } from '../blocks/StatesOnboarded'
-import { FormLayout } from '../blocks/FormLayout'
-import { GoaSchoolSnapshotBlock } from '../blocks/GoaSchoolSnapshotBlock'
+import { allBlocks } from '../blocks/allBlocks'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -59,6 +36,22 @@ export const Pages: CollectionConfig = {
       name: 'title',
       type: 'text',
       required: true,
+    },
+    {
+      name: 'bannerEyebrow',
+      type: 'text',
+      label: 'Banner Eyebrow',
+      admin: {
+        description: 'Optional small badge text on the page banner (e.g. "ABOUT DUCC", "SOFTWARE SERVICES")',
+      },
+    },
+    {
+      name: 'bannerDescription',
+      type: 'textarea',
+      label: 'Banner Description',
+      admin: {
+        description: 'Optional description text below the title on the page banner',
+      },
     },
     {
       name: 'slug',
@@ -151,32 +144,7 @@ export const Pages: CollectionConfig = {
       name: 'layout',
       type: 'blocks',
       required: true,
-      blocks: [
-        Hero,
-        Marquee,
-        StatesOnboarded,
-        ShowcaseCards,
-        Statistics,
-        NewsUpdates,
-        InteractiveMap,
-        ScreenshotGallery,
-        HelpSupport,
-        GoaSchoolSnapshotBlock,
-        FormLayout,
-        RichContent,
-        FeatureCards,
-        CallToAction,
-        ImageGallery,
-        FAQ,
-        Testimonials,
-        BannerAlert,
-        Embed,
-        TeamGrid,
-        Tabs,
-        ContentWithMedia,
-        FlexibleRow,
-        CareerPosting,
-      ],
+      blocks: allBlocks,
     },
   ],
 }

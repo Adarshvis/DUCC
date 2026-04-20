@@ -110,7 +110,7 @@ body {
   left: 0;
   right: 0;
   z-index: 100;
-  box-shadow: 0 2px 0 0 #e2e8f0;
+  box-shadow: none;
 }
 
 .site-header.header-glass {
@@ -857,6 +857,27 @@ body {
   margin: 0 0 1rem;
   padding-left: 1.6rem;
   line-height: 1.7;
+}
+
+.cms-richtext ul {
+  list-style-type: disc;
+}
+
+.cms-richtext ol {
+  list-style-type: decimal;
+}
+
+.cms-richtext li {
+  margin-bottom: 0.25rem;
+}
+
+.cms-richtext h1,
+.cms-richtext h2,
+.cms-richtext h3,
+.cms-richtext h4,
+.cms-richtext h5,
+.cms-richtext h6 {
+  font-family: var(--heading-font, inherit);
 }
 
 .career-posting__richtext h1 {
@@ -1926,3 +1947,103 @@ body {
   }
 }
 
+
+/* ═══════════════════════════════════════════════════════════
+   DUCC Design System — Utility Classes
+   ═══════════════════════════════════════════════════════════ */
+
+/* Heading font (Playfair Display) */
+.ducc-heading {
+  font-family: var(--font-playfair, serif);
+  letter-spacing: -0.01em;
+}
+
+/* Button shine sweep on hover */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shine::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.btn-shine:hover::before {
+  left: 100%;
+}
+
+/* Card lift + shadow on hover */
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -12px color-mix(in srgb, var(--cms-primary, #4B2E83) 40%, transparent);
+}
+
+/* Floating animation */
+@keyframes ducc-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.float-y {
+  animation: ducc-float 3s ease-in-out infinite;
+}
+
+/* Hero gradient overlay — uses theme secondary + primary */
+.hero-overlay-ducc {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--cms-secondary, #1A103D) 85%, transparent) 0%,
+    color-mix(in srgb, var(--cms-primary, #4B2E83) 75%, transparent) 100%
+  );
+}
+
+/* Radial glow (subtle accent) */
+.radial-glow {
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--cms-accent, #EAB308) 8%, transparent) 0%,
+    transparent 70%
+  );
+}
+
+/* Grid pattern overlay (for dark sections) */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Quick-access bar that overlaps the hero bottom */
+.hero-quick-access {
+  position: relative;
+  z-index: 20;
+}
+
+/* DUCC muted background using theme variable */
+.ducc-muted-bg {
+  background: var(--cms-muted-bg, #F8F4FF);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-shine::before,
+  .float-y {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .card-hover:hover {
+    transform: none;
+  }
+}

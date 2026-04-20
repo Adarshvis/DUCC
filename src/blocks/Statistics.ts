@@ -15,6 +15,7 @@ export const Statistics: Block = {
         { label: 'Card Grid (colored icon cards)', value: 'cardGrid' },
         { label: 'Circular Rings (donut progress)', value: 'circularRings' },
         { label: 'Interlocking Rings (ribbon weave)', value: 'interlockingRings' },
+        { label: 'DUCC Stats Strip (Dark Horizontal)', value: 'duccStrip' },
       ],
       admin: {
         description: 'Choose between card grid layout or circular ring/donut layout',

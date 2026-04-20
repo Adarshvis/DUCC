@@ -74,11 +74,13 @@ function SectionHeading({
 function FlexRichText({
   content,
   fontFamily = 'inherit',
+  headingFontFamily = 'inherit',
   fontSize = 'base',
   textColor = '#1F2937',
 }: {
   content: unknown
   fontFamily?: string | null
+  headingFontFamily?: string | null
   fontSize?: string | null
   textColor?: string | null
 }) {
@@ -89,13 +91,19 @@ function FlexRichText({
     xl: 'text-xl [&_p]:text-xl [&_li]:text-xl',
     '2xl': 'text-2xl [&_p]:text-2xl [&_li]:text-2xl',
   }
+
+  const headingFont = headingFontFamily && headingFontFamily !== 'inherit'
+    ? `"${headingFontFamily}", serif`
+    : undefined
+
   return (
     <div
       className={`cms-richtext max-w-none rounded-lg ${sizeClass[fontSize || 'base'] || 'text-base [&_p]:text-base [&_li]:text-base'}`}
       style={{
         fontFamily: fontFamily && fontFamily !== 'inherit' ? `"${fontFamily}", sans-serif` : undefined,
         color: textColor || undefined,
-      }}
+        '--heading-font': headingFont || 'inherit',
+      } as React.CSSProperties}
     >
       <RichText data={content as SerializedEditorState} />
     </div>
@@ -521,7 +529,44 @@ function FlexStatsCards({
       ? 'bg-white shadow-lg border border-gray-100'
       : cardStyle === 'soft'
         ? 'bg-slate-50 border border-slate-100'
-        : 'bg-white border border-slate-200'
+        : cardStyle === 'duccAbout'
+          ? 'card-hover bg-white border'
+          : 'bg-white border border-slate-200'
+
+  /* ── DUCC About card style ── */
+  if (cardStyle === 'duccAbout') {
+    return (
+      <div className={`grid gap-4 ${getResponsiveGridClass(safeCols)}`}>
+        {cards.map((card, index) => (
+          <article
+            key={card.id || index}
+            className="card-hover p-6 rounded-2xl bg-white border"
+            style={{ borderColor: 'var(--cms-muted-bg, #F8F4FF)' }}
+          >
+            {card.icon && (
+              <div
+                className="w-11 h-11 rounded-lg flex items-center justify-center mb-4"
+                style={{ background: 'var(--cms-muted-bg, #F8F4FF)' }}
+              >
+                <DynamicIcon
+                  name={card.icon}
+                  size={20}
+                  color="var(--cms-primary, #4B2E83)"
+                />
+              </div>
+            )}
+            <div
+              className="text-4xl font-bold tracking-tight"
+              style={{ color: 'var(--cms-secondary, #1A103D)' }}
+            >
+              {card.value}
+            </div>
+            <div className="text-sm text-gray-500 mt-1">{card.label}</div>
+          </article>
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className={`grid gap-6 ${getResponsiveGridClass(safeCols)}`}>
@@ -1033,6 +1078,7 @@ interface FlexibleRowBlockProps {
   sectionDescription?: string | null
   headingAlignment?: 'left' | 'center' | 'right' | null
   sectionBgColor?: string | null
+  radialGlow?: boolean | null
   gap?: string | null
   verticalAlign?: string | null
   columns?: ColumnData[]
@@ -1043,6 +1089,7 @@ export default function FlexibleRowBlock({
   sectionDescription,
   headingAlignment,
   sectionBgColor = '#FFFFFF',
+  radialGlow = false,
   gap = '6',
   verticalAlign = 'start',
   columns,
@@ -1056,10 +1103,13 @@ export default function FlexibleRowBlock({
 
   return (
     <section
-      className="py-16 px-6"
+      className="relative py-16 px-6 overflow-hidden"
       style={{ backgroundColor: sectionBgColor || '#FFFFFF' }}
     >
-      <div className="max-w-7xl mx-auto">
+      {radialGlow && (
+        <div className="absolute inset-0 radial-glow pointer-events-none" />
+      )}
+      <div className="max-w-7xl mx-auto relative">
         <SectionHeading
           heading={sectionHeading}
           description={sectionDescription}

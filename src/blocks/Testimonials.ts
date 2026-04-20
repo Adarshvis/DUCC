@@ -7,6 +7,18 @@ export const Testimonials: Block = {
   fields: [
     ...sectionHeadingFields,
     {
+      name: 'layout',
+      type: 'select',
+      defaultValue: 'default',
+      options: [
+        { label: 'Default Carousel', value: 'default' },
+        { label: 'DUCC Director Quote (Dark Full-Width)', value: 'duccQuote' },
+      ],
+      admin: {
+        description: 'Choose visual style for testimonials',
+      },
+    },
+    {
       name: 'items',
       type: 'array',
       required: true,
@@ -32,6 +44,14 @@ export const Testimonials: Block = {
           name: 'avatar',
           type: 'upload',
           relationTo: 'media',
+        },
+        {
+          name: 'initials',
+          type: 'text',
+          maxLength: 3,
+          admin: {
+            description: 'Initials for avatar fallback (e.g. "SS") — used in DUCC Quote layout',
+          },
         },
       ],
     },

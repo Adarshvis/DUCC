@@ -1,5 +1,5 @@
 import React from 'react'
-import { Inter, JetBrains_Mono } from 'next/font/google'
+import { Inter, JetBrains_Mono, Playfair_Display } from 'next/font/google'
 import type { Metadata } from 'next'
 import config from '@/payload.config'
 import { getPayload } from '@/lib/payload'
@@ -18,6 +18,12 @@ const inter = Inter({
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-jetbrains-mono',
+  display: 'swap',
+})
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-playfair',
   display: 'swap',
 })
 
@@ -51,13 +57,13 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   const footerData = await payload.findGlobal({ slug: 'footer' as any })
   const siteSettings = await payload.findGlobal({ slug: 'site-settings' as any })
 
-  const primaryColor = siteSettings?.themeColors?.primaryColor || '#1E40AF'
-  const secondaryColor = siteSettings?.themeColors?.secondaryColor || '#9333EA'
-  const accentColor = siteSettings?.themeColors?.accentColor || '#F59E0B'
+  const primaryColor = siteSettings?.themeColors?.primaryColor || '#4B2E83'
+  const secondaryColor = siteSettings?.themeColors?.secondaryColor || '#1A103D'
+  const accentColor = siteSettings?.themeColors?.accentColor || '#EAB308'
   const backgroundColor = siteSettings?.themeColors?.backgroundColor || '#FFFFFF'
   const surfaceColor = siteSettings?.themeColors?.surfaceColor || '#FFFFFF'
-  const mutedBackgroundColor = siteSettings?.themeColors?.mutedBackgroundColor || '#F1F5F9'
-  const textColor = siteSettings?.themeColors?.textColor || '#111827'
+  const mutedBackgroundColor = siteSettings?.themeColors?.mutedBackgroundColor || '#F8F4FF'
+  const textColor = siteSettings?.themeColors?.textColor || '#1A103D'
 
   const themeStyle = {
     '--cms-primary': primaryColor,
@@ -70,7 +76,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   } as React.CSSProperties
 
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${playfair.variable} ${jetbrainsMono.variable}`}>
       <body className="flex flex-col min-h-screen" style={themeStyle}>
         <Header data={headerData} />
         <main className="site-main flex-1">{children}</main>

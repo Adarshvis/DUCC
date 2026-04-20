@@ -7,6 +7,18 @@ export const FAQ: Block = {
   fields: [
     ...sectionHeadingFields,
     {
+      name: 'layout',
+      type: 'select',
+      defaultValue: 'default',
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'DUCC Accordion (Purple Theme)', value: 'duccAccordion' },
+      ],
+      admin: {
+        description: 'Choose visual style for the FAQ section',
+      },
+    },
+    {
       name: 'items',
       type: 'array',
       required: true,

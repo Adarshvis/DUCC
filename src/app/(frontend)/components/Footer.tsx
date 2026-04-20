@@ -87,7 +87,7 @@ export default function Footer({ data, siteSettings }: FooterProps) {
   const hasSocial = data.showSocialLinks && siteSettings?.socialLinks && siteSettings.socialLinks.length > 0
 
   return (
-    <footer style={{ backgroundColor: '#0f2040' }}>
+    <footer style={{ backgroundColor: 'var(--cms-secondary, #1A103D)' }}>
 
 
       {/* ── Main Footer Body ── */}

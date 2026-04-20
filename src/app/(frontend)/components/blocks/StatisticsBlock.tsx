@@ -25,7 +25,7 @@ interface StatisticsBlockProps {
   sectionHeading?: string | null
   sectionDescription?: string | null
   headingAlignment?: 'left' | 'center' | 'right' | null
-  layout?: 'cardGrid' | 'circularRings' | 'interlockingRings' | null
+  layout?: 'cardGrid' | 'circularRings' | 'interlockingRings' | 'duccStrip' | null
   stats: StatData[]
   backgroundColor?: string | null
   cardBgColor?: string | null
@@ -433,6 +433,45 @@ export default function StatisticsBlock(props: StatisticsBlockProps) {
   const { ref, inView } = useInView(0.15)
 
   if (!stats || stats.length === 0) return null
+
+  /* ── DUCC Stats Strip layout ── */
+  if (layout === 'duccStrip') {
+    return (
+      <section
+        ref={ref}
+        className="py-16 px-6"
+        style={{ background: 'var(--cms-secondary, #1A103D)' }}
+      >
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            {stats.map((stat, i) => (
+              <div key={stat.id || i} className="text-center">
+                {stat.icon && (
+                  <DynamicIcon
+                    name={stat.icon}
+                    size={24}
+                    className="mx-auto mb-3"
+                    color="var(--cms-accent, #EAB308)"
+                  />
+                )}
+                <div className="text-3xl md:text-4xl font-bold text-white">
+                  <AnimatedNumber
+                    value={stat.numericValue}
+                    prefix={stat.prefix}
+                    suffix={stat.suffix}
+                    animate={enableCountUp !== false && inView}
+                  />
+                </div>
+                <div className="text-xs uppercase tracking-wider text-white/60 mt-2">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   const style = layout || 'cardGrid'
   const cols = columns || '4'

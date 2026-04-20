@@ -19,6 +19,7 @@ import * as migration_20260413_130000_add_hero_text_color_fields from './2026041
 import * as migration_20260413_131000_fix_hero_single_slide_color_columns from './20260413_131000_fix_hero_single_slide_color_columns';
 import * as migration_20260413_140000_add_goa_snapshot_show_apply_button from './20260413_140000_add_goa_snapshot_show_apply_button';
 import * as migration_20260418_074511_add_hero_constant_overlay_buttons from './20260418_074511_add_hero_constant_overlay_buttons';
+import * as migration_20260419_181559_ducc_hero_extensions from './20260419_181559_ducc_hero_extensions';
 
 export const migrations = [
   {
@@ -124,6 +125,11 @@ export const migrations = [
   {
     up: migration_20260418_074511_add_hero_constant_overlay_buttons.up,
     down: migration_20260418_074511_add_hero_constant_overlay_buttons.down,
-    name: '20260418_074511_add_hero_constant_overlay_buttons'
+    name: '20260418_074511_add_hero_constant_overlay_buttons',
+  },
+  {
+    up: migration_20260419_181559_ducc_hero_extensions.up,
+    down: migration_20260419_181559_ducc_hero_extensions.down,
+    name: '20260419_181559_ducc_hero_extensions'
   },
 ];

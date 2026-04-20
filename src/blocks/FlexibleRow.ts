@@ -15,7 +15,8 @@ const RichTextSub: Block = {
       name: 'fontFamily',
       type: 'select',
       defaultValue: 'inherit',
-      admin: { description: 'Font family for this text block' },
+      label: 'Body Font Family',
+      admin: { description: 'Font family for body text (paragraphs, lists)' },
       options: [
         { label: 'Default (Inherit)', value: 'inherit' },
         { label: 'Inter', value: 'Inter' },
@@ -29,6 +30,23 @@ const RichTextSub: Block = {
         { label: 'Playfair Display', value: 'Playfair Display' },
         { label: 'Merriweather', value: 'Merriweather' },
         { label: 'Source Sans Pro', value: 'Source Sans Pro' },
+      ],
+    },
+    {
+      name: 'headingFontFamily',
+      type: 'select',
+      defaultValue: 'inherit',
+      label: 'Heading Font Family',
+      admin: { description: 'Font family for headings only (h1-h6). Leave as Default to use the body font.' },
+      options: [
+        { label: 'Default (Same as body)', value: 'inherit' },
+        { label: 'Inter', value: 'Inter' },
+        { label: 'Playfair Display', value: 'Playfair Display' },
+        { label: 'Merriweather', value: 'Merriweather' },
+        { label: 'Roboto', value: 'Roboto' },
+        { label: 'Poppins', value: 'Poppins' },
+        { label: 'Montserrat', value: 'Montserrat' },
+        { label: 'Raleway', value: 'Raleway' },
       ],
     },
     {
@@ -380,6 +398,7 @@ const StatsCardsSub: Block = {
         { label: 'Outline', value: 'outline' },
         { label: 'Elevated', value: 'elevated' },
         { label: 'Soft', value: 'soft' },
+        { label: 'DUCC About (Icon box + vertical)', value: 'duccAbout' },
       ],
     },
     {
@@ -578,6 +597,7 @@ const ButtonsSub: Block = {
 /* ── Sub-block: Dashboard Mock Panel ── */
 const DashboardMockSub: Block = {
   slug: 'flexDashboardMock',
+  dbName: 'flex_dash_mock',
   labels: { singular: 'Dashboard Mock', plural: 'Dashboard Mocks' },
   fields: [
     {
@@ -707,6 +727,15 @@ export const FlexibleRow: Block = {
   fields: [
     ...sectionHeadingFields,
     colorField('sectionBgColor', 'Section Background Color', '#FFFFFF'),
+    {
+      name: 'radialGlow',
+      type: 'checkbox',
+      defaultValue: false,
+      label: 'Radial Glow Background',
+      admin: {
+        description: 'Add a subtle radial accent glow behind this section',
+      },
+    },
     {
       name: 'gap',
       type: 'select',
