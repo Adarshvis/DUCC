@@ -9,10 +9,27 @@ interface Application {
   phone?: string | null
   jobTitle?: string | null
   highestQualification?: string | null
+  workStatus?: string | null
   status?: string | null
   createdAt?: string | null
   resume?: { id: string; filename?: string | null; url?: string | null } | null
   extraData?: Record<string, unknown> | null
+}
+
+const ROLE_LABELS: Record<string, string> = {
+  student: 'Student',
+  phd_scholar: 'PhD Scholar',
+  faculty: 'Faculty Members',
+  admin_staff: 'Non Teaching Staff',
+  researcher: 'Researcher',
+  other: 'Other',
+  fresher: 'Fresher',
+  experienced: 'Experienced',
+}
+
+function getRoleLabel(app: Application): string {
+  if (app.workStatus) return ROLE_LABELS[app.workStatus] || app.workStatus
+  return getHighestQualification(app)
 }
 
 interface Stats {
@@ -156,9 +173,9 @@ export default function ApplicationsDashboardClient({
   }
 
   const statCards = [
-    { label: 'Total Applications', value: stats.total, color: '#1e3a5f', icon: '📋' },
+    { label: 'Total Requests', value: stats.total, color: '#1e3a5f', icon: '📋' },
     { label: 'New', value: stats.new, color: '#3b82f6', icon: '🆕' },
-    { label: 'Shortlisted', value: stats.shortlisted, color: '#10b981', icon: '✅' },
+    { label: 'Approved', value: stats.shortlisted, color: '#10b981', icon: '✅' },
     { label: 'Reviewed', value: stats.reviewed, color: '#f59e0b', icon: '👀' },
     { label: 'Rejected', value: stats.rejected, color: '#ef4444', icon: '❌' },
   ]
@@ -180,9 +197,20 @@ export default function ApplicationsDashboardClient({
 
     const flattenedRows = applications.map((app) => {
       const record = flattenExportRecord(app)
-      record.highestQualification = getHighestQualification(app)
+      record.role = getRoleLabel(app)
+      record.software = app.jobTitle || ''
+      record.requesterName = app.applicantName || ''
       if (app.createdAt) record.submittedDate = formatDate(app.createdAt)
       delete record.createdAt
+      delete record.highestQualification
+      delete record.applicantName
+      delete record.jobTitle
+      delete record.workStatus
+      delete record.currentAddress
+      delete record.permanentAddress
+      delete record.yearOfExperience
+      delete record.updatedAt
+      delete record.submittedAt
       for (const key of Object.keys(record)) {
         if (key === 'resume' || key.startsWith('resume.')) {
           delete record[key]
@@ -193,9 +221,9 @@ export default function ApplicationsDashboardClient({
 
     const preferredHeaders = [
       'id',
-      'applicantName',
-      'jobTitle',
-      'highestQualification',
+      'requesterName',
+      'software',
+      'role',
       'email',
       'phone',
       'status',
@@ -253,7 +281,7 @@ export default function ApplicationsDashboardClient({
             Applications Dashboard
           </h1>
           <p style={{ margin: '0.25rem 0 0', color: '#6b7280', fontSize: '0.9rem' }}>
-            Review and manage all job applications
+            Review and manage all software access requests
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
@@ -360,7 +388,7 @@ export default function ApplicationsDashboardClient({
         {/* Search */}
         <input
           type="text"
-          placeholder="Search by name, email or position..."
+          placeholder="Search by name, email or software..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{
@@ -394,7 +422,7 @@ export default function ApplicationsDashboardClient({
                 textTransform: 'capitalize',
               }}
             >
-              {s === 'all' ? 'All' : s}
+              {s === 'all' ? 'All' : s === 'shortlisted' ? 'Approved' : s}
             </button>
           ))}
         </div>
@@ -429,7 +457,7 @@ export default function ApplicationsDashboardClient({
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                {['Applicant', 'Position', 'Contact', 'Highest Qualification', 'Status', 'Resume'].map((h) => (
+                {['Requester', 'Software', 'Contact', 'Role', 'Status', 'Attachment'].map((h) => (
                   <th
                     key={h}
                     style={{
@@ -500,7 +528,7 @@ export default function ApplicationsDashboardClient({
                     {/* Highest Qualification */}
                     <td style={{ padding: '0.875rem 1rem' }}>
                       <span style={{ fontSize: '0.8rem', color: '#6b7280' }}>
-                        {getHighestQualification(app)}
+                        {getRoleLabel(app)}
                       </span>
                     </td>
 

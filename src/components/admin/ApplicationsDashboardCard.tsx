@@ -5,7 +5,7 @@ import React, { useState, useCallback } from 'react'
 const STATUS_OPTIONS = [
   { value: 'new', label: 'New', color: '#3b82f6', bg: '#eff6ff' },
   { value: 'reviewed', label: 'Reviewed', color: '#f59e0b', bg: '#fffbeb' },
-  { value: 'shortlisted', label: 'Shortlisted', color: '#10b981', bg: '#f0fdf4' },
+  { value: 'shortlisted', label: 'Approved', color: '#10b981', bg: '#f0fdf4' },
   { value: 'rejected', label: 'Rejected', color: '#ef4444', bg: '#fef2f2' },
   { value: 'deleted', label: 'Delete', color: '#7f1d1d', bg: '#fee2e2' },
 ]
@@ -34,10 +34,27 @@ interface Application {
   phone?: string | null
   jobTitle?: string | null
   highestQualification?: string | null
+  workStatus?: string | null
   status?: string | null
   createdAt?: string | null
   resume?: { id: string; filename?: string | null; url?: string | null } | null
   extraData?: Record<string, unknown> | null
+}
+
+const ROLE_LABELS: Record<string, string> = {
+  student: 'Student',
+  phd_scholar: 'PhD Scholar',
+  faculty: 'Faculty Members',
+  admin_staff: 'Non Teaching Staff',
+  researcher: 'Researcher',
+  other: 'Other',
+  fresher: 'Fresher',
+  experienced: 'Experienced',
+}
+
+function getRoleLabel(app: Application): string {
+  if (app.workStatus) return ROLE_LABELS[app.workStatus] || app.workStatus
+  return getHighestQualification(app)
 }
 
 function getHighestQualification(app: Application): string {
@@ -190,9 +207,20 @@ export default function ApplicationsWidget() {
 
     const flattenedRows = applications.map((app) => {
       const record = flattenExportRecord(app)
-      record.highestQualification = getHighestQualification(app)
+      record.role = getRoleLabel(app)
+      record.software = app.jobTitle || ''
+      record.requesterName = app.applicantName || ''
       if (app.createdAt) record.submittedDate = formatDate(app.createdAt)
       delete record.createdAt
+      delete record.highestQualification
+      delete record.applicantName
+      delete record.jobTitle
+      delete record.workStatus
+      delete record.currentAddress
+      delete record.permanentAddress
+      delete record.yearOfExperience
+      delete record.updatedAt
+      delete record.submittedAt
       for (const key of Object.keys(record)) {
         if (key === 'resume' || key.startsWith('resume.')) {
           delete record[key]
@@ -203,9 +231,9 @@ export default function ApplicationsWidget() {
 
     const preferredHeaders = [
       'id',
-      'applicantName',
-      'jobTitle',
-      'highestQualification',
+      'requesterName',
+      'software',
+      'role',
       'email',
       'phone',
       'status',
@@ -253,7 +281,7 @@ export default function ApplicationsWidget() {
           color: 'var(--theme-text, #1f2937)',
         }}
       >
-        Job Applications
+        Software Requests
       </h2>
 
       {/* Native-style card button */}
@@ -322,7 +350,7 @@ export default function ApplicationsWidget() {
                 Applications Dashboard
               </h3>
               <p style={{ margin: '0.2rem 0 0', fontSize: '0.8rem', color: '#6b7280' }}>
-                Review and manage all job applications
+                Review and manage all software access requests
               </p>
             </div>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -379,7 +407,7 @@ export default function ApplicationsWidget() {
 
           {loading ? (
             <div style={{ padding: '3rem', textAlign: 'center', color: '#9ca3af' }}>
-              Loading applications...
+              Loading requests...
             </div>
           ) : (
             <>
@@ -395,7 +423,7 @@ export default function ApplicationsWidget() {
                 {[
                   { label: 'Total', value: stats.total, color: '#1e3a5f' },
                   { label: 'New', value: stats.new, color: '#3b82f6' },
-                  { label: 'Shortlisted', value: stats.shortlisted, color: '#10b981' },
+                  { label: 'Approved', value: stats.shortlisted, color: '#10b981' },
                   { label: 'Reviewed', value: stats.reviewed, color: '#f59e0b' },
                   { label: 'Rejected', value: stats.rejected, color: '#ef4444' },
                 ].map((s, i, arr) => (
@@ -426,7 +454,7 @@ export default function ApplicationsWidget() {
               >
                 <input
                   type="text"
-                  placeholder="Search by name, email or position..."
+                  placeholder="Search by name, email or software..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   style={{
@@ -458,7 +486,7 @@ export default function ApplicationsWidget() {
                       fontFamily: 'inherit',
                     }}
                   >
-                    {s === 'all' ? 'All' : s}
+                    {s === 'all' ? 'All' : s === 'shortlisted' ? 'Approved' : s}
                   </button>
                 ))}
                 <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
@@ -469,14 +497,14 @@ export default function ApplicationsWidget() {
               {/* Table */}
               {filtered.length === 0 ? (
                 <div style={{ padding: '2.5rem', textAlign: 'center', color: '#9ca3af', fontSize: '0.9rem' }}>
-                  No applications found.
+                  No requests found.
                 </div>
               ) : (
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                       <tr style={{ background: '#f9fafb' }}>
-                        {['Applicant', 'Position', 'Contact', 'Highest Qualification', 'Status', 'Resume'].map((h) => (
+                        {['Requester', 'Software', 'Contact', 'Role', 'Status', 'Attachment'].map((h) => (
                           <th
                             key={h}
                             style={{
@@ -516,7 +544,7 @@ export default function ApplicationsWidget() {
                               {app.phone && <div style={{ fontSize: '0.72rem', color: '#9ca3af' }}>{app.phone}</div>}
                             </td>
                             <td style={{ padding: '0.75rem 1rem', fontSize: '0.78rem', color: '#6b7280' }}>
-                              {getHighestQualification(app)}
+                              {getRoleLabel(app)}
                             </td>
                             <td style={{ padding: '0.75rem 1rem' }}>
                               <select

@@ -564,7 +564,14 @@ export default function HeroBlock(props: HeroBlockProps) {
                     <SlideMedia slide={slide} />
                   </div>
                 )}
-              <div className="absolute inset-0 hero-overlay-ducc" />
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: overlayEnabled
+                    ? `linear-gradient(135deg, color-mix(in srgb, var(--cms-secondary, #1A103D) ${overlayOpacity * 100}%, transparent) 0%, color-mix(in srgb, var(--cms-primary, #4B2E83) ${overlayOpacity * 85}%, transparent) 100%)`
+                    : 'none',
+                }}
+              />
             </div>
           ))}
 

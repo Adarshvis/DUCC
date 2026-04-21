@@ -181,12 +181,13 @@ export default function SoftwareGrid({ software, categories }: SoftwareGridProps
                       Request Access <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   ) : (
-                    <span
-                      className="inline-flex items-center gap-1.5 font-semibold"
+                    <a
+                      href={`/request?software=${encodeURIComponent(s.name)}`}
+                      className="inline-flex items-center gap-1.5 font-semibold group-hover:gap-2 transition-all"
                       style={{ color: 'var(--cms-primary, #4B2E83)' }}
                     >
                       Request Access <ExternalLink className="w-3.5 h-3.5" />
-                    </span>
+                    </a>
                   )}
                 </div>
               </div>

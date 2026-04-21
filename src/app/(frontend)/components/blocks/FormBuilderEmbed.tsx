@@ -224,7 +224,84 @@ export default function FormBuilderEmbed({ form }: { form: unknown }) {
 
       let res: Response
 
-      if (hasResumeUpload) {
+      // Software access request — route to /api/request-access
+      const urlParams = new URLSearchParams(window.location.search)
+      const softwareFromUrl = urlParams.get('software')
+
+      if (softwareFromUrl) {
+        const getFieldValue = (field: FormField): string => {
+          const fieldName = field.name || ''
+          if (!fieldName) return ''
+          const value = values[fieldName]
+          return typeof value === 'string' ? value.trim() : ''
+        }
+
+        const matchesHint = (field: FormField, pattern: RegExp): boolean => {
+          const text = `${field.name || ''} ${field.label || ''}`.toLowerCase()
+          return pattern.test(text)
+        }
+
+        const fullName = (() => {
+          for (const field of fields) {
+            if (!matchesHint(field, /full\s*name|^name$/i)) continue
+            const v = getFieldValue(field)
+            if (v) return v
+          }
+          for (const field of fields) {
+            if (field.blockType === 'text') { const v = getFieldValue(field); if (v) return v }
+          }
+          return ''
+        })()
+
+        const email = (() => {
+          for (const field of fields) {
+            if (field.blockType === 'email' || matchesHint(field, /email/i)) {
+              const v = getFieldValue(field); if (v) return v
+            }
+          }
+          return ''
+        })()
+
+        const mobile = (() => {
+          for (const field of fields) {
+            if (matchesHint(field, /phone|mobile/i)) { const v = getFieldValue(field); if (v) return v }
+          }
+          return ''
+        })()
+
+        const role = (() => {
+          for (const field of fields) {
+            if (matchesHint(field, /i\s*am|role|designation|i_am|iam/i)) {
+              const v = getFieldValue(field); if (v) return v
+            }
+          }
+          // Fallback: check any select field that hasn't been matched yet
+          for (const field of fields) {
+            if (field.blockType === 'select') {
+              const v = getFieldValue(field); if (v) return v
+            }
+          }
+          return ''
+        })()
+
+        if (!fullName) {
+          setError('Full name is required.')
+          return
+        }
+
+        res = await fetch('/api/request-access', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fullName,
+            email,
+            mobile,
+            role,
+            software: softwareFromUrl,
+            ...values,
+          }),
+        })
+      } else if (hasResumeUpload) {
         const resumeField = fields.find((field) => field.blockType === 'resumeUpload' && field.name)
         if (!resumeField?.name) {
           setError('Resume upload field is misconfigured.')

@@ -4045,7 +4045,7 @@ export interface Resume {
   focalY?: number | null;
 }
 /**
- * Resume submissions from job applicants
+ * Software access requests from users
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "job-applications".
@@ -4056,15 +4056,30 @@ export interface JobApplication {
   email: string;
   phone?: string | null;
   /**
-   * The position the candidate indicated they are applying for
+   * The software the user is requesting access to
    */
   jobTitle: string;
+  /**
+   * Department or college of the requester
+   */
   currentAddress?: string | null;
+  /**
+   * e.g. Professor, Research Scholar, Lab Assistant
+   */
   permanentAddress?: string | null;
+  /**
+   * Why they need access to this software
+   */
   highestQualification?: string | null;
-  workStatus?: ('fresher' | 'experienced') | null;
+  workStatus?: ('student' | 'phd_scholar' | 'faculty' | 'admin_staff' | 'other') | null;
+  /**
+   * Any additional information
+   */
   yearOfExperience?: string | null;
-  resume: number | Resume;
+  /**
+   * Optional document upload
+   */
+  resume?: (number | null) | Resume;
   status: 'new' | 'reviewed' | 'shortlisted' | 'rejected' | 'deleted';
   submittedAt?: string | null;
   updatedAt: string;

@@ -182,7 +182,7 @@ export default function Header({ data }: HeaderProps) {
 
             {data.navItems && data.navItems.length > 0 && (
               <div className={`mt-[calc(var(--spacing)*5)] flex w-full items-center ${navAlignWrapperClass}`}>
-                <div className="flex items-center gap-8">
+                <div className="flex items-center gap-6 flex-nowrap whitespace-nowrap">
                   {(data.navItems || []).map((item) => {
                     const hasChildren = item.children && item.children.length > 0
                     const active = hasChildren

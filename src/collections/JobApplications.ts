@@ -50,14 +50,14 @@ const autoDeleteWhenMarkedDeleted: CollectionAfterChangeHook = async ({
 export const JobApplications: CollectionConfig = {
   slug: 'job-applications',
   labels: {
-    singular: 'Job Application',
-    plural: 'Job Applications',
+    singular: 'Software Request',
+    plural: 'Software Requests',
   },
   admin: {
     useAsTitle: 'applicantName',
-    group: 'Job Applications',
+    group: 'Software Requests',
     defaultColumns: ['applicantName', 'email', 'jobTitle', 'status', 'createdAt'],
-    description: 'Resume submissions from job applicants',
+    description: 'Software access requests from users',
     hidden: true,
   },
   access: {
@@ -75,75 +75,93 @@ export const JobApplications: CollectionConfig = {
     {
       name: 'applicantName',
       type: 'text',
-      label: 'Applicant Name',
+      label: 'Full Name',
       required: true,
     },
     {
       name: 'email',
       type: 'email',
-      label: 'Email',
+      label: 'Email Address',
       required: true,
     },
     {
       name: 'phone',
       type: 'text',
-      label: 'Phone Number',
+      label: 'Mobile',
     },
     {
       name: 'jobTitle',
       type: 'text',
-      label: 'Position Applied For',
+      label: 'Software Requested',
       required: true,
       admin: {
-        description: 'The position the candidate indicated they are applying for',
+        description: 'The software the user is requesting access to',
       },
     },
     {
       name: 'currentAddress',
       type: 'text',
-      label: 'Current Address',
+      label: 'Department / College',
+      admin: {
+        description: 'Department or college of the requester',
+      },
     },
     {
       name: 'permanentAddress',
       type: 'text',
-      label: 'Permanent Address',
+      label: 'Designation',
+      admin: {
+        description: 'e.g. Professor, Research Scholar, Lab Assistant',
+      },
     },
     {
       name: 'highestQualification',
       type: 'text',
-      label: 'Highest Qualification',
+      label: 'Purpose',
+      admin: {
+        description: 'Why they need access to this software',
+      },
     },
     {
       name: 'workStatus',
       type: 'select',
-      label: 'Work Status',
+      label: 'I am',
       options: [
-        { label: 'Fresher', value: 'fresher' },
-        { label: 'Experienced', value: 'experienced' },
+        { label: 'Student', value: 'student' },
+        { label: 'PhD Scholar', value: 'phd_scholar' },
+        { label: 'Faculty Members', value: 'faculty' },
+        { label: 'Non Teaching Staff', value: 'admin_staff' },
+        { label: 'Other', value: 'other' },
       ],
     },
     {
       name: 'yearOfExperience',
       type: 'text',
-      label: 'Year of Experience',
+      label: 'Additional Notes',
+      admin: {
+        description: 'Any additional information',
+      },
     },
     {
       name: 'resume',
       type: 'relationship',
-      label: 'Resume / CV',
+      label: 'Attachment',
       relationTo: 'resumes',
-      required: true,
+      admin: {
+        description: 'Optional document upload',
+        condition: () => false,
+      },
     },
     {
       name: 'status',
       type: 'select',
-      label: 'Application Status',
+      label: 'Request Status',
       defaultValue: 'new',
       required: true,
       options: [
         { label: 'New', value: 'new' },
         { label: 'Reviewed', value: 'reviewed' },
-        { label: 'Shortlisted', value: 'shortlisted' },
+        { label: 'Approved', value: 'shortlisted' },
         { label: 'Rejected', value: 'rejected' },
         { label: 'Delete', value: 'deleted' },
       ],
