@@ -1,5 +1,6 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
+import { imageOptimizer } from '@inoo-ch/payload-image-optimizer'
 import {
   AlignFeature,
   lexicalEditor,
@@ -189,6 +190,16 @@ export default buildConfig({
           hidden: true,
         },
       },
+    }),
+    imageOptimizer({
+      collections: {
+        media: true,
+      },
+      format: { format: 'webp', quality: 85 },
+      maxDimensions: { width: 2560, height: 2560 },
+      generateThumbHash: true,
+      stripMetadata: true,
+      clientOptimization: true,
     }),
   ],
 })

@@ -79,6 +79,7 @@ export interface Config {
     forms: Form;
     'form-submissions': FormSubmission;
     'payload-kv': PayloadKv;
+    'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -97,6 +98,7 @@ export interface Config {
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
+    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -109,16 +111,24 @@ export interface Config {
     'site-settings': SiteSetting;
     header: Header;
     footer: Footer;
+    'image-optimizer-state': ImageOptimizerState;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    'image-optimizer-state': ImageOptimizerStateSelect<false> | ImageOptimizerStateSelect<true>;
   };
   locale: null;
   user: User;
   jobs: {
-    tasks: unknown;
+    tasks: {
+      imageOptimizer_regenerateDocument: TaskImageOptimizerRegenerateDocument;
+      inline: {
+        input: unknown;
+        output: unknown;
+      };
+    };
     workflows: unknown;
   };
 }
@@ -175,6 +185,13 @@ export interface User {
 export interface Media {
   id: number;
   alt: string;
+  imageOptimizer?: {
+    thumbHash?: string | null;
+    originalSize?: number | null;
+    optimizedSize?: number | null;
+    status?: ('complete' | 'error') | null;
+    error?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1540,15 +1557,53 @@ export interface Page {
          */
         sectionDescription?: string | null;
         headingAlignment?: ('left' | 'center' | 'right') | null;
-        columns?: ('2' | '3' | '4') | null;
+        columns?: ('2' | '3' | '4' | '5' | '6') | null;
+        showStats?: boolean | null;
+        showSocialLinks?: boolean | null;
         members: {
+          photo?: (number | null) | Media;
           name: string;
           /**
-           * e.g. "Principal", "Math Teacher", "HOD Science"
+           * URL slug for profile page. Auto-generated from name if empty.
+           */
+          slug?: string | null;
+          /**
+           * e.g. "Professor", "Research Scholar", "HOD Science"
            */
           role?: string | null;
-          photo?: (number | null) | Media;
           bio?: string | null;
+          /**
+           * Rating out of 5 (e.g. 4.8)
+           */
+          rating?: number | null;
+          /**
+           * Number of courses
+           */
+          courseCount?: number | null;
+          /**
+           * Student count (e.g. "2.1k" or "2100")
+           */
+          studentCount?: string | null;
+          /**
+           * External profile URL. Leave empty to auto-link to /instructors/{slug}
+           */
+          profileLink?: string | null;
+          socialLinks?:
+            | {
+                platform:
+                  | 'linkedin'
+                  | 'twitter-x'
+                  | 'github'
+                  | 'instagram'
+                  | 'facebook'
+                  | 'youtube'
+                  | 'google'
+                  | 'globe'
+                  | 'envelope';
+                url: string;
+                id?: string | null;
+              }[]
+            | null;
           id?: string | null;
         }[];
         id?: string | null;
@@ -3478,15 +3533,53 @@ export interface News {
              */
             sectionDescription?: string | null;
             headingAlignment?: ('left' | 'center' | 'right') | null;
-            columns?: ('2' | '3' | '4') | null;
+            columns?: ('2' | '3' | '4' | '5' | '6') | null;
+            showStats?: boolean | null;
+            showSocialLinks?: boolean | null;
             members: {
+              photo?: (number | null) | Media;
               name: string;
               /**
-               * e.g. "Principal", "Math Teacher", "HOD Science"
+               * URL slug for profile page. Auto-generated from name if empty.
+               */
+              slug?: string | null;
+              /**
+               * e.g. "Professor", "Research Scholar", "HOD Science"
                */
               role?: string | null;
-              photo?: (number | null) | Media;
               bio?: string | null;
+              /**
+               * Rating out of 5 (e.g. 4.8)
+               */
+              rating?: number | null;
+              /**
+               * Number of courses
+               */
+              courseCount?: number | null;
+              /**
+               * Student count (e.g. "2.1k" or "2100")
+               */
+              studentCount?: string | null;
+              /**
+               * External profile URL. Leave empty to auto-link to /instructors/{slug}
+               */
+              profileLink?: string | null;
+              socialLinks?:
+                | {
+                    platform:
+                      | 'linkedin'
+                      | 'twitter-x'
+                      | 'github'
+                      | 'instagram'
+                      | 'facebook'
+                      | 'youtube'
+                      | 'google'
+                      | 'globe'
+                      | 'envelope';
+                    url: string;
+                    id?: string | null;
+                  }[]
+                | null;
               id?: string | null;
             }[];
             id?: string | null;
@@ -5302,15 +5395,53 @@ export interface Software {
              */
             sectionDescription?: string | null;
             headingAlignment?: ('left' | 'center' | 'right') | null;
-            columns?: ('2' | '3' | '4') | null;
+            columns?: ('2' | '3' | '4' | '5' | '6') | null;
+            showStats?: boolean | null;
+            showSocialLinks?: boolean | null;
             members: {
+              photo?: (number | null) | Media;
               name: string;
               /**
-               * e.g. "Principal", "Math Teacher", "HOD Science"
+               * URL slug for profile page. Auto-generated from name if empty.
+               */
+              slug?: string | null;
+              /**
+               * e.g. "Professor", "Research Scholar", "HOD Science"
                */
               role?: string | null;
-              photo?: (number | null) | Media;
               bio?: string | null;
+              /**
+               * Rating out of 5 (e.g. 4.8)
+               */
+              rating?: number | null;
+              /**
+               * Number of courses
+               */
+              courseCount?: number | null;
+              /**
+               * Student count (e.g. "2.1k" or "2100")
+               */
+              studentCount?: string | null;
+              /**
+               * External profile URL. Leave empty to auto-link to /instructors/{slug}
+               */
+              profileLink?: string | null;
+              socialLinks?:
+                | {
+                    platform:
+                      | 'linkedin'
+                      | 'twitter-x'
+                      | 'github'
+                      | 'instagram'
+                      | 'facebook'
+                      | 'youtube'
+                      | 'google'
+                      | 'globe'
+                      | 'envelope';
+                    url: string;
+                    id?: string | null;
+                  }[]
+                | null;
               id?: string | null;
             }[];
             id?: string | null;
@@ -7009,15 +7140,53 @@ export interface Project {
              */
             sectionDescription?: string | null;
             headingAlignment?: ('left' | 'center' | 'right') | null;
-            columns?: ('2' | '3' | '4') | null;
+            columns?: ('2' | '3' | '4' | '5' | '6') | null;
+            showStats?: boolean | null;
+            showSocialLinks?: boolean | null;
             members: {
+              photo?: (number | null) | Media;
               name: string;
               /**
-               * e.g. "Principal", "Math Teacher", "HOD Science"
+               * URL slug for profile page. Auto-generated from name if empty.
+               */
+              slug?: string | null;
+              /**
+               * e.g. "Professor", "Research Scholar", "HOD Science"
                */
               role?: string | null;
-              photo?: (number | null) | Media;
               bio?: string | null;
+              /**
+               * Rating out of 5 (e.g. 4.8)
+               */
+              rating?: number | null;
+              /**
+               * Number of courses
+               */
+              courseCount?: number | null;
+              /**
+               * Student count (e.g. "2.1k" or "2100")
+               */
+              studentCount?: string | null;
+              /**
+               * External profile URL. Leave empty to auto-link to /instructors/{slug}
+               */
+              profileLink?: string | null;
+              socialLinks?:
+                | {
+                    platform:
+                      | 'linkedin'
+                      | 'twitter-x'
+                      | 'github'
+                      | 'instagram'
+                      | 'facebook'
+                      | 'youtube'
+                      | 'google'
+                      | 'globe'
+                      | 'envelope';
+                    url: string;
+                    id?: string | null;
+                  }[]
+                | null;
               id?: string | null;
             }[];
             id?: string | null;
@@ -7560,6 +7729,14 @@ export interface Project {
 export interface Training {
   id: number;
   title: string;
+  /**
+   * Training card image
+   */
+  image?: (number | null) | Media;
+  /**
+   * Category for filtering (e.g. "Programming", "Cybersecurity", "Administration")
+   */
+  category?: string | null;
   /**
    * e.g. "5 Days", "1 Day", "2 Days"
    */
@@ -8725,15 +8902,53 @@ export interface Training {
              */
             sectionDescription?: string | null;
             headingAlignment?: ('left' | 'center' | 'right') | null;
-            columns?: ('2' | '3' | '4') | null;
+            columns?: ('2' | '3' | '4' | '5' | '6') | null;
+            showStats?: boolean | null;
+            showSocialLinks?: boolean | null;
             members: {
+              photo?: (number | null) | Media;
               name: string;
               /**
-               * e.g. "Principal", "Math Teacher", "HOD Science"
+               * URL slug for profile page. Auto-generated from name if empty.
+               */
+              slug?: string | null;
+              /**
+               * e.g. "Professor", "Research Scholar", "HOD Science"
                */
               role?: string | null;
-              photo?: (number | null) | Media;
               bio?: string | null;
+              /**
+               * Rating out of 5 (e.g. 4.8)
+               */
+              rating?: number | null;
+              /**
+               * Number of courses
+               */
+              courseCount?: number | null;
+              /**
+               * Student count (e.g. "2.1k" or "2100")
+               */
+              studentCount?: string | null;
+              /**
+               * External profile URL. Leave empty to auto-link to /instructors/{slug}
+               */
+              profileLink?: string | null;
+              socialLinks?:
+                | {
+                    platform:
+                      | 'linkedin'
+                      | 'twitter-x'
+                      | 'github'
+                      | 'instagram'
+                      | 'facebook'
+                      | 'youtube'
+                      | 'google'
+                      | 'globe'
+                      | 'envelope';
+                    url: string;
+                    id?: string | null;
+                  }[]
+                | null;
               id?: string | null;
             }[];
             id?: string | null;
@@ -9303,6 +9518,98 @@ export interface PayloadKv {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs".
+ */
+export interface PayloadJob {
+  id: number;
+  /**
+   * Input data provided to the job
+   */
+  input?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  taskStatus?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  completedAt?: string | null;
+  totalTried?: number | null;
+  /**
+   * If hasError is true this job will not be retried
+   */
+  hasError?: boolean | null;
+  /**
+   * If hasError is true, this is the error that caused it
+   */
+  error?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Task execution log
+   */
+  log?:
+    | {
+        executedAt: string;
+        completedAt: string;
+        taskSlug: 'inline' | 'imageOptimizer_regenerateDocument';
+        taskID: string;
+        input?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        output?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        state: 'failed' | 'succeeded';
+        error?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  taskSlug?: ('inline' | 'imageOptimizer_regenerateDocument') | null;
+  queue?: string | null;
+  waitUntil?: string | null;
+  processing?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -9425,6 +9732,15 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  imageOptimizer?:
+    | T
+    | {
+        thumbHash?: T;
+        originalSize?: T;
+        optimizedSize?: T;
+        status?: T;
+        error?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -10155,13 +10471,27 @@ export interface PagesSelect<T extends boolean = true> {
               sectionDescription?: T;
               headingAlignment?: T;
               columns?: T;
+              showStats?: T;
+              showSocialLinks?: T;
               members?:
                 | T
                 | {
-                    name?: T;
-                    role?: T;
                     photo?: T;
+                    name?: T;
+                    slug?: T;
+                    role?: T;
                     bio?: T;
+                    rating?: T;
+                    courseCount?: T;
+                    studentCount?: T;
+                    profileLink?: T;
+                    socialLinks?:
+                      | T
+                      | {
+                          platform?: T;
+                          url?: T;
+                          id?: T;
+                        };
                     id?: T;
                   };
               id?: T;
@@ -11028,13 +11358,27 @@ export interface NewsSelect<T extends boolean = true> {
               sectionDescription?: T;
               headingAlignment?: T;
               columns?: T;
+              showStats?: T;
+              showSocialLinks?: T;
               members?:
                 | T
                 | {
-                    name?: T;
-                    role?: T;
                     photo?: T;
+                    name?: T;
+                    slug?: T;
+                    role?: T;
                     bio?: T;
+                    rating?: T;
+                    courseCount?: T;
+                    studentCount?: T;
+                    profileLink?: T;
+                    socialLinks?:
+                      | T
+                      | {
+                          platform?: T;
+                          url?: T;
+                          id?: T;
+                        };
                     id?: T;
                   };
               id?: T;
@@ -11940,13 +12284,27 @@ export interface SoftwareSelect<T extends boolean = true> {
               sectionDescription?: T;
               headingAlignment?: T;
               columns?: T;
+              showStats?: T;
+              showSocialLinks?: T;
               members?:
                 | T
                 | {
-                    name?: T;
-                    role?: T;
                     photo?: T;
+                    name?: T;
+                    slug?: T;
+                    role?: T;
                     bio?: T;
+                    rating?: T;
+                    courseCount?: T;
+                    studentCount?: T;
+                    profileLink?: T;
+                    socialLinks?:
+                      | T
+                      | {
+                          platform?: T;
+                          url?: T;
+                          id?: T;
+                        };
                     id?: T;
                   };
               id?: T;
@@ -12810,13 +13168,27 @@ export interface ProjectsSelect<T extends boolean = true> {
               sectionDescription?: T;
               headingAlignment?: T;
               columns?: T;
+              showStats?: T;
+              showSocialLinks?: T;
               members?:
                 | T
                 | {
-                    name?: T;
-                    role?: T;
                     photo?: T;
+                    name?: T;
+                    slug?: T;
+                    role?: T;
                     bio?: T;
+                    rating?: T;
+                    courseCount?: T;
+                    studentCount?: T;
+                    profileLink?: T;
+                    socialLinks?:
+                      | T
+                      | {
+                          platform?: T;
+                          url?: T;
+                          id?: T;
+                        };
                     id?: T;
                   };
               id?: T;
@@ -13108,6 +13480,8 @@ export interface ProjectsSelect<T extends boolean = true> {
  */
 export interface TrainingsSelect<T extends boolean = true> {
   title?: T;
+  image?: T;
+  category?: T;
   duration?: T;
   mode?: T;
   audience?: T;
@@ -13683,13 +14057,27 @@ export interface TrainingsSelect<T extends boolean = true> {
               sectionDescription?: T;
               headingAlignment?: T;
               columns?: T;
+              showStats?: T;
+              showSocialLinks?: T;
               members?:
                 | T
                 | {
-                    name?: T;
-                    role?: T;
                     photo?: T;
+                    name?: T;
+                    slug?: T;
+                    role?: T;
                     bio?: T;
+                    rating?: T;
+                    courseCount?: T;
+                    studentCount?: T;
+                    profileLink?: T;
+                    socialLinks?:
+                      | T
+                      | {
+                          platform?: T;
+                          url?: T;
+                          id?: T;
+                        };
                     id?: T;
                   };
               id?: T;
@@ -14148,6 +14536,37 @@ export interface PayloadKvSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs_select".
+ */
+export interface PayloadJobsSelect<T extends boolean = true> {
+  input?: T;
+  taskStatus?: T;
+  completedAt?: T;
+  totalTried?: T;
+  hasError?: T;
+  error?: T;
+  log?:
+    | T
+    | {
+        executedAt?: T;
+        completedAt?: T;
+        taskSlug?: T;
+        taskID?: T;
+        input?: T;
+        output?: T;
+        state?: T;
+        error?: T;
+        id?: T;
+      };
+  taskSlug?: T;
+  queue?: T;
+  waitUntil?: T;
+  processing?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents_select".
  */
 export interface PayloadLockedDocumentsSelect<T extends boolean = true> {
@@ -14417,6 +14836,24 @@ export interface Footer {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "image-optimizer-state".
+ */
+export interface ImageOptimizerState {
+  id: number;
+  collections?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
@@ -14569,6 +15006,30 @@ export interface FooterSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "image-optimizer-state_select".
+ */
+export interface ImageOptimizerStateSelect<T extends boolean = true> {
+  collections?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskImageOptimizer_regenerateDocument".
+ */
+export interface TaskImageOptimizerRegenerateDocument {
+  input: {
+    collectionSlug: string;
+    docId: string;
+  };
+  output: {
+    status?: string | null;
+    reason?: string | null;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

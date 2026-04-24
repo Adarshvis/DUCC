@@ -37,8 +37,8 @@ export async function generateMetadata(): Promise<Metadata> {
       : undefined
  
   return {
-    description: 'SamarthX — National School Platform',
-    title: 'SamarthX',
+    description: siteSettings?.siteName || 'DUCC — Delhi University Computer Centre',
+    title: siteSettings?.siteName || 'DUCC',
     icons: favicon
       ? {
           icon: [{ url: favicon }],
@@ -53,9 +53,9 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props
   const payload = await getPayload({ config })
 
-  const headerData = await payload.findGlobal({ slug: 'header' as any, depth: 2 })
-  const footerData = await payload.findGlobal({ slug: 'footer' as any })
-  const siteSettings = await payload.findGlobal({ slug: 'site-settings' as any })
+  const headerData = await payload.findGlobal({ slug: 'header' as any, depth: 2 }).catch(() => null)
+  const footerData = await payload.findGlobal({ slug: 'footer' as any }).catch(() => null)
+  const siteSettings = await payload.findGlobal({ slug: 'site-settings' as any }).catch(() => null)
 
   const primaryColor = siteSettings?.themeColors?.primaryColor || '#4B2E83'
   const secondaryColor = siteSettings?.themeColors?.secondaryColor || '#1A103D'

@@ -27,6 +27,21 @@ export const Trainings: CollectionConfig = {
       required: true,
     },
     {
+      name: 'image',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        description: 'Training card image',
+      },
+    },
+    {
+      name: 'category',
+      type: 'text',
+      admin: {
+        description: 'Category for filtering (e.g. "Programming", "Cybersecurity", "Administration")',
+      },
+    },
+    {
       name: 'duration',
       type: 'text',
       required: true,

@@ -1,3 +1,6 @@
+import { OptimizationStatus as OptimizationStatus_841f288f491e1fefe208477b779cfd1c } from '@inoo-ch/payload-image-optimizer/client'
+import { RegenerationButton as RegenerationButton_841f288f491e1fefe208477b779cfd1c } from '@inoo-ch/payload-image-optimizer/client'
+import { UploadOptimizer as UploadOptimizer_841f288f491e1fefe208477b779cfd1c } from '@inoo-ch/payload-image-optimizer/client'
 import { ColorPickerField as ColorPickerField_d572ded1c017fe858839e8cdc754e090 } from '@/components/admin/ColorPickerField'
 import { IconPickerField as IconPickerField_3b23affeacfd37494d6d7d4ee53ad142 } from '@/components/admin/IconPickerField'
 import { OpacitySliderField as OpacitySliderField_d9f8aa60d2835cb71c5a3aec409904f0 } from '@/components/admin/OpacitySliderField'
@@ -32,6 +35,9 @@ import { default as default_9d0b2ed06c58695dcb79c80b6d7d8ecb } from '@/component
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 export const importMap = {
+  "@inoo-ch/payload-image-optimizer/client#OptimizationStatus": OptimizationStatus_841f288f491e1fefe208477b779cfd1c,
+  "@inoo-ch/payload-image-optimizer/client#RegenerationButton": RegenerationButton_841f288f491e1fefe208477b779cfd1c,
+  "@inoo-ch/payload-image-optimizer/client#UploadOptimizer": UploadOptimizer_841f288f491e1fefe208477b779cfd1c,
   "@/components/admin/ColorPickerField#ColorPickerField": ColorPickerField_d572ded1c017fe858839e8cdc754e090,
   "@/components/admin/IconPickerField#IconPickerField": IconPickerField_3b23affeacfd37494d6d7d4ee53ad142,
   "@/components/admin/OpacitySliderField#OpacitySliderField": OpacitySliderField_d9f8aa60d2835cb71c5a3aec409904f0,

@@ -102,17 +102,15 @@ async function syncNavToHeader(payload: any) {
 }
 
 export const syncNavAfterChange: CollectionAfterChangeHook = async ({ req }) => {
-  try {
-    await syncNavToHeader(req.payload)
-  } catch (err) {
+  // Run in background — don't block the save
+  syncNavToHeader(req.payload).catch((err) => {
     req.payload.logger.error(`Failed to sync nav after change: ${err}`)
-  }
+  })
 }
 
 export const syncNavAfterDelete: CollectionAfterDeleteHook = async ({ req }) => {
-  try {
-    await syncNavToHeader(req.payload)
-  } catch (err) {
+  // Run in background — don't block the save
+  syncNavToHeader(req.payload).catch((err) => {
     req.payload.logger.error(`Failed to sync nav after delete: ${err}`)
-  }
+  })
 }
