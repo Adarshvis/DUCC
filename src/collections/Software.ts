@@ -133,6 +133,14 @@ export const Software: CollectionConfig = {
       ],
     },
     {
+      name: 'websiteUrl',
+      type: 'text',
+      label: 'Software Website URL',
+      admin: {
+        description: 'Official website or documentation link for this software',
+      },
+    },
+    {
       name: 'requestAccessUrl',
       type: 'text',
       label: 'Request Access URL',

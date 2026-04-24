@@ -18,6 +18,7 @@ interface SoftwareItem {
   remainingLicenses?: string | null
   licenseType?: string | null
   requestAccessUrl?: string | null
+  websiteUrl?: string | null
 }
 
 interface SoftwareGridProps {
@@ -181,7 +182,11 @@ export default function SoftwareGrid({ software, categories }: SoftwareGridProps
                             <DynamicIcon name={s.icon || 'Box'} size={16} color="var(--cms-accent, #EAB308)" />
                           </div>
                           <div>
-                            <div className="font-semibold text-sm" style={{ color: 'var(--cms-secondary, #1A103D)' }}>{s.name}</div>
+                            {s.websiteUrl ? (
+                              <a href={s.websiteUrl} target="_blank" rel="noreferrer" className="font-semibold text-sm hover:underline" style={{ color: 'var(--cms-primary, #4B2E83)' }}>{s.name}</a>
+                            ) : (
+                              <div className="font-semibold text-sm" style={{ color: 'var(--cms-secondary, #1A103D)' }}>{s.name}</div>
+                            )}
                             <div className="text-[10px] text-gray-400">{s.category}</div>
                           </div>
                         </div>

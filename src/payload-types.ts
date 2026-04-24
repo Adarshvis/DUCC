@@ -4241,6 +4241,10 @@ export interface Software {
   remainingLicenses?: string | null;
   licenseType?: ('network' | 'networkKey' | 'userKey' | 'campus' | 'other') | null;
   /**
+   * Official website or documentation link for this software
+   */
+  websiteUrl?: string | null;
+  /**
    * Link for requesting access to this software
    */
   requestAccessUrl?: string | null;
@@ -11719,6 +11723,7 @@ export interface SoftwareSelect<T extends boolean = true> {
   issuedTo?: T;
   remainingLicenses?: T;
   licenseType?: T;
+  websiteUrl?: T;
   requestAccessUrl?: T;
   status?: T;
   featured?: T;
