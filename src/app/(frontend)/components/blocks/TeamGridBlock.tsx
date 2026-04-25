@@ -95,7 +95,7 @@ export default function TeamGridBlock({
         <div className={`grid gap-6 ${gridClasses[cols]}`}>
           {members?.map((member) => {
             const photoUrl = typeof member.photo === 'object' && member.photo?.url ? member.photo.url : null
-            const href = member.profileLink || (member.slug ? `/instructors/${member.slug}` : null)
+            const href = member.profileLink || (member.slug ? `/team/${member.slug}` : null)
 
             return (
               <div
@@ -105,7 +105,7 @@ export default function TeamGridBlock({
               >
                 {/* Photo */}
                 {photoUrl && (
-                  <div className="relative aspect-square overflow-hidden">
+                  <div className="relative overflow-hidden" style={{ aspectRatio: '4 / 3' }}>
                     <Image src={photoUrl} alt={member.name} fill className="object-cover" />
                   </div>
                 )}
@@ -123,7 +123,7 @@ export default function TeamGridBlock({
 
                   {/* Bio */}
                   {member.bio && (
-                    <p className="text-xs text-gray-500 mt-2 line-clamp-3 flex-1">{member.bio}</p>
+                    <p className="text-xs text-gray-500 mt-2 line-clamp-2 flex-1">{member.bio}</p>
                   )}
 
                   {/* Stats */}
@@ -180,15 +180,13 @@ export default function TeamGridBlock({
                   )}
 
                   {/* View Profile */}
-                  {href && (
-                    <Link
-                      href={href}
-                      className="btn-shine mt-4 w-full inline-flex items-center justify-center gap-2 text-sm font-semibold text-white py-2.5 rounded-lg transition hover:brightness-110"
-                      style={{ background: 'var(--cms-primary, #4B2E83)' }}
-                    >
-                      View Profile
-                    </Link>
-                  )}
+                  <Link
+                    href={href || `/team/${member.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`}
+                    className="btn-shine mt-4 w-full inline-flex items-center justify-center gap-2 text-sm font-semibold text-white py-2.5 rounded-lg transition hover:brightness-110"
+                    style={{ background: 'var(--cms-primary, #4B2E83)' }}
+                  >
+                    View Profile
+                  </Link>
                 </div>
               </div>
             )

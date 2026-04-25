@@ -22,6 +22,7 @@ import { JobApplications } from './collections/JobApplications'
 import { Software } from './collections/Software'
 import { Projects } from './collections/Projects'
 import { Trainings } from './collections/Trainings'
+import { TeamPage } from './collections/TeamPage'
 import { SiteSettings } from './globals/SiteSettings'
 import { Header } from './globals/Header'
 import { Footer } from './globals/Footer'
@@ -59,7 +60,7 @@ export default buildConfig({
       afterDashboard: ['@/components/admin/ApplicationsDashboardCard#default'],
     },
   },
-  collections: [Users, Media, Pages, News, Resumes, JobApplications, Software, Projects, Trainings],
+  collections: [Users, Media, Pages, News, Resumes, JobApplications, Software, Projects, Trainings, TeamPage],
   globals: [SiteSettings, Header, Footer],
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [

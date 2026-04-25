@@ -166,87 +166,99 @@ function SpotlightLayout({ articles }: { articles: ArticleData[] }) {
   const sideArticles = articles.slice(1, 5)
   const featuredImg =
     typeof featured.image === 'object' && featured.image?.url ? featured.image.url : null
-  const catColor = featured.categoryColor || '#3B82F6'
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-      {/* Featured article */}
-      <div className="lg:col-span-3">
-        <ScrollReveal>
-          <div className="group relative rounded-xl overflow-hidden h-full min-h-[400px]">
-            {featuredImg && (
-              <Image
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Featured article — image on top, content below */}
+      <ScrollReveal>
+        <div className="bg-white rounded-2xl overflow-hidden border h-full flex flex-col" style={{ borderColor: 'var(--cms-muted-bg, #F8F4FF)' }}>
+          {featuredImg && (
+            <div className="relative overflow-hidden" style={{ aspectRatio: '16 / 10' }}>
+              <img
                 src={featuredImg}
-                alt={typeof featured.image === 'object' ? featured.image.alt || featured.title : featured.title}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                alt={featured.title}
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
               />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
               {featured.category && (
                 <span
-                  className="text-white text-xs font-bold px-3 py-1 rounded-full mb-3 inline-block"
-                  style={{ backgroundColor: catColor }}
+                  className="absolute top-4 right-4 text-[10px] font-bold tracking-wider uppercase px-3 py-1 rounded-full text-white"
+                  style={{ background: 'var(--cms-secondary, #1A103D)' }}
                 >
                   {featured.category}
                 </span>
               )}
-              <h3 className="text-white text-xl md:text-2xl font-bold leading-tight mb-2">
-                {featured.url ? (
-                  <a href={featured.url} className="hover:underline">{featured.title}</a>
-                ) : (
-                  featured.title
-                )}
-              </h3>
-              {featured.excerpt && (
-                <p className="text-white/80 text-sm line-clamp-2">{featured.excerpt}</p>
-              )}
-              {featured.date && (
-                <div className="flex items-center gap-1.5 text-white/60 text-xs mt-3">
-                  <Calendar size={12} />
-                  {formatDate(featured.date)}
-                </div>
-              )}
             </div>
+          )}
+          <div className="p-6 flex-1 flex flex-col">
+            <h3 className="text-xl font-bold ducc-heading leading-tight" style={{ color: 'var(--cms-secondary, #1A103D)' }}>
+              {featured.title}
+            </h3>
+            {featured.date && (
+              <div className="flex items-center gap-3 text-xs text-gray-500 mt-2">
+                <span className="flex items-center gap-1"><Calendar size={12} /> {formatDate(featured.date)}</span>
+              </div>
+            )}
+            {featured.excerpt && (
+              <p className="text-sm text-gray-600 leading-relaxed mt-3 flex-1">{featured.excerpt}</p>
+            )}
+            {featured.url && (
+              <a
+                href={featured.url}
+                className="btn-shine mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 rounded-full transition hover:brightness-110 w-fit"
+                style={{ background: 'var(--cms-secondary, #1A103D)' }}
+              >
+                Read More
+              </a>
+            )}
           </div>
-        </ScrollReveal>
-      </div>
+        </div>
+      </ScrollReveal>
 
-      {/* Side list */}
-      <div className="lg:col-span-2 flex flex-col gap-4 lg:h-full">
+      {/* Side list — cards with thumbnail + title + excerpt + category + date + arrow */}
+      <div className="flex flex-col gap-3">
         {sideArticles.map((article, i) => {
           const imgUrl =
             typeof article.image === 'object' && article.image?.url ? article.image.url : null
 
           return (
             <ScrollReveal key={article.id || i} delay={i * 100}>
-              <div className="h-full">
-                <div className="group flex h-full min-h-[116px] gap-4 bg-white rounded-lg p-5 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">
-                  {imgUrl && (
-                    <div className="relative w-24 h-20 shrink-0 rounded-lg overflow-hidden">
-                      <Image
-                        src={imgUrl}
-                        alt={typeof article.image === 'object' ? article.image.alt || article.title : article.title}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
+              <a
+                href={article.url || '#'}
+                className="group flex gap-4 bg-white rounded-xl p-4 border transition-all hover:shadow-md"
+                style={{ borderColor: 'var(--cms-muted-bg, #F8F4FF)' }}
+              >
+                {imgUrl && (
+                  <div className="w-[70px] h-[70px] rounded-lg overflow-hidden shrink-0">
+                    <img
+                      src={imgUrl}
+                      alt={article.title}
+                      style={{ width: '70px', height: '70px', objectFit: 'cover', display: 'block' }}
+                    />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <h4
+                    className="font-semibold text-sm leading-snug line-clamp-2 group-hover:text-[--cms-primary] transition-colors"
+                    style={{ color: 'var(--cms-secondary, #1A103D)' }}
+                  >
+                    {article.title}
+                  </h4>
+                  {article.excerpt && (
+                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">{article.excerpt}</p>
                   )}
-                  <div className="flex-1 min-w-0">
-                    {article.date && (
-                      <div className="text-gray-400 text-xs mb-1">{formatDate(article.date)}</div>
+                  <div className="flex items-center gap-3 mt-1.5">
+                    {article.category && (
+                      <span className="text-[9px] font-bold tracking-wider uppercase" style={{ color: 'var(--cms-primary, #4B2E83)' }}>
+                        {article.category}
+                      </span>
                     )}
-                    <h4 className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2 group-hover:text-blue-600 transition-colors">
-                      {article.url ? (
-                        <a href={article.url}>{article.title}</a>
-                      ) : (
-                        article.title
-                      )}
-                    </h4>
+                    {article.date && (
+                      <span className="text-[10px] text-gray-400">{formatDate(article.date)}</span>
+                    )}
                   </div>
                 </div>
-              </div>
+                <ArrowRight className="w-4 h-4 shrink-0 self-center text-gray-300 group-hover:text-[--cms-primary] transition-colors" />
+              </a>
             </ScrollReveal>
           )
         })}

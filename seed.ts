@@ -52,6 +52,9 @@ async function seed() {
       slug: 'site-settings',
       data: {
         siteName: 'DUCC - Delhi University Computer Centre',
+        themePreset: 'ducc',
+        headingFont: 'Playfair Display',
+        bodyFont: 'Inter',
         themeColors: {
           primaryColor: '#4B2E83',
           secondaryColor: '#1A103D',

@@ -1,5 +1,7 @@
 import type { GlobalConfig } from 'payload'
 import { publicAccess, adminAccess } from '../access/roles'
+import { themePresets } from '../lib/themePresets'
+import { applyThemeToBlocks } from '../lib/applyThemeToBlocks'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
@@ -7,6 +9,49 @@ export const SiteSettings: GlobalConfig = {
   access: {
     read: publicAccess,
     update: adminAccess,
+  },
+  hooks: {
+    beforeChange: [
+      ({ data, originalDoc }) => {
+        // When themePreset changes, auto-populate colors and fonts from the preset
+        const newPreset = data?.themePreset
+        const oldPreset = originalDoc?.themePreset
+
+        if (newPreset && newPreset !== oldPreset && themePresets[newPreset]) {
+          const preset = themePresets[newPreset]
+
+          // Auto-fill colors
+          if (!data.themeColors) data.themeColors = {}
+          data.themeColors.primaryColor = preset.colors.primary
+          data.themeColors.secondaryColor = preset.colors.secondary
+          data.themeColors.accentColor = preset.colors.accent
+          data.themeColors.backgroundColor = preset.colors.background
+          data.themeColors.surfaceColor = preset.colors.surface
+          data.themeColors.mutedBackgroundColor = preset.colors.muted
+          data.themeColors.textColor = preset.colors.text
+
+          // Auto-fill fonts
+          data.headingFont = preset.fonts.heading
+          data.bodyFont = preset.fonts.body
+        }
+
+        return data
+      },
+    ],
+    afterChange: [
+      async ({ doc, previousDoc, req }) => {
+        // When themePreset changes, update all block layouts in the database
+        const newPreset = doc?.themePreset
+        const oldPreset = previousDoc?.themePreset
+
+        if (newPreset && newPreset !== oldPreset) {
+          // Run non-blocking so the admin save doesn't hang
+          applyThemeToBlocks(req.payload, newPreset).catch((err) => {
+            req.payload.logger.error(`[Theme] Failed to apply theme to blocks: ${err.message}`)
+          })
+        }
+      },
+    ],
   },
   fields: [
     {
@@ -17,6 +62,46 @@ export const SiteSettings: GlobalConfig = {
       name: 'favicon',
       type: 'upload',
       relationTo: 'media',
+    },
+    {
+      name: 'themePreset',
+      type: 'select',
+      label: 'Theme Preset',
+      defaultValue: 'ducc',
+      options: [
+        { label: 'DUCC (Purple & Gold)', value: 'ducc' },
+        { label: 'Learner (Teal & Dark)', value: 'learner' },
+      ],
+      admin: {
+        description: 'One-click theme change. Selecting a preset changes colors, fonts, and layout styles across the entire site.',
+      },
+    },
+    {
+      name: 'headingFont',
+      type: 'select',
+      label: 'Heading Font',
+      defaultValue: 'Playfair Display',
+      options: [
+        { label: 'Playfair Display (Serif)', value: 'Playfair Display' },
+        { label: 'Raleway (Sans)', value: 'Raleway' },
+        { label: 'Montserrat (Sans)', value: 'Montserrat' },
+        { label: 'Inter (Sans)', value: 'Inter' },
+        { label: 'Roboto (Sans)', value: 'Roboto' },
+        { label: 'Poppins (Sans)', value: 'Poppins' },
+      ],
+    },
+    {
+      name: 'bodyFont',
+      type: 'select',
+      label: 'Body Font',
+      defaultValue: 'Inter',
+      options: [
+        { label: 'Inter', value: 'Inter' },
+        { label: 'Roboto', value: 'Roboto' },
+        { label: 'Open Sans', value: 'Open Sans' },
+        { label: 'Poppins', value: 'Poppins' },
+        { label: 'Lato', value: 'Lato' },
+      ],
     },
     {
       type: 'group',

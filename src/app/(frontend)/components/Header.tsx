@@ -57,8 +57,23 @@ export default function Header({ data }: HeaderProps) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [hoveredNav, setHoveredNav] = useState<string | null>(null)
+  const [theme, setTheme] = useState<string>('ducc')
   const headerRef = useRef<HTMLElement | null>(null)
   const pathname = usePathname()
+
+  // Read theme from body data-theme attribute
+  useEffect(() => {
+    const body = document.body
+    const currentTheme = body.getAttribute('data-theme') || 'ducc'
+    setTheme(currentTheme)
+
+    const observer = new MutationObserver(() => {
+      const t = body.getAttribute('data-theme') || 'ducc'
+      setTheme(t)
+    })
+    observer.observe(body, { attributes: true, attributeFilter: ['data-theme'] })
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     const el = headerRef.current
@@ -83,9 +98,8 @@ export default function Header({ data }: HeaderProps) {
       window.removeEventListener('resize', updateHeight)
       document.documentElement.style.removeProperty('--site-header-height')
     }
-  }, [mobileOpen, searchOpen, data.topBar?.enabled, data.navItems?.length])
+  }, [mobileOpen, searchOpen, data.topBar?.enabled, data.navItems?.length, theme])
 
-  // Check if a nav item is active based on current path
   const isActive = (url?: string | null) => {
     if (!url) return false
     if (url === '/') return pathname === '/'
@@ -105,6 +119,263 @@ export default function Header({ data }: HeaderProps) {
       : centerHeight
   const centerRenderHeight = Math.min(centerHeight, 88, centerIntrinsicHeight)
   const hasCenterLogoContent = Boolean(centerImg || data.centerLogo?.title || data.centerLogo?.subtitle)
+
+  const isLearner = theme === 'learner'
+
+  // ── LEARNER HEADER ──
+  if (isLearner) {
+    return (
+      <>
+        <header
+          ref={headerRef}
+          className="site-header fixed top-0 left-0 right-0 z-[100] w-full"
+          style={{
+            borderBottom: '1px solid var(--cms-muted-bg, #e6edf0)',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+          }}
+        >
+          <div className="bg-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 h-[70px] flex items-center justify-between gap-6">
+              {/* Logo — left */}
+              <div className="shrink-0 flex items-center gap-3">
+                {leftImg?.url ? (
+                  <Link href={data.leftLogo?.url || '/'} className="block">
+                    <Image
+                      src={leftImg.url}
+                      alt={leftImg.alt || 'Logo'}
+                      width={leftMaxWidth}
+                      height={Math.min(leftHeight, 44)}
+                      style={{ height: `${Math.min(leftHeight, 44)}px`, width: 'auto', maxWidth: `${leftMaxWidth}px` }}
+                      className="object-contain"
+                    />
+                  </Link>
+                ) : hasCenterLogoContent ? (
+                  <Link href={data.centerLogo?.url || '/'} className="flex items-center gap-2">
+                    {centerImg?.url && (
+                      <Image
+                        src={centerImg.url}
+                        alt={centerImg.alt || 'Logo'}
+                        width={centerMaxWidth}
+                        height={Math.min(centerRenderHeight, 44)}
+                        quality={100}
+                        style={{ height: `${Math.min(centerRenderHeight, 44)}px`, width: 'auto' }}
+                        className="object-contain"
+                      />
+                    )}
+                    {data.centerLogo?.title && (
+                      <span
+                        className="text-lg font-bold"
+                        style={{ color: 'var(--cms-secondary, #011e2c)' }}
+                      >
+                        {data.centerLogo.title}
+                      </span>
+                    )}
+                  </Link>
+                ) : (
+                  <Link href="/" className="text-lg font-bold" style={{ color: 'var(--cms-secondary, #011e2c)' }}>
+                    SamarthX
+                  </Link>
+                )}
+              </div>
+
+              {/* Nav — center/right */}
+              <nav className="hidden md:flex items-center gap-7 flex-1 justify-center">
+                {(data.navItems || []).map((item) => {
+                  const hasChildren = item.children && item.children.length > 0
+                  const active = hasChildren
+                    ? item.children?.some((child) => {
+                        const slug = child.page?.slug
+                        return isActive(slug === 'home' ? '/' : `/${slug}`)
+                      }) || false
+                    : isActive(item.url)
+
+                  return (
+                    <div key={item.id || item.label} className="relative group">
+                      {!hasChildren ? (
+                        <Link
+                          href={item.url || '#'}
+                          className="text-[15px] font-medium pb-1 border-b-2 transition-all duration-200"
+                          style={{
+                            color: active ? 'var(--cms-primary, #04415f)' : 'var(--cms-text, #010608)',
+                            borderColor: active ? 'var(--cms-primary, #04415f)' : 'transparent',
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!active) {
+                              e.currentTarget.style.color = 'var(--cms-primary, #04415f)'
+                              e.currentTarget.style.borderColor = 'var(--cms-accent, #2086b8)'
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!active) {
+                              e.currentTarget.style.color = 'var(--cms-text, #010608)'
+                              e.currentTarget.style.borderColor = 'transparent'
+                            }
+                          }}
+                        >
+                          {item.label}
+                        </Link>
+                      ) : (
+                        <>
+                          <button
+                            className="text-[15px] font-medium pb-1 border-b-2 transition-all duration-200 inline-flex items-center gap-1"
+                            style={{
+                              color: active ? 'var(--cms-primary, #04415f)' : 'var(--cms-text, #010608)',
+                              borderColor: active ? 'var(--cms-primary, #04415f)' : 'transparent',
+                            }}
+                          >
+                            {item.label}
+                            <ChevronDown size={14} />
+                          </button>
+                          {item.children && item.children.length > 0 && (
+                            <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-100 py-1 min-w-[200px] hidden group-hover:block z-50">
+                              {item.children.map((child) => {
+                                const childSlug = child.page?.slug
+                                const childUrl = childSlug === 'home' ? '/' : `/${childSlug}`
+                                const childLabel = child.label || child.page?.title || ''
+                                const childActive = isActive(childUrl)
+                                return (
+                                  <Link
+                                    key={child.id || childLabel}
+                                    href={childUrl}
+                                    className={`block px-4 py-2 text-sm transition-colors ${
+                                      childActive
+                                        ? 'font-semibold'
+                                        : 'hover:bg-gray-50'
+                                    }`}
+                                    style={{
+                                      color: childActive ? 'var(--cms-primary, #04415f)' : 'var(--cms-text, #010608)',
+                                    }}
+                                  >
+                                    {childLabel}
+                                  </Link>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )
+                })}
+              </nav>
+
+              {/* Right: CTA + Search + Mobile toggle */}
+              <div className="shrink-0 flex items-center gap-3">
+                {data.searchBar?.enabled && (
+                  <button
+                    className="hidden md:flex text-gray-500 hover:text-gray-700 p-2"
+                    onClick={() => setSearchOpen(!searchOpen)}
+                  >
+                    <Search size={18} />
+                  </button>
+                )}
+                {data.ctaButton?.enabled && data.ctaButton.label && (
+                  <a
+                    href={data.ctaButton.url || '#'}
+                    className="hidden md:inline-flex btn-shine text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-all hover:shadow-lg items-center gap-2"
+                    style={{ background: 'var(--cms-primary, #04415f)' }}
+                  >
+                    {data.ctaButton.label}
+                  </a>
+                )}
+                <button
+                  className="md:hidden text-gray-600 hover:text-gray-900"
+                  onClick={() => setMobileOpen(!mobileOpen)}
+                >
+                  {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Search bar expanded */}
+            {searchOpen && data.searchBar?.enabled && (
+              <div className="border-t px-4 py-3" style={{ borderColor: 'var(--cms-muted-bg, #e6edf0)' }}>
+                <div className="max-w-7xl mx-auto flex items-center bg-gray-50 rounded-lg px-3 py-2 gap-2">
+                  <Search size={16} className="text-gray-400 shrink-0" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={data.searchBar.placeholder || 'Search...'}
+                    className="bg-transparent text-sm text-gray-700 outline-none w-full placeholder-gray-400"
+                    autoFocus
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Nav */}
+          {mobileOpen && data.navItems && data.navItems.length > 0 && (
+            <nav className="md:hidden bg-white border-t px-4 py-3" style={{ borderColor: 'var(--cms-muted-bg, #e6edf0)' }}>
+              {data.navItems.map((item) => {
+                const hasChildren = item.children && item.children.length > 0
+                const active = hasChildren
+                  ? item.children?.some((child) => {
+                      const slug = child.page?.slug
+                      return isActive(slug === 'home' ? '/' : `/${slug}`)
+                    }) || false
+                  : isActive(item.url)
+
+                return (
+                  <div key={item.id || item.label}>
+                    {!hasChildren ? (
+                      <Link
+                        href={item.url || '#'}
+                        className={`block py-2.5 text-base transition-colors ${
+                          active ? 'font-semibold' : ''
+                        }`}
+                        style={{ color: active ? 'var(--cms-primary, #04415f)' : 'var(--cms-text, #010608)' }}
+                      >
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <>
+                        <div
+                          className={`py-2.5 text-base font-medium`}
+                          style={{ color: active ? 'var(--cms-primary, #04415f)' : 'var(--cms-text, #010608)' }}
+                        >
+                          {item.label}
+                        </div>
+                        {item.children?.map((child) => {
+                          const childSlug = child.page?.slug
+                          const childUrl = childSlug === 'home' ? '/' : `/${childSlug}`
+                          const childLabel = child.label || child.page?.title || ''
+                          return (
+                            <Link
+                              key={child.id || childLabel}
+                              href={childUrl}
+                              className={`block py-2 pl-4 text-sm transition-colors ${
+                                isActive(childUrl) ? 'font-semibold' : 'text-gray-500'
+                              }`}
+                              style={{ color: isActive(childUrl) ? 'var(--cms-primary, #04415f)' : undefined }}
+                            >
+                              {childLabel}
+                            </Link>
+                          )
+                        })}
+                      </>
+                    )}
+                  </div>
+                )
+              })}
+              {data.ctaButton?.enabled && data.ctaButton.label && (
+                <a
+                  href={data.ctaButton.url || '#'}
+                  className="block mt-3 text-center text-white text-sm font-semibold px-4 py-2.5 rounded-full"
+                  style={{ background: 'var(--cms-primary, #04415f)' }}
+                >
+                  {data.ctaButton.label}
+                </a>
+              )}
+            </nav>
+          )}
+        </header>
+      </>
+    )
+  }
+
+  // ── DUCC HEADER (default) ──
   const navAlignment = data.navAlignment || 'center'
   const navAlignWrapperClass =
     navAlignment === 'left'

@@ -193,6 +193,59 @@ export const Hero: Block = {
       },
     },
     {
+      name: 'splitTheme',
+      type: 'select',
+      defaultValue: 'dark',
+      options: [
+        { label: 'Dark Background', value: 'dark' },
+        { label: 'Light Background', value: 'light' },
+      ],
+      admin: {
+        condition: (_, siblingData) => siblingData?.layout === 'split',
+        description: 'Dark: dark bg with white text. Light: muted bg with dark text.',
+      },
+    },
+    {
+      name: 'splitTextBehavior',
+      type: 'select',
+      defaultValue: 'static',
+      label: 'Text Behavior (Carousel)',
+      options: [
+        { label: 'Static text, only media slides', value: 'static' },
+        { label: 'Text and media both slide together', value: 'slide' },
+      ],
+      admin: {
+        condition: (_, siblingData) => siblingData?.layout === 'split' && siblingData?.mode === 'carousel',
+        description: 'Static: text stays fixed while images change. Slide: heading, subtitle, and buttons change with each slide.',
+      },
+    },
+    {
+      name: 'splitFeatures',
+      type: 'array',
+      label: 'Feature Tags (below buttons)',
+      maxRows: 6,
+      admin: {
+        condition: (_, siblingData) => siblingData?.layout === 'split',
+        description: 'Small icon + text tags shown below the buttons (e.g. "PHD Programs", "Internships")',
+      },
+      fields: [
+        {
+          name: 'icon',
+          type: 'text',
+          admin: {
+            components: {
+              Field: '@/components/admin/IconPickerField#IconPickerField',
+            },
+          },
+        },
+        {
+          name: 'text',
+          type: 'text',
+          required: true,
+        },
+      ],
+    },
+    {
       name: 'height',
       type: 'number',
       defaultValue: 600,

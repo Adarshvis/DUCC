@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Link from 'next/link'
 import { Search, Filter, ExternalLink, LayoutGrid, Table2, ArrowUpDown, Eye } from 'lucide-react'
 import DynamicIcon from '../components/ui/DynamicIcon'
 
@@ -197,20 +198,20 @@ export default function SoftwareGrid({ software, categories }: SoftwareGridProps
                       <td className="px-4 py-3 text-sm text-gray-600">{s.remainingLicenses || '—'}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <a
+                          <Link
                             href={`/software/${s.id}`}
                             className="inline-flex items-center gap-1 text-[11px] font-semibold px-3 py-1.5 rounded-md border transition hover:shadow-sm"
                             style={{ borderColor: 'var(--cms-primary, #4B2E83)', color: 'var(--cms-primary, #4B2E83)' }}
                           >
                             <Eye className="w-3 h-3" /> Detail
-                          </a>
-                          <a
+                          </Link>
+                          <Link
                             href={`/request?software=${encodeURIComponent(s.name)}`}
                             className="inline-flex items-center gap-1 text-[11px] font-semibold px-3 py-1.5 rounded-md text-white transition hover:brightness-110"
                             style={{ background: 'var(--cms-primary, #4B2E83)' }}
                           >
                             <ExternalLink className="w-3 h-3" /> Request
-                          </a>
+                          </Link>
                         </div>
                       </td>
                     </tr>
@@ -267,13 +268,13 @@ export default function SoftwareGrid({ software, categories }: SoftwareGridProps
                           <div className="text-gray-500">Submissions: <span className="font-semibold" style={{ color: 'var(--cms-text, #1A103D)' }}>{s.submissions}</span></div>
                         )}
                       </div>
-                      <a
+                      <Link
                         href={`/request?software=${encodeURIComponent(s.name)}`}
                         className="inline-flex items-center gap-1.5 font-semibold group-hover:gap-2 transition-all"
                         style={{ color: 'var(--cms-primary, #4B2E83)' }}
                       >
                         Request Access <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>

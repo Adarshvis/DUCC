@@ -48,6 +48,9 @@ interface HeroBlockProps {
   mode?: 'single' | 'carousel' | null
   layout?: 'fullWidth' | 'fullscreenOverlayCarousel' | 'duccFullscreen' | 'split' | 'contained' | null
   splitDirection?: 'textLeft' | 'textRight' | null
+  splitTheme?: 'dark' | 'light' | null
+  splitTextBehavior?: 'static' | 'slide' | null
+  splitFeatures?: { icon?: string | null; text: string; id?: string }[] | null
   height?: number | null
   textAlignment?: 'left' | 'center' | 'right' | null
   textVerticalPosition?: 'top' | 'center' | 'bottom' | null
@@ -358,6 +361,9 @@ export default function HeroBlock(props: HeroBlockProps) {
     mode = 'single',
     layout = 'fullWidth',
     splitDirection = 'textLeft',
+    splitTheme = 'dark',
+    splitTextBehavior = 'static',
+    splitFeatures,
     height = 600,
     textAlignment = 'center',
     textVerticalPosition = 'center',
@@ -912,49 +918,163 @@ export default function HeroBlock(props: HeroBlockProps) {
   // ── Split layout ──
   if (layout === 'split') {
     const isTextLeft = splitDirection !== 'textRight'
-    return (
-      <section style={{ minHeight: `${heroHeight}px`, backgroundColor: 'var(--cms-secondary, #1A103D)' }}>
-        <div
-          className={`max-w-7xl mx-auto flex flex-col ${isTextLeft ? 'lg:flex-row' : 'lg:flex-row-reverse'} min-h-[inherit]`}
-          style={{ minHeight: `${heroHeight}px` }}
-        >
-          <div className="flex-1 relative px-6 sm:px-10 lg:px-16 py-10 sm:py-12 lg:py-16 min-h-[320px] lg:min-h-0">
-            {allSlides.map((slide, i) => {
-              const textSlide = hasTextContent(slide) ? slide : fallbackTextSlide
-              return (
-                <div
-                  key={slide.id || `split-text-${i}`}
-                  className={`absolute inset-0 flex items-start px-6 sm:px-10 lg:px-16 py-10 sm:py-12 lg:py-16 transition-opacity duration-700 ease-in-out ${
-                    i === current ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                  }`}
-                >
-                  <div className="w-full">
-                    <SlideContent slide={textSlide} align="left" />
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-          <div className="flex-1 relative overflow-hidden min-h-[320px] lg:min-h-0">
-            {allSlides.map((slide, i) => {
-              const mediaSlide = hasMediaContent(slide) ? slide : fallbackMediaSlide
-              return (
-                <div
-                  key={slide.id || `split-media-${i}`}
-                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-                    i === current ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                  }`}
-                >
-                  <SlideMedia slide={mediaSlide} />
-                </div>
-              )
-            })}
-            {overlayEnabled && (
-              <div className="absolute inset-0 z-[1]" style={{ backgroundColor: overlayColor, opacity: overlayOpacity }} />
-            )}
+    const isLight = splitTheme === 'light'
+    const textBehavior = splitTextBehavior || 'static'
 
-            {showArrows && <CarouselArrows prev={prev} next={next} />}
-            {showDots && <CarouselDots total={allSlides.length} current={current} setCurrent={setCurrent} />}
+    // For 'static': always show first slide's text. For 'slide': show current slide's text.
+    const textSlide = textBehavior === 'slide'
+      ? (mode === 'carousel' ? currentSlide : allSlides[0])
+      : allSlides.find(hasTextContent) || allSlides[0]
+
+    const renderTextSide = (slide: SlideData) => (
+      <>
+        {slide.heading && (
+          <h1
+            className="ducc-heading font-bold leading-[1.1] tracking-tight"
+            style={{
+              fontSize: 'clamp(2rem, 4vw, 3.5rem)',
+              color: isLight ? 'var(--cms-secondary, #1A103D)' : '#FFFFFF',
+            }}
+          >
+            {slide.heading}
+          </h1>
+        )}
+        {slide.subtitle && (
+          <p
+            className="mt-5 text-lg leading-relaxed max-w-xl"
+            style={{ color: isLight ? 'var(--cms-text, #1A103D)' : 'rgba(255,255,255,0.85)', opacity: 0.85 }}
+          >
+            {slide.subtitle}
+          </p>
+        )}
+
+        {/* Buttons */}
+        {slide.buttons && slide.buttons.length > 0 && (
+          <div className="mt-8 flex flex-wrap gap-3">
+            {slide.buttons.map((btn, bi) => (
+              <a
+                key={btn.id || bi}
+                href={btn.url}
+                className={`btn-shine inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-md transition ${
+                  btn.variant === 'outline' ? 'border' : ''
+                }`}
+                style={
+                  btn.variant === 'outline'
+                    ? {
+                        borderColor: isLight ? 'var(--cms-secondary, #1A103D)' : 'rgba(255,255,255,0.3)',
+                        color: isLight ? 'var(--cms-secondary, #1A103D)' : '#fff',
+                        background: 'transparent',
+                      }
+                    : {
+                        background: isLight ? 'var(--cms-secondary, #1A103D)' : 'var(--cms-accent, #EAB308)',
+                        color: isLight ? '#fff' : 'var(--cms-secondary, #1A103D)',
+                      }
+                }
+              >
+                {btn.label}
+                {btn.icon && <DynamicIcon name={btn.icon} size={16} />}
+              </a>
+            ))}
+          </div>
+        )}
+      </>
+    )
+
+    return (
+      <section
+        style={{
+          minHeight: `${heroHeight}px`,
+          backgroundColor: isLight ? 'var(--cms-muted-bg, #F8F4FF)' : 'var(--cms-secondary, #1A103D)',
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-6">
+          <div
+            className={`flex flex-col ${isTextLeft ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-10 lg:gap-16`}
+            style={{ minHeight: `${heroHeight}px`, paddingBlock: '0 2rem' }}
+          >
+            {/* Text side */}
+            <div className="flex-1">
+              {textBehavior === 'slide' ? (
+                /* Sliding text — crossfade with each slide */
+                <div className="relative">
+                  {allSlides.map((slide, i) => {
+                    const s = hasTextContent(slide) ? slide : allSlides.find(hasTextContent) || allSlides[0]
+                    return (
+                      <div
+                        key={slide.id || `split-text-${i}`}
+                        className={`transition-opacity duration-500 ease-in-out ${
+                          i === current ? 'opacity-100 relative' : 'opacity-0 absolute inset-0 pointer-events-none'
+                        }`}
+                      >
+                        {renderTextSide(s)}
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                /* Static text — always shows first slide with text */
+                renderTextSide(textSlide)
+              )}
+
+              {/* Features row — always static */}
+              {splitFeatures && splitFeatures.length > 0 && (
+                <div className="mt-6 flex flex-wrap gap-5">
+                  {splitFeatures.map((feat, fi) => (
+                    <div
+                      key={feat.id || fi}
+                      className="flex items-center gap-2 text-sm font-medium"
+                      style={{ color: isLight ? 'var(--cms-text, #1A103D)' : 'rgba(255,255,255,0.8)' }}
+                    >
+                      {feat.icon && (
+                        <DynamicIcon
+                          name={feat.icon}
+                          size={16}
+                          color={isLight ? 'var(--cms-primary, #4B2E83)' : 'var(--cms-accent, #EAB308)'}
+                        />
+                      )}
+                      {feat.text}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Media side */}
+            <div className="flex-1 relative w-full">
+              <div className="relative rounded-xl overflow-hidden" style={{ aspectRatio: '4 / 3' }}>
+                {allSlides.map((slide, i) => {
+                  const mediaSlide = hasMediaContent(slide) ? slide : fallbackMediaSlide
+                  return (
+                    <div
+                      key={slide.id || `split-media-${i}`}
+                      className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                        i === current ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                      }`}
+                    >
+                      <SlideMedia slide={mediaSlide} />
+                    </div>
+                  )
+                })}
+              </div>
+
+              {allSlides.length > 1 && (
+                <div className="absolute bottom-4 right-4 z-10 flex gap-2">
+                  {allSlides.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrent(i)}
+                      className="w-3 h-3 rounded-full transition-all"
+                      style={{
+                        background: i === current
+                          ? isLight ? 'var(--cms-secondary, #1A103D)' : 'var(--cms-accent, #EAB308)'
+                          : 'rgba(0,0,0,0.2)',
+                      }}
+                      aria-label={`Slide ${i + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>

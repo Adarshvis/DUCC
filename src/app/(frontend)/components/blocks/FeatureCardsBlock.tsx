@@ -16,8 +16,10 @@ interface FeatureCardsBlockProps {
   columns?: '2' | '3' | '4' | null
   cardTheme?: 'dark' | 'light' | null
   showCardNumbers?: boolean | null
+  showCardButton?: boolean | null
   cards: {
     icon?: string | null
+    image?: any
     title?: any
     description?: any
     link?: string | null
@@ -84,6 +86,7 @@ export default function FeatureCardsBlock({
   columns = '3',
   cardTheme = 'dark',
   showCardNumbers = false,
+  showCardButton = false,
   cards,
 }: FeatureCardsBlockProps) {
   const cols = columns || '3'
@@ -130,6 +133,7 @@ export default function FeatureCardsBlock({
             {cards.map((card, index) => {
               const key = card.id || `ducc-service-${index}`
               const iconNode = card.icon ? getIcon(card.icon) : null
+              const cardImgUrl = typeof card.image === 'object' && card.image?.url ? card.image.url : null
               const titleText =
                 typeof card.title === 'string'
                   ? card.title
@@ -154,11 +158,12 @@ export default function FeatureCardsBlock({
                   className="card-hover group relative bg-white rounded-2xl p-6 border overflow-hidden cursor-pointer"
                   style={{ borderColor: 'var(--cms-muted-bg, #F8F4FF)' }}
                 >
-                  <div
-                    className="absolute top-0 right-0 w-28 h-28 rounded-full blur-2xl opacity-0 group-hover:opacity-40 transition-opacity"
-                    style={{ background: 'var(--cms-accent, #EAB308)' }}
-                  />
                   <div className="relative">
+                    <div
+                      className="absolute top-0 right-0 w-28 h-28 rounded-full blur-2xl opacity-0 group-hover:opacity-40 transition-opacity"
+                      style={{ background: 'var(--cms-accent, #EAB308)' }}
+                    />
+                    {/* Icon row — duccService always shows icon, never image */}
                     <div className="flex items-center justify-between mb-5">
                       <div
                         className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:rotate-6 transition-transform"
@@ -167,10 +172,10 @@ export default function FeatureCardsBlock({
                         }}
                       >
                         {card.icon ? (
-                        <span style={{ color: 'var(--cms-accent, #EAB308)' }}>
-                          {getIcon(card.icon, 20)}
-                        </span>
-                      ) : null}
+                          <span style={{ color: 'var(--cms-accent, #EAB308)' }}>
+                            {getIcon(card.icon, 20)}
+                          </span>
+                        ) : null}
                       </div>
                       {card.tag && (
                         <span
@@ -494,6 +499,7 @@ export default function FeatureCardsBlock({
           {cards.map((card, index) => {
             const key = card.id || `feature-card-${index}`
             const iconNode = card.icon ? getIcon(card.icon) : null
+            const cardImgUrl = typeof card.image === 'object' && card.image?.url ? card.image.url : null
 
             const content = (
               <div
@@ -506,7 +512,7 @@ export default function FeatureCardsBlock({
                       : layout === 'accentTop'
                         ? 'bg-white rounded-xl p-6 border border-gray-200 relative hover:shadow-md transition-all'
                         : isLight
-                          ? 'card-hover bg-white rounded-2xl p-8 border transition-all'
+                          ? 'card-hover bg-white rounded-2xl border transition-all overflow-hidden'
                           : 'bg-gray-800 rounded-xl p-6 hover:bg-gray-750 transition-colors'
                 }
                 style={
@@ -519,14 +525,27 @@ export default function FeatureCardsBlock({
                   <div className="absolute top-0 left-0 right-0 h-1.5 rounded-t-xl" style={{ background: 'var(--cms-primary, #3B82F6)' }} />
                 ) : null}
 
+                {/* Card image — classic light only */}
+                {layout === 'classic' && isLight && cardImgUrl && (
+                  <div className="relative overflow-hidden" style={{ aspectRatio: '16 / 10' }}>
+                    <img
+                      src={cardImgUrl}
+                      alt={typeof card.image === 'object' ? card.image.alt || '' : ''}
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                      className="group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+
                 {layout === 'split' ? (
                   <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 items-start p-6">
                     {iconNode ? <div style={{ color: 'var(--cms-primary, #3B82F6)' }}>{iconNode}</div> : null}
                     <div className="text-gray-900">{renderCardBody(card)}</div>
                   </div>
                 ) : (
-                  <>
-                    {iconNode ? (
+                  <div className={layout === 'classic' && isLight ? 'p-6' : ''}>
+                    {!cardImgUrl && iconNode ? (
                       layout === 'classic' && isLight ? (
                         <div className="flex items-center gap-4 mb-4">
                           <div
@@ -563,12 +582,24 @@ export default function FeatureCardsBlock({
                     >
                       {renderCardBody(card)}
                     </div>
-                  </>
+                    {/* Full-width button for Classic Light */}
+                    {isLight && showCardButton && card.buttonLabel && (
+                      <a
+                        href={card.buttonUrl || card.link || '#'}
+                        className="btn-shine mt-5 w-full inline-flex items-center justify-center gap-2 text-sm font-semibold text-white py-3 rounded-lg transition hover:brightness-110"
+                        style={{ background: 'var(--cms-secondary, #1A103D)' }}
+                        target={card.external ? '_blank' : undefined}
+                        rel={card.external ? 'noreferrer' : undefined}
+                      >
+                        {card.buttonLabel} <ArrowRight className="w-4 h-4" />
+                      </a>
+                    )}
+                  </div>
                 )}
               </div>
             )
 
-            if (card.link) {
+            if (card.link && !(isLight && showCardButton)) {
               return <a key={key} href={card.link} className="no-underline">{content}</a>
             }
             return content

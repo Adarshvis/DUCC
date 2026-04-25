@@ -227,8 +227,13 @@ export default function FormBuilderEmbed({ form }: { form: unknown }) {
       // Software access request — route to /api/request-access
       const urlParams = new URLSearchParams(window.location.search)
       const softwareFromUrl = urlParams.get('software')
+      const serviceFromUrl = urlParams.get('service')
+      const isAccessRequest = softwareFromUrl || serviceFromUrl
 
-      if (softwareFromUrl) {
+      if (isAccessRequest) {
+        const itemName = softwareFromUrl || serviceFromUrl || ''
+        const requestType = serviceFromUrl ? 'it-service' : 'software'
+
         const getFieldValue = (field: FormField): string => {
           const fieldName = field.name || ''
           if (!fieldName) return ''
@@ -297,7 +302,9 @@ export default function FormBuilderEmbed({ form }: { form: unknown }) {
             email,
             mobile,
             role,
-            software: softwareFromUrl,
+            software: softwareFromUrl || undefined,
+            service: serviceFromUrl || undefined,
+            requestType,
             ...values,
           }),
         })

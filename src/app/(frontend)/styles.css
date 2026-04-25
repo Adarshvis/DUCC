@@ -98,7 +98,7 @@ body {
   --bg-muted: var(--cms-muted-bg, #F1F5F9);
   --text-main: var(--cms-text, #111827);
 
-  font-family: var(--font-sans);
+  font-family: var(--font-body, var(--font-sans));
   margin: 0;
   color: var(--text-main);
   background: var(--bg-main);
@@ -1952,9 +1952,9 @@ body {
    DUCC Design System — Utility Classes
    ═══════════════════════════════════════════════════════════ */
 
-/* Heading font (Playfair Display) */
+/* Heading font — uses theme variable */
 .ducc-heading {
-  font-family: var(--font-playfair, serif);
+  font-family: var(--font-heading, var(--font-playfair, serif));
   letter-spacing: -0.01em;
 }
 

@@ -14,6 +14,7 @@ async function getHomePage() {
       status: { equals: 'published' },
     },
     limit: 1,
+    depth: 2,
   })
   return docs[0] || null
 }

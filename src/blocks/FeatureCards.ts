@@ -84,10 +84,30 @@ export const FeatureCards: Block = {
       },
     },
     {
+      name: 'showCardButton',
+      type: 'checkbox',
+      defaultValue: false,
+      label: 'Show Card Button',
+      admin: {
+        description: 'Show a full-width button at the bottom of each card (uses Button Label / Button URL fields)',
+        condition: (_, siblingData) =>
+          siblingData?.cardLayout === 'classic' && siblingData?.cardTheme === 'light',
+      },
+    },
+    {
       name: 'cards',
       type: 'array',
       fields: [
         iconField('icon', 'Card Icon'),
+        {
+          name: 'image',
+          type: 'upload',
+          relationTo: 'media',
+          label: 'Card Image',
+          admin: {
+            description: 'Optional image shown at the top of the card (used in Classic Light layout)',
+          },
+        },
         {
           name: 'title',
           type: 'richText',

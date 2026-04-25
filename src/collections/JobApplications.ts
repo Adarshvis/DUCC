@@ -92,10 +92,25 @@ export const JobApplications: CollectionConfig = {
     {
       name: 'jobTitle',
       type: 'text',
-      label: 'Software Requested',
+      label: 'Software / Service Requested',
       required: true,
       admin: {
-        description: 'The software the user is requesting access to',
+        description: 'The software or IT service the user is requesting access to',
+      },
+    },
+    {
+      name: 'requestType',
+      type: 'select',
+      label: 'Request Type',
+      defaultValue: 'software',
+      required: true,
+      options: [
+        { label: 'Software Access', value: 'software' },
+        { label: 'IT Service', value: 'it-service' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description: 'Whether this is a software access request or an IT service request',
       },
     },
     {

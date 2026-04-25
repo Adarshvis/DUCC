@@ -1,5 +1,5 @@
 import React from 'react'
-import { Inter, JetBrains_Mono, Playfair_Display } from 'next/font/google'
+import { Inter, JetBrains_Mono, Playfair_Display, Raleway, Roboto, Montserrat, Poppins, Open_Sans, Lato } from 'next/font/google'
 import type { Metadata } from 'next'
 import config from '@/payload.config'
 import { getPayload } from '@/lib/payload'
@@ -26,6 +26,56 @@ const playfair = Playfair_Display({
   variable: '--font-playfair',
   display: 'swap',
 })
+
+const raleway = Raleway({
+  subsets: ['latin'],
+  variable: '--font-raleway',
+  display: 'swap',
+})
+
+const roboto = Roboto({
+  subsets: ['latin'],
+  variable: '--font-roboto',
+  display: 'swap',
+})
+
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  variable: '--font-montserrat',
+  display: 'swap',
+})
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-poppins',
+  display: 'swap',
+})
+
+const openSans = Open_Sans({
+  subsets: ['latin'],
+  variable: '--font-open-sans',
+  display: 'swap',
+})
+
+const lato = Lato({
+  subsets: ['latin'],
+  weight: ['300', '400', '700'],
+  variable: '--font-lato',
+  display: 'swap',
+})
+
+const allFontVars = [
+  inter.variable,
+  jetbrainsMono.variable,
+  playfair.variable,
+  raleway.variable,
+  roboto.variable,
+  montserrat.variable,
+  poppins.variable,
+  openSans.variable,
+  lato.variable,
+].filter(Boolean).join(' ')
 
 export async function generateMetadata(): Promise<Metadata> {
   const payload = await getPayload({ config })
@@ -65,6 +115,31 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   const mutedBackgroundColor = siteSettings?.themeColors?.mutedBackgroundColor || '#F8F4FF'
   const textColor = siteSettings?.themeColors?.textColor || '#1A103D'
 
+  // Theme preset — determines layout overrides
+  const themePreset = (siteSettings as any)?.themePreset || 'ducc'
+  const headingFont = (siteSettings as any)?.headingFont || 'Playfair Display'
+  const bodyFont = (siteSettings as any)?.bodyFont || 'Inter'
+
+  // Map font names to next/font CSS variables for optimal loading
+  const fontVarMap: Record<string, string> = {
+    'Playfair Display': 'var(--font-playfair)',
+    'Raleway': 'var(--font-raleway)',
+    'Montserrat': 'var(--font-montserrat)',
+    'Inter': 'var(--font-inter)',
+    'Roboto': 'var(--font-roboto)',
+    'Poppins': 'var(--font-poppins)',
+    'Open Sans': 'var(--font-open-sans)',
+    'Lato': 'var(--font-lato)',
+  }
+
+  const headingFontStack = fontVarMap[headingFont]
+    ? `${fontVarMap[headingFont]}, serif`
+    : `"${headingFont}", serif`
+
+  const bodyFontStack = fontVarMap[bodyFont]
+    ? `${fontVarMap[bodyFont]}, sans-serif`
+    : `"${bodyFont}", sans-serif`
+
   const themeStyle = {
     '--cms-primary': primaryColor,
     '--cms-secondary': secondaryColor,
@@ -73,14 +148,17 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
     '--cms-surface': surfaceColor,
     '--cms-muted-bg': mutedBackgroundColor,
     '--cms-text': textColor,
+    '--cms-theme': themePreset,
+    '--font-heading': headingFontStack,
+    '--font-body': bodyFontStack,
   } as React.CSSProperties
 
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable} ${jetbrainsMono.variable}`}>
-      <body className="flex flex-col min-h-screen" style={themeStyle}>
-        <Header data={headerData} />
+    <html lang="en" className={allFontVars}>
+      <body className="flex flex-col min-h-screen" style={themeStyle} data-theme={themePreset}>
+        <Header data={headerData || {}} />
         <main className="site-main flex-1">{children}</main>
-        <Footer data={footerData} siteSettings={siteSettings} />
+        <Footer data={footerData || {}} siteSettings={siteSettings || {}} />
       </body>
     </html>
   )

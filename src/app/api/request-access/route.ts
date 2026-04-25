@@ -32,11 +32,14 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
 
-    const { fullName, email, mobile, role, software, ...extraFields } = body
+    const { fullName, email, mobile, role, software, service, requestType: reqType, ...extraFields } = body
 
-    if (!software) {
+    const isServiceRequest = reqType === 'it-service' || !!service
+    const itemName = isServiceRequest ? (service || software) : software
+
+    if (!itemName) {
       return NextResponse.json(
-        { error: 'Software name is required.' },
+        { error: 'Software or service name is required.' },
         { status: 400 },
       )
     }
@@ -48,7 +51,8 @@ export async function POST(req: NextRequest) {
       applicantName: fullName || '',
       email: email || '',
       phone: mobile || '',
-      jobTitle: software,
+      jobTitle: itemName,
+      requestType: isServiceRequest ? 'it-service' : 'software',
       status: 'new',
     }
 
