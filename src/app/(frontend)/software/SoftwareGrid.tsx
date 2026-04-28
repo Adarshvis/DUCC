@@ -71,7 +71,7 @@ export default function SoftwareGrid({ software, categories }: SoftwareGridProps
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search software by name or description..."
+              placeholder="Software"
               className="w-full pl-11 h-12 bg-white border rounded-lg text-sm outline-none transition-colors"
               style={{ borderColor: 'var(--cms-muted-bg, #F8F4FF)' }}
               onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--cms-primary, #4B2E83)' }}

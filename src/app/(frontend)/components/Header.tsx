@@ -117,7 +117,8 @@ export default function Header({ data }: HeaderProps) {
     typeof centerImg?.height === 'number' && Number.isFinite(centerImg.height)
       ? centerImg.height
       : centerHeight
-  const centerRenderHeight = Math.min(centerHeight, 88, centerIntrinsicHeight)
+  // Respect the CMS height value — only cap to the image's intrinsic height so it doesn't upscale
+  const centerRenderHeight = Math.min(centerHeight, centerIntrinsicHeight)
   const hasCenterLogoContent = Boolean(centerImg || data.centerLogo?.title || data.centerLogo?.subtitle)
 
   const isLearner = theme === 'learner'
@@ -135,7 +136,7 @@ export default function Header({ data }: HeaderProps) {
           }}
         >
           <div className="bg-white">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 h-[70px] flex items-center justify-between gap-6">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 min-h-[70px] flex items-center justify-between gap-6 py-3">
               {/* Logo — left */}
               <div className="shrink-0 flex items-center gap-3">
                 {leftImg?.url ? (
@@ -144,8 +145,8 @@ export default function Header({ data }: HeaderProps) {
                       src={leftImg.url}
                       alt={leftImg.alt || 'Logo'}
                       width={leftMaxWidth}
-                      height={Math.min(leftHeight, 44)}
-                      style={{ height: `${Math.min(leftHeight, 44)}px`, width: 'auto', maxWidth: `${leftMaxWidth}px` }}
+                      height={leftHeight}
+                      style={{ height: `${leftHeight}px`, width: 'auto', maxWidth: `${leftMaxWidth}px` }}
                       className="object-contain"
                     />
                   </Link>
@@ -156,9 +157,9 @@ export default function Header({ data }: HeaderProps) {
                         src={centerImg.url}
                         alt={centerImg.alt || 'Logo'}
                         width={centerMaxWidth}
-                        height={Math.min(centerRenderHeight, 44)}
+                        height={centerRenderHeight}
                         quality={100}
-                        style={{ height: `${Math.min(centerRenderHeight, 44)}px`, width: 'auto' }}
+                        style={{ height: `${centerRenderHeight}px`, width: 'auto' }}
                         className="object-contain"
                       />
                     )}
