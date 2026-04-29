@@ -155,6 +155,29 @@ body {
   color: #fff !important;
 }
 
+/* Ensure button nav items align with anchor nav items */
+button.header-nav-link {
+  vertical-align: baseline;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font: inherit;
+  line-height: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* Force all nav items to same alignment */
+.header-nav-link {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  vertical-align: baseline;
+}
+
 .hero-fs-carousel {
   --hero-slide-fade-ms: 700ms;
   --hero-kenburns-duration-ms: 10000ms;
@@ -244,6 +267,125 @@ body {
 .site-main table {
   margin-left: auto;
   margin-right: auto;
+}
+
+/* ── Rich Text Tables ── */
+.cms-richtext table,
+.site-main table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: 0.875rem;
+  margin: 1.5rem 0;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 0 1px var(--cms-muted-bg, #e2e8f0);
+}
+
+/* Header row */
+.cms-richtext table th,
+.cms-richtext table td[data-highlight-color],
+.site-main table th,
+.cms-richtext table tr:first-child td {
+  background: var(--cms-secondary, #1A103D);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.875rem 1rem;
+  text-align: left;
+  white-space: nowrap;
+  border: none;
+}
+
+/* Data rows */
+.cms-richtext table tr:not(:first-child) td,
+.site-main table tr:not(:first-child) td {
+  background: transparent;
+  color: var(--cms-text, #334155);
+  font-weight: normal;
+  font-size: 0.875rem;
+  text-transform: none;
+  letter-spacing: normal;
+  white-space: normal;
+}
+
+.cms-richtext table td,
+.site-main table td {
+  padding: 0.75rem 1rem;
+  color: var(--cms-text, #334155);
+  border: none;
+  border-bottom: 1px solid var(--cms-muted-bg, #f1f5f9);
+  vertical-align: middle;
+}
+
+/* Remove bottom border on last row */
+.cms-richtext table tr:last-child td,
+.site-main table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Zebra striping */
+.cms-richtext table tr:nth-child(even):not(:first-child) td,
+.site-main table tr:nth-child(even):not(:first-child) td {
+  background: color-mix(in srgb, var(--cms-muted-bg, #f8fafc) 50%, white);
+}
+
+/* Hover — no extra borders */
+.cms-richtext table tr:not(:first-child):hover td,
+.site-main table tr:not(:first-child):hover td {
+  background: color-mix(in srgb, var(--cms-primary, #4B2E83) 6%, white);
+}
+
+/* # column */
+.cms-richtext table td:first-child,
+.site-main table td:first-child {
+  font-weight: 600;
+  color: var(--cms-secondary, #1A103D);
+  width: 3rem;
+  text-align: center;
+}
+
+/* Links */
+.cms-richtext table a,
+.site-main table a {
+  color: var(--cms-primary, #4B2E83);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.cms-richtext table a:hover,
+.site-main table a:hover {
+  color: var(--cms-accent, #EAB308);
+  text-decoration: underline;
+}
+
+/* Subgroup heading rows */
+.cms-richtext table td[colspan],
+.cms-richtext table tr td:only-child {
+  font-weight: 700;
+  color: var(--cms-secondary, #1A103D);
+  background: var(--cms-muted-bg, #f1f5f9) !important;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+/* Responsive: horizontal scroll on small screens */
+@media (max-width: 640px) {
+  .cms-richtext table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cms-richtext table td,
+  .cms-richtext table th {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8125rem;
+  }
 }
 
 .cms-page-shell {
@@ -2046,4 +2188,13 @@ body {
   .card-hover:hover {
     transform: none;
   }
+}
+
+/* ── Scrollbar hide utility ── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

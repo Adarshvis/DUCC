@@ -195,7 +195,7 @@ export default function Header({ data }: HeaderProps) {
                       {!hasChildren ? (
                         <Link
                           href={item.url || '#'}
-                          className="text-[15px] font-medium pb-1 border-b-2 transition-all duration-200"
+                          className="text-[15px] font-medium pb-1 border-b-2 transition-all duration-200 inline-flex items-center"
                           style={{
                             color: active ? 'var(--cms-primary, #04415f)' : 'var(--cms-text, #010608)',
                             borderColor: active ? 'var(--cms-primary, #04415f)' : 'transparent',
@@ -217,16 +217,19 @@ export default function Header({ data }: HeaderProps) {
                         </Link>
                       ) : (
                         <>
-                          <button
+                          <a
+                            href="#"
+                            onClick={(e) => e.preventDefault()}
                             className="text-[15px] font-medium pb-1 border-b-2 transition-all duration-200 inline-flex items-center gap-1"
                             style={{
                               color: active ? 'var(--cms-primary, #04415f)' : 'var(--cms-text, #010608)',
                               borderColor: active ? 'var(--cms-primary, #04415f)' : 'transparent',
+                              cursor: 'pointer',
                             }}
                           >
                             {item.label}
                             <ChevronDown size={14} />
-                          </button>
+                          </a>
                           {item.children && item.children.length > 0 && (
                             <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-100 py-1 min-w-[200px] hidden group-hover:block z-50">
                               {item.children.map((child) => {
@@ -454,7 +457,7 @@ export default function Header({ data }: HeaderProps) {
 
             {data.navItems && data.navItems.length > 0 && (
               <div className={`mt-[calc(var(--spacing)*5)] flex w-full items-center ${navAlignWrapperClass}`}>
-                <div className="flex items-center gap-6 flex-nowrap whitespace-nowrap">
+                <div className="flex items-baseline gap-4 flex-nowrap whitespace-nowrap">
                   {(data.navItems || []).map((item) => {
                     const hasChildren = item.children && item.children.length > 0
                     const active = hasChildren
@@ -471,7 +474,7 @@ export default function Header({ data }: HeaderProps) {
                             href={item.url || '#'}
                             onMouseEnter={() => setHoveredNav(item.id || item.label)}
                             onMouseLeave={() => setHoveredNav(null)}
-                            className="header-nav-link inline-flex items-center text-base font-medium pb-1 border-b-[3px]"
+                            className="header-nav-link inline-flex items-center text-sm font-medium pb-1 border-b-[3px] leading-none"
                             style={{
                               color: hoveredNav === (item.id || item.label)
                                 ? '#FFAA01'
@@ -491,10 +494,12 @@ export default function Header({ data }: HeaderProps) {
                           </a>
                         ) : (
                           <>
-                            <button
+                            <a
+                              href="#"
+                              onClick={(e) => e.preventDefault()}
                               onMouseEnter={() => setHoveredNav(item.id || item.label)}
                               onMouseLeave={() => setHoveredNav(null)}
-                              className="header-nav-link inline-flex items-center gap-1 text-base font-medium pb-1 border-b-[3px]"
+                              className="header-nav-link inline-flex items-center gap-1 text-sm font-medium pb-1 border-b-[3px] leading-none"
                               style={{
                                 color: hoveredNav === (item.id || item.label)
                                   ? '#FFAA01'
@@ -508,11 +513,12 @@ export default function Header({ data }: HeaderProps) {
                                     : 'transparent',
                                 transition: 'color 0.3s ease-in-out, border-color 0.3s ease-in-out, transform 0.2s ease',
                                 transform: hoveredNav === (item.id || item.label) ? 'translateY(-1px)' : 'translateY(0)',
+                                cursor: 'pointer',
                               }}
                             >
                               {item.label}
                               <ChevronDown size={14} />
-                            </button>
+                            </a>
                             {item.children && item.children.length > 0 && (
                               <div className="absolute top-full left-0 mt-0 bg-white rounded-b-lg shadow-lg border border-gray-200 py-1 min-w-[200px] hidden group-hover:block z-50">
                                 {item.children.map((child) => {
