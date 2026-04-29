@@ -42,7 +42,7 @@ export const Pages: CollectionConfig = {
       type: 'text',
       label: 'Banner Eyebrow',
       admin: {
-        description: 'Optional small badge text on the page banner (e.g. "ABOUT DUCC", "SOFTWARE SERVICES")',
+        description: 'Optional small badge text on the page banner (e.g. "ABOUT US", "SOFTWARE SERVICES")',
       },
     },
     {

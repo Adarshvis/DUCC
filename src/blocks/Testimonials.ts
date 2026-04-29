@@ -12,7 +12,7 @@ export const Testimonials: Block = {
       defaultValue: 'default',
       options: [
         { label: 'Default Carousel', value: 'default' },
-        { label: 'DUCC Director Quote (Dark Full-Width)', value: 'duccQuote' },
+        { label: 'Large Quote (Dark Full-Width)', value: 'duccQuote' },
       ],
       admin: {
         description: 'Choose visual style for testimonials',
@@ -50,7 +50,7 @@ export const Testimonials: Block = {
           type: 'text',
           maxLength: 3,
           admin: {
-            description: 'Initials for avatar fallback (e.g. "SS") — used in DUCC Quote layout',
+            description: 'Initials for avatar fallback (e.g. "SS") — used in Large Quote layout',
           },
         },
       ],

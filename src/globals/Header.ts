@@ -58,7 +58,7 @@ export const Header: GlobalConfig = {
           type: 'text',
           admin: {
             condition: (_, siblingData) => siblingData?.enabled,
-            description: 'e.g. "Welcome to SamarthX National Portal"',
+            description: 'e.g. "Welcome to Our Portal"',
           },
         },
         {

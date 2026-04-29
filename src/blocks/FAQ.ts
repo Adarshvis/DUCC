@@ -12,7 +12,7 @@ export const FAQ: Block = {
       defaultValue: 'default',
       options: [
         { label: 'Default', value: 'default' },
-        { label: 'DUCC Accordion (Purple Theme)', value: 'duccAccordion' },
+        { label: 'Styled Accordion (Purple Theme)', value: 'duccAccordion' },
       ],
       admin: {
         description: 'Choose visual style for the FAQ section',

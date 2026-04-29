@@ -398,7 +398,7 @@ const StatsCardsSub: Block = {
         { label: 'Outline', value: 'outline' },
         { label: 'Elevated', value: 'elevated' },
         { label: 'Soft', value: 'soft' },
-        { label: 'DUCC About (Icon box + vertical)', value: 'duccAbout' },
+        { label: 'About (Icon box + vertical)', value: 'duccAbout' },
       ],
     },
     {

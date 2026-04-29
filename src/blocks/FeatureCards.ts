@@ -11,7 +11,7 @@ export const FeatureCards: Block = {
       type: 'text',
       label: 'Eyebrow Text',
       admin: {
-        description: 'Small uppercase text above the heading (used in DUCC Service layout)',
+        description: 'Small uppercase text above the heading (used in Service Cards layout)',
       },
     },
     {
@@ -39,10 +39,10 @@ export const FeatureCards: Block = {
         { label: 'Minimal', value: 'minimal' },
         { label: 'Split', value: 'split' },
         { label: 'Accent Top', value: 'accentTop' },
-        { label: 'DUCC Service Cards', value: 'duccService' },
-        { label: 'DUCC Service Detail (Alternating)', value: 'duccServiceDetail' },
-        { label: 'DUCC Project Cards (Progress Bar)', value: 'duccProject' },
-        { label: 'DUCC Training Cards', value: 'duccTraining' },
+        { label: 'Service Cards', value: 'duccService' },
+        { label: 'Service Detail (Alternating)', value: 'duccServiceDetail' },
+        { label: 'Project Cards (Progress Bar)', value: 'duccProject' },
+        { label: 'Training Cards', value: 'duccTraining' },
       ],
       admin: {
         description: 'Choose how cards should be displayed.',
@@ -133,7 +133,7 @@ export const FeatureCards: Block = {
           name: 'tag',
           type: 'text',
           admin: {
-            description: 'Small tag label (e.g. "Platform", "Security") — used in DUCC Service layout',
+            description: 'Small tag label (e.g. "Platform", "Security") — used in Service Cards layout',
           },
         },
         {

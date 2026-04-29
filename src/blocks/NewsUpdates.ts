@@ -14,7 +14,7 @@ export const NewsUpdates: Block = {
       options: [
         { label: 'News Cards Grid', value: 'cards' },
         { label: 'Spotlight (featured + side list)', value: 'spotlight' },
-        { label: 'DUCC News Cards (Gold Badges)', value: 'duccCards' },
+        { label: 'Card Grid (Gold Badges)', value: 'duccCards' },
       ],
       admin: {
         description: 'Choose between a card grid or a featured spotlight layout',

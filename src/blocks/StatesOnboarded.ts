@@ -10,7 +10,7 @@ export const StatesOnboarded: Block = {
     {
       name: 'heading',
       type: 'text',
-      defaultValue: 'States Powered by SamarthX',
+      defaultValue: 'States Powered by Our Platform',
       required: true,
     },
     {
@@ -42,7 +42,7 @@ export const StatesOnboarded: Block = {
           type: 'text',
           required: true,
           admin: {
-            description: 'Link to this state\'s SamarthX portal (e.g., https://mah.samarthx.in)',
+            description: 'Link to this state\'s portal (e.g., https://portal.example.in)',
           },
         },
         {

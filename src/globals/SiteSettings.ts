@@ -69,8 +69,8 @@ export const SiteSettings: GlobalConfig = {
       label: 'Theme Preset',
       defaultValue: 'ducc',
       options: [
-        { label: 'DUCC (Purple & Gold)', value: 'ducc' },
-        { label: 'Learner (Teal & Dark)', value: 'learner' },
+        { label: 'Theme A (Purple & Gold)', value: 'ducc' },
+        { label: 'Theme B (Teal & Dark)', value: 'learner' },
       ],
       admin: {
         description: 'One-click theme change. Selecting a preset changes colors, fonts, and layout styles across the entire site.',

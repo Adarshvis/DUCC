@@ -26,7 +26,7 @@ export const TeamPage: CollectionConfig = {
       type: 'text',
       required: true,
       admin: {
-        description: 'Internal identifier (e.g. "DUCC Team Page")',
+        description: 'Internal identifier (e.g. "Main Team Page")',
       },
     },
     {

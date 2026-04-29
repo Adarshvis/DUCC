@@ -175,7 +175,7 @@ export const Hero: Block = {
       options: [
         { label: 'Full-Width Background', value: 'fullWidth' },
         { label: 'Fullscreen Overlay Carousel', value: 'fullscreenOverlayCarousel' },
-        { label: 'DUCC Fullscreen (Split + Floating Card)', value: 'duccFullscreen' },
+        { label: 'Fullscreen Overlay (Split + Floating Card)', value: 'duccFullscreen' },
         { label: '50/50 Split (Text + Media)', value: 'split' },
         { label: 'Contained', value: 'contained' },
       ],
@@ -516,7 +516,7 @@ export const Hero: Block = {
       admin: { condition: (_, siblingData) => siblingData?.mode === 'carousel' },
       fields: slideFields(),
     },
-    /* ── DUCC Fullscreen extras ── */
+    /* ── Fullscreen Overlay extras ── */
     {
       type: 'group',
       name: 'duccFloatingCard',

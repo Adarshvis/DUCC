@@ -12,7 +12,7 @@ export const CallToAction: Block = {
       defaultValue: 'default',
       options: [
         { label: 'Default', value: 'default' },
-        { label: 'DUCC Banner (Gradient Card)', value: 'duccBanner' },
+        { label: 'Full-Width Banner (Gradient Card)', value: 'duccBanner' },
       ],
       admin: {
         description: 'Choose visual style for this CTA block',

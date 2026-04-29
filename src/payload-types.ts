@@ -214,7 +214,7 @@ export interface Page {
   id: number;
   title: string;
   /**
-   * Optional small badge text on the page banner (e.g. "ABOUT DUCC", "SOFTWARE SERVICES")
+   * Optional small badge text on the page banner (e.g. "ABOUT US", "SOFTWARE SERVICES")
    */
   bannerEyebrow?: string | null;
   /**
@@ -566,7 +566,7 @@ export interface Page {
            */
           stateName: string;
           /**
-           * Link to this state's SamarthX portal (e.g., https://mah.samarthx.in)
+           * Link to this state's portal (e.g., https://portal.example.in)
            */
           portalUrl: string;
           /**
@@ -1249,7 +1249,7 @@ export interface Page {
         sectionDescription?: string | null;
         headingAlignment?: ('left' | 'center' | 'right') | null;
         /**
-         * Small uppercase text above the heading (used in DUCC Service layout)
+         * Small uppercase text above the heading (used in Service Cards layout)
          */
         eyebrow?: string | null;
         /**
@@ -1339,7 +1339,7 @@ export interface Page {
                */
               link?: string | null;
               /**
-               * Small tag label (e.g. "Platform", "Security") — used in DUCC Service layout
+               * Small tag label (e.g. "Platform", "Security") — used in Service Cards layout
                */
               tag?: string | null;
               /**
@@ -1518,7 +1518,7 @@ export interface Page {
           role?: string | null;
           avatar?: (number | null) | Media;
           /**
-           * Initials for avatar fallback (e.g. "SS") — used in DUCC Quote layout
+           * Initials for avatar fallback (e.g. "SS") — used in Large Quote layout
            */
           initials?: string | null;
           id?: string | null;
@@ -2793,7 +2793,7 @@ export interface News {
                */
               stateName: string;
               /**
-               * Link to this state's SamarthX portal (e.g., https://mah.samarthx.in)
+               * Link to this state's portal (e.g., https://portal.example.in)
                */
               portalUrl: string;
               /**
@@ -3311,7 +3311,7 @@ export interface News {
             sectionDescription?: string | null;
             headingAlignment?: ('left' | 'center' | 'right') | null;
             /**
-             * Small uppercase text above the heading (used in DUCC Service layout)
+             * Small uppercase text above the heading (used in Service Cards layout)
              */
             eyebrow?: string | null;
             /**
@@ -3401,7 +3401,7 @@ export interface News {
                    */
                   link?: string | null;
                   /**
-                   * Small tag label (e.g. "Platform", "Security") — used in DUCC Service layout
+                   * Small tag label (e.g. "Platform", "Security") — used in Service Cards layout
                    */
                   tag?: string | null;
                   /**
@@ -3580,7 +3580,7 @@ export interface News {
               role?: string | null;
               avatar?: (number | null) | Media;
               /**
-               * Initials for avatar fallback (e.g. "SS") — used in DUCC Quote layout
+               * Initials for avatar fallback (e.g. "SS") — used in Large Quote layout
                */
               initials?: string | null;
               id?: string | null;
@@ -4749,7 +4749,7 @@ export interface Software {
                */
               stateName: string;
               /**
-               * Link to this state's SamarthX portal (e.g., https://mah.samarthx.in)
+               * Link to this state's portal (e.g., https://portal.example.in)
                */
               portalUrl: string;
               /**
@@ -5267,7 +5267,7 @@ export interface Software {
             sectionDescription?: string | null;
             headingAlignment?: ('left' | 'center' | 'right') | null;
             /**
-             * Small uppercase text above the heading (used in DUCC Service layout)
+             * Small uppercase text above the heading (used in Service Cards layout)
              */
             eyebrow?: string | null;
             /**
@@ -5357,7 +5357,7 @@ export interface Software {
                    */
                   link?: string | null;
                   /**
-                   * Small tag label (e.g. "Platform", "Security") — used in DUCC Service layout
+                   * Small tag label (e.g. "Platform", "Security") — used in Service Cards layout
                    */
                   tag?: string | null;
                   /**
@@ -5536,7 +5536,7 @@ export interface Software {
               role?: string | null;
               avatar?: (number | null) | Media;
               /**
-               * Initials for avatar fallback (e.g. "SS") — used in DUCC Quote layout
+               * Initials for avatar fallback (e.g. "SS") — used in Large Quote layout
                */
               initials?: string | null;
               id?: string | null;
@@ -6580,7 +6580,7 @@ export interface Project {
                */
               stateName: string;
               /**
-               * Link to this state's SamarthX portal (e.g., https://mah.samarthx.in)
+               * Link to this state's portal (e.g., https://portal.example.in)
                */
               portalUrl: string;
               /**
@@ -7098,7 +7098,7 @@ export interface Project {
             sectionDescription?: string | null;
             headingAlignment?: ('left' | 'center' | 'right') | null;
             /**
-             * Small uppercase text above the heading (used in DUCC Service layout)
+             * Small uppercase text above the heading (used in Service Cards layout)
              */
             eyebrow?: string | null;
             /**
@@ -7188,7 +7188,7 @@ export interface Project {
                    */
                   link?: string | null;
                   /**
-                   * Small tag label (e.g. "Platform", "Security") — used in DUCC Service layout
+                   * Small tag label (e.g. "Platform", "Security") — used in Service Cards layout
                    */
                   tag?: string | null;
                   /**
@@ -7367,7 +7367,7 @@ export interface Project {
               role?: string | null;
               avatar?: (number | null) | Media;
               /**
-               * Initials for avatar fallback (e.g. "SS") — used in DUCC Quote layout
+               * Initials for avatar fallback (e.g. "SS") — used in Large Quote layout
                */
               initials?: string | null;
               id?: string | null;
@@ -8428,7 +8428,7 @@ export interface Training {
                */
               stateName: string;
               /**
-               * Link to this state's SamarthX portal (e.g., https://mah.samarthx.in)
+               * Link to this state's portal (e.g., https://portal.example.in)
                */
               portalUrl: string;
               /**
@@ -8946,7 +8946,7 @@ export interface Training {
             sectionDescription?: string | null;
             headingAlignment?: ('left' | 'center' | 'right') | null;
             /**
-             * Small uppercase text above the heading (used in DUCC Service layout)
+             * Small uppercase text above the heading (used in Service Cards layout)
              */
             eyebrow?: string | null;
             /**
@@ -9036,7 +9036,7 @@ export interface Training {
                    */
                   link?: string | null;
                   /**
-                   * Small tag label (e.g. "Platform", "Security") — used in DUCC Service layout
+                   * Small tag label (e.g. "Platform", "Security") — used in Service Cards layout
                    */
                   tag?: string | null;
                   /**
@@ -9215,7 +9215,7 @@ export interface Training {
               role?: string | null;
               avatar?: (number | null) | Media;
               /**
-               * Initials for avatar fallback (e.g. "SS") — used in DUCC Quote layout
+               * Initials for avatar fallback (e.g. "SS") — used in Large Quote layout
                */
               initials?: string | null;
               id?: string | null;
@@ -9931,7 +9931,7 @@ export interface Training {
 export interface TeamPage {
   id: number;
   /**
-   * Internal identifier (e.g. "DUCC Team Page")
+   * Internal identifier (e.g. "Main Team Page")
    */
   pageName: string;
   status?: ('active' | 'inactive') | null;
@@ -10275,7 +10275,7 @@ export interface TeamPage {
                */
               stateName: string;
               /**
-               * Link to this state's SamarthX portal (e.g., https://mah.samarthx.in)
+               * Link to this state's portal (e.g., https://portal.example.in)
                */
               portalUrl: string;
               /**
@@ -10793,7 +10793,7 @@ export interface TeamPage {
             sectionDescription?: string | null;
             headingAlignment?: ('left' | 'center' | 'right') | null;
             /**
-             * Small uppercase text above the heading (used in DUCC Service layout)
+             * Small uppercase text above the heading (used in Service Cards layout)
              */
             eyebrow?: string | null;
             /**
@@ -10883,7 +10883,7 @@ export interface TeamPage {
                    */
                   link?: string | null;
                   /**
-                   * Small tag label (e.g. "Platform", "Security") — used in DUCC Service layout
+                   * Small tag label (e.g. "Platform", "Security") — used in Service Cards layout
                    */
                   tag?: string | null;
                   /**
@@ -11062,7 +11062,7 @@ export interface TeamPage {
               role?: string | null;
               avatar?: (number | null) | Media;
               /**
-               * Initials for avatar fallback (e.g. "SS") — used in DUCC Quote layout
+               * Initials for avatar fallback (e.g. "SS") — used in Large Quote layout
                */
               initials?: string | null;
               id?: string | null;
@@ -18272,7 +18272,7 @@ export interface Header {
   topBar?: {
     enabled?: boolean | null;
     /**
-     * e.g. "Welcome to SamarthX National Portal"
+     * e.g. "Welcome to Our Portal"
      */
     text?: string | null;
     /**
@@ -18398,7 +18398,7 @@ export interface Footer {
      */
     leftLogo?: (number | null) | Media;
     /**
-     * e.g. SamarthX / organisation logo (displayed on the right)
+     * e.g. Organisation logo (displayed on the right)
      */
     rightLogo?: (number | null) | Media;
   };
@@ -18417,7 +18417,7 @@ export interface Footer {
     phone?: string | null;
   };
   /**
-   * e.g. "© 2025 SamarthX. All rights reserved."
+   * e.g. "© 2025 Your Organization. All rights reserved."
    */
   copyrightText?: string | null;
   /**

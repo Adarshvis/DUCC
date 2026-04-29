@@ -64,7 +64,7 @@ export const Footer: GlobalConfig = {
           relationTo: 'media',
           label: 'Right Logo',
           admin: {
-            description: 'e.g. SamarthX / organisation logo (displayed on the right)',
+            description: 'e.g. Organisation logo (displayed on the right)',
           },
         },
       ],
@@ -89,7 +89,7 @@ export const Footer: GlobalConfig = {
           type: 'email',
           admin: {
             description: 'Contact email shown in the footer',
-            placeholder: 'e.g. contact@samarthx.gov.in',
+            placeholder: 'e.g. contact@example.org',
           },
         },
         {
@@ -107,7 +107,7 @@ export const Footer: GlobalConfig = {
       name: 'copyrightText',
       type: 'text',
       admin: {
-        description: 'e.g. "© 2025 SamarthX. All rights reserved."',
+        description: 'e.g. "© 2025 Your Organization. All rights reserved."',
       },
     },
     {

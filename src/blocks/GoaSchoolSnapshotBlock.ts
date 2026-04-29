@@ -57,8 +57,8 @@ const dataRowFields = [
 export const GoaSchoolSnapshotBlock: Block = {
   slug: 'goaSnapshot',
   labels: {
-    singular: 'Goa School Snapshot Block',
-    plural: 'Goa School Snapshot Blocks',
+    singular: 'Data Snapshot Block',
+    plural: 'Data Snapshot Blocks',
   },
   fields: [
     {
@@ -69,7 +69,7 @@ export const GoaSchoolSnapshotBlock: Block = {
     {
       name: 'sectionTitle',
       type: 'text',
-      defaultValue: 'Goa School Snapshots',
+      defaultValue: 'Data Snapshots',
       required: true,
     },
     {
