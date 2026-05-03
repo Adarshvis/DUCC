@@ -229,19 +229,48 @@ export const Header: GlobalConfig = {
           },
           fields: [
             {
+              name: 'type',
+              type: 'select',
+              defaultValue: 'page',
+              options: [
+                { label: 'Page (from Pages collection)', value: 'page' },
+                { label: 'Custom URL', value: 'custom' },
+              ],
+              admin: {
+                description: 'Choose whether to link to a page or use a custom URL',
+              },
+            },
+            {
               name: 'page',
               type: 'relationship',
               relationTo: 'pages',
-              required: true,
               admin: {
                 description: 'Select a page to link to',
+                condition: (_, siblingData) => siblingData?.type === 'page',
+              },
+            },
+            {
+              name: 'customLabel',
+              type: 'text',
+              admin: {
+                description: 'Link text (e.g., "Software", "Projects")',
+                condition: (_, siblingData) => siblingData?.type === 'custom',
+              },
+            },
+            {
+              name: 'customUrl',
+              type: 'text',
+              admin: {
+                description: 'URL path (e.g., "/software", "/projects", "/team")',
+                condition: (_, siblingData) => siblingData?.type === 'custom',
               },
             },
             {
               name: 'label',
               type: 'text',
               admin: {
-                description: 'Override label (uses page title if blank)',
+                description: 'Override label (uses page title if blank) - only for Page type',
+                condition: (_, siblingData) => siblingData?.type === 'page',
               },
             },
           ],

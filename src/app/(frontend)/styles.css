@@ -270,8 +270,7 @@ button.header-nav-link {
 }
 
 /* ── Rich Text Tables ── */
-.cms-richtext table,
-.site-main table {
+.cms-richtext table {
   width: 100%;
   border-collapse: collapse;
   border-radius: 12px;
@@ -285,7 +284,6 @@ button.header-nav-link {
 /* Header row */
 .cms-richtext table th,
 .cms-richtext table td[data-highlight-color],
-.site-main table th,
 .cms-richtext table tr:first-child td {
   background: var(--cms-secondary, #1A103D);
   color: #fff;
@@ -300,8 +298,7 @@ button.header-nav-link {
 }
 
 /* Data rows */
-.cms-richtext table tr:not(:first-child) td,
-.site-main table tr:not(:first-child) td {
+.cms-richtext table tr:not(:first-child) td {
   background: transparent;
   color: var(--cms-text, #334155);
   font-weight: normal;
@@ -311,8 +308,7 @@ button.header-nav-link {
   white-space: normal;
 }
 
-.cms-richtext table td,
-.site-main table td {
+.cms-richtext table td {
   padding: 0.75rem 1rem;
   color: var(--cms-text, #334155);
   border: none;
@@ -321,26 +317,22 @@ button.header-nav-link {
 }
 
 /* Remove bottom border on last row */
-.cms-richtext table tr:last-child td,
-.site-main table tr:last-child td {
+.cms-richtext table tr:last-child td {
   border-bottom: none;
 }
 
 /* Zebra striping */
-.cms-richtext table tr:nth-child(even):not(:first-child) td,
-.site-main table tr:nth-child(even):not(:first-child) td {
+.cms-richtext table tr:nth-child(even):not(:first-child) td {
   background: color-mix(in srgb, var(--cms-muted-bg, #f8fafc) 50%, white);
 }
 
 /* Hover — no extra borders */
-.cms-richtext table tr:not(:first-child):hover td,
-.site-main table tr:not(:first-child):hover td {
+.cms-richtext table tr:not(:first-child):hover td {
   background: color-mix(in srgb, var(--cms-primary, #4B2E83) 6%, white);
 }
 
 /* # column */
-.cms-richtext table td:first-child,
-.site-main table td:first-child {
+.cms-richtext table td:first-child {
   font-weight: 600;
   color: var(--cms-secondary, #1A103D);
   width: 3rem;
@@ -348,16 +340,14 @@ button.header-nav-link {
 }
 
 /* Links */
-.cms-richtext table a,
-.site-main table a {
+.cms-richtext table a {
   color: var(--cms-primary, #4B2E83);
   font-weight: 500;
   text-decoration: none;
   transition: color 0.2s;
 }
 
-.cms-richtext table a:hover,
-.site-main table a:hover {
+.cms-richtext table a:hover {
   color: var(--cms-accent, #EAB308);
   text-decoration: underline;
 }

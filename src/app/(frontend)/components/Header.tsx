@@ -35,8 +35,11 @@ interface HeaderData {
     label: string
     url?: string | null
     children?: {
+      type?: 'page' | 'custom' | null
       page?: { title?: string | null; slug?: string | null } | null
       label?: string | null
+      customLabel?: string | null
+      customUrl?: string | null
       id?: string | null
     }[] | null
     id?: string | null
@@ -60,6 +63,21 @@ export default function Header({ data }: HeaderProps) {
   const [theme, setTheme] = useState<string>('ducc')
   const headerRef = useRef<HTMLElement | null>(null)
   const pathname = usePathname()
+
+  // Helper function to get child URL and label
+  const getChildData = (child: any) => {
+    if (child.type === 'custom') {
+      return {
+        url: child.customUrl || '#',
+        label: child.customLabel || '',
+      }
+    }
+    // Default to page type
+    return {
+      url: `/${child.page?.slug || ''}`,
+      label: child.label || child.page?.title || '',
+    }
+  }
 
   // Read theme from body data-theme attribute
   useEffect(() => {
@@ -185,8 +203,8 @@ export default function Header({ data }: HeaderProps) {
                   const hasChildren = item.children && item.children.length > 0
                   const active = hasChildren
                     ? item.children?.some((child) => {
-                        const slug = child.page?.slug
-                        return isActive(slug === 'home' ? '/' : `/${slug}`)
+                        const { url } = getChildData(child)
+                        return isActive(url)
                       }) || false
                     : isActive(item.url)
 
@@ -233,9 +251,7 @@ export default function Header({ data }: HeaderProps) {
                           {item.children && item.children.length > 0 && (
                             <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-100 py-1 min-w-[200px] hidden group-hover:block z-50">
                               {item.children.map((child) => {
-                                const childSlug = child.page?.slug
-                                const childUrl = childSlug === 'home' ? '/' : `/${childSlug}`
-                                const childLabel = child.label || child.page?.title || ''
+                                const { url: childUrl, label: childLabel } = getChildData(child)
                                 const childActive = isActive(childUrl)
                                 return (
                                   <Link
@@ -316,8 +332,8 @@ export default function Header({ data }: HeaderProps) {
                 const hasChildren = item.children && item.children.length > 0
                 const active = hasChildren
                   ? item.children?.some((child) => {
-                      const slug = child.page?.slug
-                      return isActive(slug === 'home' ? '/' : `/${slug}`)
+                      const { url } = getChildData(child)
+                      return isActive(url)
                     }) || false
                   : isActive(item.url)
 
@@ -342,9 +358,7 @@ export default function Header({ data }: HeaderProps) {
                           {item.label}
                         </div>
                         {item.children?.map((child) => {
-                          const childSlug = child.page?.slug
-                          const childUrl = childSlug === 'home' ? '/' : `/${childSlug}`
-                          const childLabel = child.label || child.page?.title || ''
+                          const { url: childUrl, label: childLabel } = getChildData(child)
                           return (
                             <Link
                               key={child.id || childLabel}
@@ -462,8 +476,8 @@ export default function Header({ data }: HeaderProps) {
                     const hasChildren = item.children && item.children.length > 0
                     const active = hasChildren
                       ? item.children?.some((child) => {
-                          const slug = child.page?.slug
-                          return isActive(slug === 'home' ? '/' : `/${slug}`)
+                          const { url } = getChildData(child)
+                          return isActive(url)
                         }) || false
                       : isActive(item.url)
 
@@ -522,9 +536,7 @@ export default function Header({ data }: HeaderProps) {
                             {item.children && item.children.length > 0 && (
                               <div className="absolute top-full left-0 mt-0 bg-white rounded-b-lg shadow-lg border border-gray-200 py-1 min-w-[200px] hidden group-hover:block z-50">
                                 {item.children.map((child) => {
-                                  const childSlug = child.page?.slug
-                                  const childUrl = childSlug === 'home' ? '/' : `/${childSlug}`
-                                  const childLabel = child.label || child.page?.title || ''
+                                  const { url: childUrl, label: childLabel } = getChildData(child)
                                   const childActive = isActive(childUrl)
                                   return (
                                     <a
@@ -624,8 +636,8 @@ export default function Header({ data }: HeaderProps) {
                 const hasChildren = item.children && item.children.length > 0
                 const active = hasChildren
                   ? item.children?.some((child) => {
-                      const slug = child.page?.slug
-                      return isActive(slug === 'home' ? '/' : `/${slug}`)
+                      const { url } = getChildData(child)
+                      return isActive(url)
                     }) || false
                   : isActive(item.url)
 
@@ -648,9 +660,7 @@ export default function Header({ data }: HeaderProps) {
                         active ? 'text-[#1A73E9]' : 'text-gray-900'
                       }`}>{item.label}</div>
                       {item.children?.map((child) => {
-                        const childSlug = child.page?.slug
-                        const childUrl = childSlug === 'home' ? '/' : `/${childSlug}`
-                        const childLabel = child.label || child.page?.title || ''
+                        const { url: childUrl, label: childLabel } = getChildData(child)
                         return (
                           <a
                             key={child.id || childLabel}
@@ -687,3 +697,4 @@ export default function Header({ data }: HeaderProps) {
     </>
   )
 }
+

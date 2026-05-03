@@ -18215,6 +18215,10 @@ export interface SiteSetting {
   siteName?: string | null;
   favicon?: (number | null) | Media;
   /**
+   * Select which page should be the home page. This will be displayed when visitors go to the root URL (/).
+   */
+  homePage?: string | null;
+  /**
    * One-click theme change. Selecting a preset changes colors, fonts, and layout styles across the entire site.
    */
   themePreset?: ('ducc' | 'learner') | null;
@@ -18339,11 +18343,23 @@ export interface Header {
         children?:
           | {
               /**
+               * Choose whether to link to a page or use a custom URL
+               */
+              type?: ('page' | 'custom') | null;
+              /**
                * Select a page to link to
                */
-              page: number | Page;
+              page?: (number | null) | Page;
               /**
-               * Override label (uses page title if blank)
+               * Link text (e.g., "Software", "Projects")
+               */
+              customLabel?: string | null;
+              /**
+               * URL path (e.g., "/software", "/projects", "/team")
+               */
+              customUrl?: string | null;
+              /**
+               * Override label (uses page title if blank) - only for Page type
                */
               label?: string | null;
               id?: string | null;
@@ -18474,6 +18490,7 @@ export interface ImageOptimizerState {
 export interface SiteSettingsSelect<T extends boolean = true> {
   siteName?: T;
   favicon?: T;
+  homePage?: T;
   themePreset?: T;
   headingFont?: T;
   bodyFont?: T;
@@ -18544,7 +18561,10 @@ export interface HeaderSelect<T extends boolean = true> {
         children?:
           | T
           | {
+              type?: T;
               page?: T;
+              customLabel?: T;
+              customUrl?: T;
               label?: T;
               id?: T;
             };

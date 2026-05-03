@@ -64,6 +64,18 @@ export const SiteSettings: GlobalConfig = {
       relationTo: 'media',
     },
     {
+      name: 'homePage',
+      type: 'text',
+      label: 'Home Page',
+      admin: {
+        components: {
+          Field: '@/components/admin/HomePageSelectorField#HomePageSelectorField',
+        },
+        description:
+          'Select which page should be the home page. This will be displayed when visitors go to the root URL (/).',
+      },
+    },
+    {
       name: 'themePreset',
       type: 'select',
       label: 'Theme Preset',
